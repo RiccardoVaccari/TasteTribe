@@ -6,6 +6,9 @@ __pycache__/
 # C extensions
 *.so
 
+#Connection to DB server - private key
+VPS-RICC
+
 # Distribution / packaging
 .Python
 build/
