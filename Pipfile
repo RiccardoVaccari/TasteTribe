@@ -5,9 +5,10 @@ name = "pypi"
 
 [packages]
 django = "*"
+sshtunnel = "*"
+ssh-tunnel = "*"
 
 [dev-packages]
 
 [requires]
 python_version = "3.12"
-python_full_version = "3.12.4"
