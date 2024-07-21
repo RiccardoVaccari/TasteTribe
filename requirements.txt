@@ -1,0 +1,2 @@
+Django~=5.0.7
+sshtunnel~=0.4.0
