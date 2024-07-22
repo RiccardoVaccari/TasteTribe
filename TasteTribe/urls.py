@@ -20,5 +20,5 @@ from recipedetail.views import RecipeDetailView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("recipe/<str:recipe_guid>/", RecipeDetailView.as_view())
+    path("recipe/<uuid:recipe_guid>/", RecipeDetailView.as_view(), name="recipe_details")
 ]

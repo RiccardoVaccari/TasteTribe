@@ -1,15 +1,21 @@
-from django.shortcuts import render
 from django.views.generic import DetailView
-from .models import *
+from .models import Recipe
+from django.http import Http404
 
 
 # RECIPE DETAILS APP - VIEWS
 class RecipeDetailView(DetailView):
     model = Recipe
     template_name = "recipedetails/recipe_details.html"
+    context_object_name = "recipe"
+    pk_url_kwarg = "recipe_guid"
 
-    def get_context_data(self, **kwargs):
-        pass  # Yet to be defined
-
-    def get_queryset(self):
-        return self.model.objects.filter(recipe_guid=self.request.GET.get("recipe_guid"))
+    def get_object(self, queryset=None):
+        guid_string = self.kwargs.get(self.pk_url_kwarg)
+        try:
+            # guid_obj = UUID(guid_string)
+            return Recipe.objects.get(recipe_guid=guid_string)
+        except ValueError:
+            raise Http404("Invalid GUID format passed in the url")
+        except Recipe.DoesNotExist:
+            raise Http404("No recipe found matching the query")
