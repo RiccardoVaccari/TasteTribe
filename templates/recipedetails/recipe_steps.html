@@ -1,8 +1,8 @@
-<div>
+<div class="recipe-steps-section">
     Passi di preparazione della ricetta:
     <ul>
         {% for step in steps %}
-            <li>
+            <li class="recipe-step">
                 <p>Step #{{step.step_sequential_id}}</p>
                 <p>{{ step.step_description }}</p>
                 {% if step.step_image %}

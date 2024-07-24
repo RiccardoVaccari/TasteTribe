@@ -8,7 +8,7 @@
 
 <h1>{{ recipe.recipe_name }}</h1>
 <p><strong>Preparation Time:</strong> {{ recipe.recipe_prep_time }}</p>
-<p><strong>Cover:</strong> {{ recipe.recipe_cover }}</p>
+<p><strong>Cover:</strong> <img src="data:image/png;base64,{{ recipe.recipe_cover }}"> </p>
 <p><strong>Notes:</strong> {{ recipe.recipe_notes }}</p>
 <p><strong>Description:</strong> {{ recipe.recipe_description }}</p>
 <p><strong>Category:</strong> {{ recipe.recipe_category }}</p>
@@ -17,8 +17,14 @@
 <p><strong>Gluten Free:</strong> {{ recipe.recipe_gluten_free }}</p>
 <p><strong>Vegan:</strong> {{ recipe.recipe_is_vegan }}</p>
 <p><strong>Creation Date:</strong> {{ recipe.recipe_creation_date }}</p>
-<p><strong>Author:</strong> {{ recipe.recipe_author }}</p>
+<p><strong>Author:</strong> {{ recipe.recipe_author.reg_user_name }} {{ recipe.recipe_author.reg_user_surname }}</p>
+
+{% render_recipe_related_tags recipe.recipe_guid %}
+
+{% render_recipe_ingredients recipe.recipe_guid %}
 
 {% render_recipe_steps recipe.recipe_guid %}
+
+{% render_recipe_reviews recipe.recipe_guid %}
 
 {% endblock %}

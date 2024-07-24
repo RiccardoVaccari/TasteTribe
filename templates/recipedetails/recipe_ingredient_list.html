@@ -1,0 +1,11 @@
+<div class="recipe-details-ingredients">
+    <strong>Lista ingredienti:</strong>
+    <ul>
+        {% for ingredient in ingredients %}
+            <li class="ingredient-item">
+                {{ingredient.ingredient.ingredient_name}} - dosaggio: {{ingredient.dosage}}
+                Allergeni: {% for allergen in ingredient.allergens %} {{allergen.allergen_id}} {% endfor %}
+            </li>
+        {% endfor %}
+    </ul>
+</div>
