@@ -10,7 +10,7 @@ class RecipeStep(models.Model):
     step_recipe_guid = models.ForeignKey(Recipe, on_delete=models.CASCADE)
     step_description = models.TextField()
     step_image = models.TextField()
-    step_required_time = models.TimeField()
+    step_required_time = models.DurationField()
 
     class Meta:
         unique_together = [["step_sequential_id", "step_recipe_guid"]]

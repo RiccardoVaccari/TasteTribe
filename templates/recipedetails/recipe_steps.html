@@ -1,0 +1,15 @@
+<div>
+    Passi di preparazione della ricetta:
+    <ul>
+        {% for step in steps %}
+            <li>
+                <p>Step #{{step.step_sequential_id}}</p>
+                <p>{{ step.step_description }}</p>
+                {% if step.step_image %}
+                    <img src="{{ step.step_image }}" alt="Step Image">
+                {% endif %}
+                <p>Tempo richiesto: {{ step.step_required_time }}</p>
+            </li>
+        {% endfor %}
+    </ul>
+</div>

@@ -1,5 +1,5 @@
-from django.views.generic import DetailView
-from .models import Recipe
+from django.views.generic import DetailView, ListView
+from .models import Recipe, RecipeStep
 from django.http import Http404
 
 

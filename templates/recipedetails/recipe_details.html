@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load custom_tags %}
+
 {%  block title %} {{ recipe.recipe_name }} {% endblock %}
 
 {% block content %}
@@ -16,5 +18,7 @@
 <p><strong>Vegan:</strong> {{ recipe.recipe_is_vegan }}</p>
 <p><strong>Creation Date:</strong> {{ recipe.recipe_creation_date }}</p>
 <p><strong>Author:</strong> {{ recipe.recipe_author }}</p>
+
+{% render_recipe_steps recipe.recipe_guid %}
 
 {% endblock %}

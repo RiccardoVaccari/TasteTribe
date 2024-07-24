@@ -7,7 +7,7 @@ from login.models import RegisteredUser
 class Recipe(models.Model):
     recipe_guid = models.UUIDField(primary_key=True)
     recipe_name = models.CharField(max_length=50)
-    recipe_prep_time = models.TimeField()
+    recipe_prep_time = models.DurationField()
     recipe_cover = models.TextField()
     recipe_notes = models.CharField(max_length=500)
     recipe_description = models.CharField(max_length=100)
@@ -25,3 +25,11 @@ class Tag(models.Model):
     tag_name = models.CharField(max_length=100)
     tag_field = models.CharField(max_length=50)
     tag_relevance = models.IntegerField()
+
+
+class TagXRecipe(models.Model):
+    txr_recipe_guid = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    txr_tag_guid = models.ForeignKey(Tag, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = [["txr_recipe_guid", "txr_tag_guid"]]
