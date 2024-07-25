@@ -38,6 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
     "login",
     "homepage",
     "quiz",
@@ -50,6 +54,24 @@ INSTALLED_APPS = [
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 
+SOCIALACCOUNT_PROVIDERS = {
+
+    "google": {
+        "SCOPE": [
+            "profile",
+            "email",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "online",
+        },
+        "OAUTH_PKCE_ENABLED": True,
+        "FETCH_USERINFO": True
+
+    }
+}
+
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -58,6 +80,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "allauth.account.middleware.AccountMiddleware"
 ]
 
 ROOT_URLCONF = 'TasteTribe.urls'

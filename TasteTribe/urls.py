@@ -27,5 +27,6 @@ urlpatterns = [
     path("login/", auth_views.LoginView.as_view(), name="login"),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("profile/<int:id>/", profile_details, name="profile"),
-    path("profile/edit/", edit_profile, name="edit_profile")
+    path("profile/edit/", edit_profile, name="edit_profile"),
+    path("googleauth/", google_auth, name="googleauth")
 ]
