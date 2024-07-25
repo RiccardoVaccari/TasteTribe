@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block title %} Modifica info utente {% endblock %}
+
+{% block content %}
+
+<form method="post" class="user-edit-form">
+    {% csrf_token %}
+    {{ form | crispy }}
+    <input type="submit" class="save-btn" value="Salva">
+</form>
+
+{% endblock %}

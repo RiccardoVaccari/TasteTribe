@@ -43,8 +43,12 @@ INSTALLED_APPS = [
     "quiz",
     "recipedetail",
     "collectionz",
-    "forum"
+    "forum",
+    "crispy_forms",
+    "crispy_bootstrap4"
 ]
+
+CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -113,6 +117,10 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+LOGIN_REDIRECT_URL = "/"
+
+ACCOUNT_SIGNUP_REDIRECT_URL = "/profile/edit/"
 
 
 # Internationalization

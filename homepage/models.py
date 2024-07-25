@@ -17,7 +17,7 @@ class Recipe(models.Model):
     recipe_gluten_free = models.BooleanField()
     recipe_is_vegan = models.BooleanField()
     recipe_creation_date = models.DateField(default=None)
-    recipe_author = models.ForeignKey(RegisteredUser, on_delete=models.PROTECT)
+    recipe_author = models.ForeignKey(RegisteredUser, on_delete=models.PROTECT, null=True)
 
 
 class Tag(models.Model):

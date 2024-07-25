@@ -41,7 +41,7 @@ class Allergen(models.Model):
 
 class Review(models.Model):
     review_recipe_guid = models.ForeignKey(Recipe, on_delete=models.CASCADE)
-    review_author_guid = models.ForeignKey(RegisteredUser, on_delete=models.PROTECT)
+    review_author_guid = models.ForeignKey(RegisteredUser, on_delete=models.PROTECT, null=True)
     review_grade = models.IntegerField()
     review_notes = models.TextField()
     review_up_votes = models.IntegerField()

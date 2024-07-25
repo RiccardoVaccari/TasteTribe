@@ -16,9 +16,16 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, re_path
-from recipedetail.views import RecipeDetailView
+from django.contrib.auth import views as auth_views
+from recipedetail.views import *
+from login.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("recipe/<uuid:recipe_guid>/", RecipeDetailView.as_view(), name="recipe_details")
+    path("recipe/<uuid:recipe_guid>/", RecipeDetailView.as_view(), name="recipe_details"),
+    path("register/", UserRegistrationView.as_view(), name="register"),
+    path("login/", auth_views.LoginView.as_view(), name="login"),
+    path("logout/", auth_views.LogoutView.as_view(), name="logout"),
+    path("profile/<int:id>/", profile_details, name="profile"),
+    path("profile/edit/", edit_profile, name="edit_profile")
 ]
