@@ -5,7 +5,6 @@ server = SSHTunnelForwarder(
     ssh_username="ubuntu",
     ssh_pkey="VPS-RICC",
     remote_bind_address=("localhost", 5432),
-    local_bind_address=("localhost", 5432)
 )
 
 server.start()
