@@ -2,6 +2,16 @@
 
 {% load crispy_forms_tags %}
 
+{% block head %}
+
+{% if user_pw %}
+    <script type="text/javascript">
+        alert("Welcome aboard! The system generated this password for you allowing you to sign in using your username: {{user_pw}} ! You can still sign in using your Google account");
+    </script>
+{% endif %}
+
+{% endblock %}
+
 {% block title %} Modifica info utente {% endblock %}
 
 {% block content %}
