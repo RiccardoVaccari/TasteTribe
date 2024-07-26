@@ -38,13 +38,39 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
     "login",
     "homepage",
     "quiz",
     "recipedetail",
     "collectionz",
-    "forum"
+    "forum",
+    "crispy_forms",
+    "crispy_bootstrap4"
 ]
+
+CRISPY_TEMPLATE_PACK = "bootstrap4"
+
+SOCIALACCOUNT_PROVIDERS = {
+
+    "google": {
+        "SCOPE": [
+            "profile",
+            "email",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "online",
+        },
+        "OAUTH_PKCE_ENABLED": True,
+        "FETCH_USERINFO": True
+
+    }
+}
+
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -52,9 +78,13 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "allauth.account.middleware.AccountMiddleware"
 ]
+
+MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 
 ROOT_URLCONF = 'TasteTribe.urls'
 
@@ -113,6 +143,11 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+
+LOGIN_URL = "/login/"
+
+ACCOUNT_SIGNUP_REDIRECT_URL = "/profile/edit/"
 
 
 # Internationalization

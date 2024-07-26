@@ -5,7 +5,7 @@ from recipedetail.models import *
 register = template.Library()
 
 
-@register.inclusion_tag("recipedetails/recipe_steps.html")
+@register.inclusion_tag("recipe_steps.html")
 def render_recipe_steps(recipe_guid):
     try:
         steps = RecipeStep.objects.filter(step_recipe_guid=recipe_guid).order_by("step_sequential_id")
@@ -14,7 +14,7 @@ def render_recipe_steps(recipe_guid):
         return {"steps": None}
 
 
-@register.inclusion_tag("recipedetails/recipe_tags.html")
+@register.inclusion_tag("recipe_tags.html")
 def render_recipe_related_tags(recipe_guid):
     try:
         tags_in_recipe = TagXRecipe.objects.filter(txr_recipe_guid=recipe_guid)
@@ -27,7 +27,7 @@ def render_recipe_related_tags(recipe_guid):
         return {"tags": None}
 
 
-@register.inclusion_tag("recipedetails/recipe_reviews.html")
+@register.inclusion_tag("recipe_reviews.html")
 def render_recipe_reviews(recipe_guid):
     try:
         reviews = Review.objects.filter(review_recipe_guid=recipe_guid)
@@ -36,7 +36,7 @@ def render_recipe_reviews(recipe_guid):
         return {"reviews": None}
 
 
-@register.inclusion_tag("recipedetails/recipe_ingredient_list.html")
+@register.inclusion_tag("recipe_ingredient_list.html")
 def render_recipe_ingredients(recipe_guid):
     try:
         ingredients_in_recipe = IngredientXRecipe.objects.filter(ixr_recipe_guid=recipe_guid)

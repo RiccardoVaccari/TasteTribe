@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %} Utente: {{user.first_name}} {{user.last_name}} {% endblock %}
+
+{% block content %}
+
+<h1>Profilo utente - {{user.first_name}} {{user.last_name}}</h1>
+<img src="data:image/png;base64,{{reg_user.reg_user_profile_pic}}">
+<p>@{{user.username}}</p>
+<p>Contatta: {{user.email}}</p>
+<p>Presentazione dell'utente: {{reg_user.reg_user_about}}</p>
+
+<h2>Ricette pubblicate da {{user.first_name}} {{user.last_name}}</h2>
+
+{% if recipes %}
+    <ul>
+        {% for recipe in recipes %}
+            <li>
+                <h3>{{recipe.recipe_name}}</h3>
+                <p>{{recipe.recipe_description}}</p>
+                <p>Vegetariana: {{recipe.recipe_is_vegetarian}}</p>
+                <p>Vegana: {{recipe.recipe_is_vegan}}</p>
+                <p>Senza glutine: {{recipe.recipe_gluten_free}}</p>
+                <p>Creata in data {{recipe.recipe_creation_date}}</p>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>L'utente non ha ancora pubblicato nessuna ricetta!</p>
+{% endif %}
+
+{# if logged_user.id is user.id #}
+    <a href="http://localhost:8000/profile/edit/">Modifica il tuo profilo</a>
+    <a href="http://localhost:8000/change-pw/">Cambia la password del tuo account</a>
+    {% if logged_user.is_authenticated %}
+        <form method="post" action="http://localhost:8000/logout/"> {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value="Disconnettiti">
+        </form>
+    {% endif %}
+{# endif #}
+
+{% endblock %}
