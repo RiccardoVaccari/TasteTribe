@@ -6,7 +6,7 @@ from django.http import Http404
 # RECIPE DETAILS APP - VIEWS
 class RecipeDetailView(DetailView):
     model = Recipe
-    template_name = "recipedetails/recipe_details.html"
+    template_name = "recipe_details.html"
     context_object_name = "recipe"
     pk_url_kwarg = "recipe_guid"
 

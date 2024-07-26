@@ -144,7 +144,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# LOGIN_REDIRECT_URL = "/profile/<int:user_id>/"
 
 LOGIN_URL = "/login/"
 

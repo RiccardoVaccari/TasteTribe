@@ -25,8 +25,11 @@ urlpatterns = [
     path("recipe/<uuid:recipe_guid>/", RecipeDetailView.as_view(), name="recipe_details"),
     path("register/", UserRegistrationView.as_view(), name="register"),
     path("login/", TasteTribeLoginView.as_view(), name="login"),
-    path("logout/", auth_views.LogoutView.as_view(), name="logout"),
+    path("logout/", TasteTribeLogoutView.as_view(), name="logout"),
+    path("logout/success/", logged_out, name="logged_out"),
     path("profile/<int:user_id>/", profile_details, name="profile"),
     path("profile/edit/", edit_profile, name="edit_profile"),
-    path("googleauth/", google_auth, name="googleauth")
+    path("googleauth/", google_auth, name="googleauth"),
+    path("change-pw/", TasteTribePwChangeView.as_view(), name="password_change"),
+    path("change-pw/done/", TasteTribePwChangeDone.as_view(), name="password_change_done"),
 ]

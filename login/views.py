@@ -1,7 +1,7 @@
 import random
 import string
 from django.contrib import messages
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView, PasswordChangeDoneView
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm
@@ -22,7 +22,7 @@ GOOGLE_CLIENT_ID = "253692078578-gti4mgr39kol8974nhnddi430qbjpkt3.apps.googleuse
 # Create your views here.
 class UserRegistrationView(CreateView):
     form_class = UserCreationForm
-    template_name = "usermanagement/user_registration.html"
+    template_name = "user_registration.html"
     success_url = reverse_lazy("edit_profile")
 
     def form_valid(self, form):
@@ -36,6 +36,23 @@ class TasteTribeLoginView(LoginView):
     def get_success_url(self):
         user_id = self.request.user.id
         return reverse("profile", kwargs={"user_id": user_id})
+
+
+class TasteTribeLogoutView(LogoutView):
+    next_page = reverse_lazy("logged_out")
+
+
+class TasteTribePwChangeView(PasswordChangeView):
+    success_url = reverse_lazy("password_change_done")
+    template_name = "password_change_form.html"
+
+
+class TasteTribePwChangeDone(PasswordChangeDoneView):
+    template_name = "password_change_done.html"
+
+
+def logged_out(request):
+    return render(request, template_name="logged_out.html")
 
 
 @login_required
@@ -67,15 +84,15 @@ def edit_profile(request):
             return redirect(f"/profile/{user.id}/")
     else:
         form = EditProfileForm(instance=reg_user, user=user)
-    return render(request, "usermanagement/user_profile_edit_page.html", {"form": form, "user_pw": user_pw})
+    return render(request, "user_profile_edit_page.html", {"form": form, "user_pw": user_pw})
 
 
 def profile_details(request, user_id):
     user = get_object_or_404(User, id=user_id)
     reg_user = get_object_or_404(RegisteredUser, user=user)
     recipes = Recipe.objects.filter(recipe_author=user)
-    context = {"user": user, "reg_user": reg_user, "recipes": recipes}
-    return render(request, "usermanagement/user_profile.html", context)
+    context = {"user": user, "reg_user": reg_user, "recipes": recipes, "logged_user": request.user}
+    return render(request, "user_profile.html", context)
 
 
 @csrf_exempt
