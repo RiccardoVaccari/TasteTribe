@@ -1,8 +1,9 @@
 import random
 import string
 from django.contrib import messages
+from django.contrib.auth.views import LoginView
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.edit import CreateView
@@ -11,6 +12,7 @@ from django.urls import reverse_lazy, reverse
 from django.contrib.auth import login
 from google.auth.transport import requests
 from google.oauth2 import id_token
+from homepage.models import Recipe
 from .models import *
 from .forms import EditProfileForm
 
@@ -28,6 +30,12 @@ class UserRegistrationView(CreateView):
         user = form.instance
         login(self.request, user)
         return response
+
+
+class TasteTribeLoginView(LoginView):
+    def get_success_url(self):
+        user_id = self.request.user.id
+        return reverse("profile", kwargs={"user_id": user_id})
 
 
 @login_required
@@ -62,8 +70,12 @@ def edit_profile(request):
     return render(request, "usermanagement/user_profile_edit_page.html", {"form": form, "user_pw": user_pw})
 
 
-def profile_details(request, **kwargs):
-    return render(request, "usermanagement/user_profile.html")
+def profile_details(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    reg_user = get_object_or_404(RegisteredUser, user=user)
+    recipes = Recipe.objects.filter(recipe_author=user)
+    context = {"user": user, "reg_user": reg_user, "recipes": recipes}
+    return render(request, "usermanagement/user_profile.html", context)
 
 
 @csrf_exempt

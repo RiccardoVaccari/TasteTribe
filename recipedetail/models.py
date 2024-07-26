@@ -1,6 +1,6 @@
 from django.db import models
 from homepage.models import Recipe
-from login.models import RegisteredUser
+from login.models import RegisteredUser, User
 
 
 # Create your models here.
@@ -41,7 +41,7 @@ class Allergen(models.Model):
 
 class Review(models.Model):
     review_recipe_guid = models.ForeignKey(Recipe, on_delete=models.CASCADE)
-    review_author_guid = models.ForeignKey(RegisteredUser, on_delete=models.PROTECT, null=True)
+    review_author_guid = models.ForeignKey(User, on_delete=models.PROTECT, null=True)
     review_grade = models.IntegerField()
     review_notes = models.TextField()
     review_up_votes = models.IntegerField()

@@ -144,7 +144,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LOGIN_REDIRECT_URL = "/"
+# LOGIN_REDIRECT_URL = "/profile/<int:user_id>/"
+
+LOGIN_URL = "/login/"
 
 ACCOUNT_SIGNUP_REDIRECT_URL = "/profile/edit/"
 

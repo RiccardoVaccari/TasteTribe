@@ -1,5 +1,5 @@
 from django.db import models
-from login.models import RegisteredUser
+from login.models import RegisteredUser, User
 
 
 # Create your models here.
@@ -8,7 +8,7 @@ class Quiz(models.Model):
     quiz_guid = models.UUIDField(primary_key=True)
     quiz_title = models.CharField(max_length=50)
     quiz_difficulty = models.IntegerField()
-    quiz_author = models.ForeignKey(RegisteredUser, on_delete=models.PROTECT)
+    quiz_author = models.ForeignKey(User, on_delete=models.PROTECT)
 
 
 class QuizQuestion(models.Model):
