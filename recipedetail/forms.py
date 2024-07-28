@@ -30,12 +30,12 @@ class CreateRecipeForm(forms.ModelForm):
 
     ingredient = forms.CharField(max_length=50, required=False)
     dosage_per_person = forms.CharField(
-        max_length=50, required=True, label="Dose per persona")
+        max_length=50, required=False, label="Dose per persona")
 
     step_description = forms.CharField(min_length=30, widget=forms.Textarea)
     step_image = forms.ImageField(required=False)
-    step_required_hours = forms.IntegerField(min_value=0, initial=0)
-    step_required_minutes = forms.IntegerField(min_value=0, initial=0)
+    step_required_hours = forms.IntegerField(min_value=0, initial=0, required=False)
+    step_required_minutes = forms.IntegerField(min_value=0, initial=0, required=False)
 
     class Meta:
         model = Recipe
@@ -75,7 +75,6 @@ class CreateRecipeForm(forms.ModelForm):
                 'Categoria',
                 Div(
                     InlineRadios('recipe_category'),
-                    # css_class='form-check'
                 )
             ),
             Fieldset(

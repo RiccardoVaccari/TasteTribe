@@ -8,6 +8,12 @@ django = "*"
 sshtunnel = "*"
 ssh-tunnel = "*"
 psycopg2 = "*"
+django-allauth = "*"
+django-crispy-forms = "*"
+crispy-bootstrap4 = "*"
+requests = "*"
+jwt = "*"
+google-auth = "*"
 
 [dev-packages]
 
