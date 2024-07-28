@@ -1,0 +1,21 @@
+{% extends "base.html" %} 
+
+
+{% load crispy_forms_tags %}
+
+{% block head %}     
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+{% endblock %}
+
+{% block title %} 
+    Nuova Ricetta 
+{% endblock %} 
+
+{% block content %}
+
+<h1>Crea una nuova ricetta</h1>
+<form method="post" class="container-md">
+    {% csrf_token %} {% crispy form %}
+</form>
+
+{% endblock %}

@@ -1,9 +1,7 @@
-from django.urls import reverse_lazy
-from django.views.generic import DetailView, CreateView
+from django.views.generic import DetailView, ListView
+from .models import Recipe, RecipeStep
 from django.http import Http404
 
-from .models import Recipe, RecipeStep
-from .forms import CreateRecipeForm
 
 # RECIPE DETAILS APP - VIEWS
 class RecipeDetailView(DetailView):
@@ -21,12 +19,3 @@ class RecipeDetailView(DetailView):
             raise Http404("Invalid GUID format passed in the url")
         except Recipe.DoesNotExist:
             raise Http404("No recipe found matching the query")
-
-
-class RecipeCreateView(CreateView):
-    model = Recipe
-    form_class = CreateRecipeForm
-    template_name = "recipe_create.html"
-
-    def get_success_url(self) -> str:
-        return super().get_success_url()
