@@ -1,3 +1,4 @@
+import json
 from typing import Any
 from django import forms
 from crispy_forms.helper import FormHelper
@@ -5,6 +6,7 @@ from crispy_forms.layout import Layout, Fieldset, Submit, Field, Div
 from crispy_forms.bootstrap import StrictButton, InlineRadios
 
 from homepage.models import Recipe
+from .models import Allergen
 
 CATEGORIES = [
     ("antipasto", "Antipasto"),
@@ -29,13 +31,24 @@ class CreateRecipeForm(forms.ModelForm):
     minutes = forms.IntegerField(min_value=0, initial=0)
 
     ingredient = forms.CharField(max_length=50, required=False)
+    ingredients_list = forms.CharField(
+        widget=forms.HiddenInput(), required=False)
     dosage_per_person = forms.CharField(
         max_length=50, required=False, label="Dose per persona")
 
-    step_description = forms.CharField(min_length=30, widget=forms.Textarea)
+    step_description = forms.CharField(min_length=30, widget=forms.Textarea, required=False)
     step_image = forms.ImageField(required=False)
-    step_required_hours = forms.IntegerField(min_value=0, initial=0, required=False)
-    step_required_minutes = forms.IntegerField(min_value=0, initial=0, required=False)
+    step_required_hours = forms.IntegerField(
+        min_value=0, initial=0, required=False)
+    step_required_minutes = forms.IntegerField(
+        min_value=0, initial=0, required=False)
+
+    allergens = forms.ModelMultipleChoiceField(
+        queryset=Allergen.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+        label="Allergeni"
+    )
 
     class Meta:
         model = Recipe
@@ -53,6 +66,9 @@ class CreateRecipeForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.ingredients = []
+        self.steps = []
 
         self.helper = FormHelper()
         self.helper.form_method = "POST"
@@ -91,7 +107,8 @@ class CreateRecipeForm(forms.ModelForm):
                     Div("ingredient", css_class="col-md-7",),
                     Div("dosage_per_person", css_class="col-md-3",),
                     StrictButton(
-                        "Aggiungi", css_class="col-md-1 btn btn-info"),
+                        "Aggiungi", css_class="col-md-1 btn btn-info", css_id="add-ingredient-btn"),
+                    Field("ingredients_list", css_class="d-none"),
                     css_class="row align-items-center",
                 ),
                 css_class="border p-2 my-2"
@@ -107,9 +124,22 @@ class CreateRecipeForm(forms.ModelForm):
                         css_class="row",
                     ),
                 ),
-                StrictButton("Aggiungi passo", css_class="btn btn-info"),
+                StrictButton("Aggiungi passo",
+                             css_class="btn btn-info", css_id="add-step-btn"),
                 css_class="border p-2 my-2"
             )
         )
         self.helper.add_input(Submit("submit", "Crea ricetta"))
 
+    def clean_ingredients_list(self):
+        ingredients_list = self.cleaned_data.get("ingredients_list")
+        if ingredients_list:
+            return json.loads(ingredients_list)
+        return []
+
+    def clean(self) -> dict[str, Any]:
+        cleaned_data = super().clean()
+        if not len(cleaned_data.get("ingredients_list")):
+            self.add_error("La ricetta deve avere almeno un ingrediente")
+        
+        return cleaned_data

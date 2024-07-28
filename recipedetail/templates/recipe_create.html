@@ -4,7 +4,9 @@
 {% load crispy_forms_tags %}
 
 {% block head %}     
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
 {% endblock %}
 
 {% block title %} 
@@ -17,5 +19,111 @@
 <form method="post" class="container-md">
     {% csrf_token %} {% crispy form %}
 </form>
+
+
+<!-- Modal per la selezione degli allergeni -->
+<div class="modal fade" id="allergenModal" tabindex="-1" role="dialog" aria-labelledby="allergenModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="allergenModalLabel">Seleziona Allergeni</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="allergenForm">
+            {% for allergen in allergens %}
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="{{ allergen.allergen_id }}" id="allergen-{{ allergen.allergen_id }}" data-name="{{ allergen.allergen_name }}">
+              <label class="form-check-label" for="allergen-{{ allergen.allergen_id }}">
+                {{ allergen.allergen_name }}
+              </label>
+            </div>
+            {% endfor %}
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Chiudi</button>
+          <button type="button" class="btn btn-primary" id="confirmAllergensBtn">Conferma</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ingredientInput = document.getElementById('id_ingredient');
+        const dosageInput = document.getElementById('id_dosage_per_person');
+        const ingredientsListInput = document.getElementById('id_ingredients_list');
+        const addIngredientButton = document.getElementById('add-ingredient-btn');
+        const confirmAllergensBtn = document.getElementById('confirmAllergensBtn');
+        
+        let currentIngredient = null;
+        let currentDosage = null;
+    
+        addIngredientButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            const ingredient = ingredientInput.value.trim();
+            const dosage = dosageInput.value.trim();
+            
+            if (ingredient && dosage) {
+                checkIngredientInDb(ingredient)
+                    .then(exists => {
+                        if (exists) {
+                            addIngredientToList(ingredient, dosage)
+                        } else {
+                            currentIngredient = ingredient;
+                            currentDosage = dosage;
+                            $('#allergenModal').modal('show');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Errore nella verifica dell\'ingrediente:', error);
+                    });
+            }
+        });
+    
+        confirmAllergensBtn.addEventListener('click', function(event) {
+            event.preventDefault();
+            const selectedAllergens = Array.from(document.querySelectorAll('#allergenForm input:checked')).map(input => ({
+                id: input.value,
+                name: input.dataset.name
+            }));
+            addIngredientToList(currentIngredient, currentDosage, selectedAllergens);
+            $('#allergenModal').modal('hide');
+        });
+    
+        function checkIngredientInDb(ingredient) {
+            return fetch(`/check-ingredient/?ingredient=${encodeURIComponent(ingredient)}`)
+                .then(response => response.json())
+                .then(data => data.exists);
+        }
+    
+        function addIngredientToList(name, dosage, allergens) {
+            let ingredientsList = [];
+            
+            try {
+                ingredientsList = JSON.parse(ingredientsListInput.value || '[]');
+            } catch (e) {
+                console.error('Errore nel parsing della lista degli ingredienti', e);
+            }
+            
+            ingredientsList.push({ name, dosage, allergens });
+            ingredientsListInput.value = JSON.stringify(ingredientsList);
+            
+            ingredientInput.value = '';
+            dosageInput.value = '';
+            
+            updateIngredientsListDisplay(ingredientsList);
+        }
+    
+        function updateIngredientsListDisplay(ingredientsList) {
+            // Aggiorna il DOM per mostrare la lista degli ingredienti
+            console.log('Lista degli ingredienti:', ingredientsList);
+        }
+    });
+    </script>
+
 
 {% endblock %}
