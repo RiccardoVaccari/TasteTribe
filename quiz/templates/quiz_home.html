@@ -7,10 +7,10 @@
     <h2>Scegli un quiz per giocare e divertirti oppure <a href="{% url 'quiz_creation' %}">crea un tuo quiz personale</a></h2>
     <ul>
         {% if object_list %}
-        	{% for quiz in object_list %}
-                <h3>{{ quiz.title }}</h3>
-                <p>Difficoltà: {{ quiz.difficulty }}</p>
-                <p>Creato da: {{ quiz.author.first_name }} {{ quiz.author.last_name }}</p>
+        	{% for quiz in quiz_list %}
+                <h3>{{ quiz.quiz_title }}</h3>
+                <p>Difficoltà: {{ quiz.quiz_difficulty }}</p>
+                <p>Creato da: {{ quiz.quiz_author.first_name }} {{ quiz.quiz_author.last_name }}</p>
             {% endfor %}
         {% else %}
             <h3>Incredibile ma vero, non c'è nessun quiz disponibile sulla piattaforma! <a href="{% url 'quiz_creation' %}">Creane subito uno tu!</a></h3>
