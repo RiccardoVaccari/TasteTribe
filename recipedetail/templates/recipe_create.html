@@ -59,9 +59,16 @@
         const addIngredientButton = document.getElementById('add-ingredient-btn');
         const confirmAllergensBtn = document.getElementById('confirmAllergensBtn');
         
+        const stepDescriptionInput = document.getElementById('id_step_description');
+        const stepRequiredHoursInput = document.getElementById('id_step_required_hours');
+        const stepRequiredMinutesInput = document.getElementById('id_step_required_minutes');
+        const stepsListInput = document.getElementById('id_steps_list');
+        const addStepButton = document.getElementById('add-step-btn');
+        
         let currentIngredient = null;
         let currentDosage = null;
-    
+
+        /* INGREDIENT */
         addIngredientButton.addEventListener('click', function(event) {
             event.preventDefault();
             const ingredient = ingredientInput.value.trim();
@@ -98,7 +105,7 @@
             return fetch(`/check-ingredient/?ingredient=${encodeURIComponent(ingredient)}`)
                 .then(response => response.json())
                 .then(data => data.exists);
-        }
+        };
     
         function addIngredientToList(name, dosage, allergens) {
             let ingredientsList = [];
@@ -116,12 +123,48 @@
             dosageInput.value = '';
             
             updateIngredientsListDisplay(ingredientsList);
-        }
+        };
     
         function updateIngredientsListDisplay(ingredientsList) {
             // Aggiorna il DOM per mostrare la lista degli ingredienti
             console.log('Lista degli ingredienti:', ingredientsList);
-        }
+        };
+        
+        /* STEPS */
+        addStepButton.addEventListener('click', function(event) {
+          event.preventDefault();
+          const stepDescription = stepDescriptionInput.value.trim();
+          const stepRequiredHours = stepRequiredHoursInput.value.trim();
+          const stepRequiredMinutes = stepRequiredMinutesInput.value.trim();
+          
+          if (stepDescription && !(stepRequiredHours == 0 && stepRequiredMinutes == 0)){
+            addStepToList(stepDescription, stepRequiredHours, stepRequiredMinutes);
+          }
+        });
+
+        function addStepToList(description, hours, minutes){
+          let stepsList = [];
+          
+          try {
+            stepsList = JSON.parse(stepsListInput.value || '[]');
+            } catch (e) {
+              console.error('Errore nel parsing della lista dei passi', e);
+            }
+            
+            stepsList.push({ description, hours, minutes });
+            stepsListInput.value = JSON.stringify(stepsList);
+            
+            stepDescriptionInput.value = '';
+            stepRequiredHoursInput.value = 0;
+            stepRequiredMinutesInput.value = 0;
+            
+            updateStepsListDisplay(stepsList);
+          }
+          
+          function updateStepsListDisplay(stepsList) {
+              // Aggiorna il DOM per mostrare la lista degli ingredienti
+              console.log('Lista dei passi:', stepsList);
+          };
     });
     </script>
 

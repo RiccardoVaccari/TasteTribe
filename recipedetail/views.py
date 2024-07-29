@@ -4,8 +4,10 @@ from datetime import date
 from django.views.generic import DetailView, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
+from django.http import JsonResponse
+from django.views.decorators.http import require_GET
 
-from .models import Ingredient, Recipe, Allergen, IngredientXRecipe
+from .models import Ingredient, Recipe, Allergen, IngredientXRecipe, RecipeStep
 from .forms import CreateRecipeForm
 
 
@@ -48,7 +50,7 @@ class RecipeCreateView(LoginRequiredMixin, CreateView):
         form.instance = recipe
 
         self.ingredients_x_recipe: list[IngredientXRecipe] = list()
-        # Create the Ingreidients and the Allergen
+        # Create the Ingreidients
         for ingredient_data in form.cleaned_data.get("ingredients_list"):
             allergens = ingredient_data.get("allergens")
 
@@ -68,23 +70,30 @@ class RecipeCreateView(LoginRequiredMixin, CreateView):
                 ixr_dosage_per_person=ingredient_data.get("dosage")
             )
             self.ingredients_x_recipe.append(ingredient_x_recipe)
+        
+        # Create the RecipeSteps
+        self.recipe_steps: list[RecipeStep] = list()
+        for i, step_data in enumerate(form.cleaned_data.get("steps_list")):
+            step = RecipeStep(
+                step_sequential_id=i+1,
+                step_recipe_guid=recipe,
+                step_description=step_data.get("description"),
+                step_image="",
+                step_required_time=f"{step_data.get("hours")}:{step_data.get("minutes")}"
+            )
+            self.recipe_steps.append(step)
 
         return super().form_valid(form)
     
     def get_success_url(self) -> str:
         for ixr in self.ingredients_x_recipe:
             ixr.save()
+            
+        for step in self.recipe_steps:
+            step.save()
 
         return f"/recipe/{self.object.pk}"
 
-
-from django.http import JsonResponse
-from django.views.decorators.http import require_GET
-
-# @require_GET
-# def get_allergens(request):
-#     allergens = Allergen.objects.all().values("allergen_id", "allergen_name", "allergen_description")
-#     return JsonResponse(list(allergens), safe=False)
 
 @require_GET
 def check_ingredient(request, *args, **kwargs):

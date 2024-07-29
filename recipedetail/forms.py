@@ -42,6 +42,8 @@ class CreateRecipeForm(forms.ModelForm):
         min_value=0, initial=0, required=False)
     step_required_minutes = forms.IntegerField(
         min_value=0, initial=0, required=False)
+    steps_list = forms.CharField(
+        widget=forms.HiddenInput(), required=False)
 
     allergens = forms.ModelMultipleChoiceField(
         queryset=Allergen.objects.all(),
@@ -126,6 +128,7 @@ class CreateRecipeForm(forms.ModelForm):
                 ),
                 StrictButton("Aggiungi passo",
                              css_class="btn btn-info", css_id="add-step-btn"),
+                Field("steps_list", css_class="d-none"),
                 css_class="border p-2 my-2"
             )
         )
@@ -137,9 +140,23 @@ class CreateRecipeForm(forms.ModelForm):
             return json.loads(ingredients_list)
         return []
 
+    def clean_steps_list(self):
+        steps_list = self.cleaned_data.get("steps_list")
+        if steps_list:
+            return json.loads(steps_list)
+        return []
+
     def clean(self) -> dict[str, Any]:
         cleaned_data = super().clean()
+
         if not len(cleaned_data.get("ingredients_list")):
-            self.add_error("La ricetta deve avere almeno un ingrediente")
+            self.add_error(field="ingredient", error="La ricetta deve avere almeno un ingrediente")
+        
+        if not len(cleaned_data.get("steps_list")):
+            self.add_error(field="step_description", error="La ricetta deve avere almeno un passo di preparazione")
+
+        if cleaned_data.get("hours") == 0 and cleaned_data.get("minutes") == 0:
+            self.add_error(field=None, error="Il tempo di preparazione non può essere 0 ore e 0 minuti")
+
         
         return cleaned_data
