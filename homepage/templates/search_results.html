@@ -13,7 +13,7 @@
 </form>
 <ul>
     {% for recipe in search_results %}
-        <li>{{ recipe.recipe_name }}</li>
+        <li><a href="{% url 'recipe_details' recipe.recipe_guid %}">{{ recipe.recipe_name }}</a></li>
     {% empty %}
         <p>Non è stata trovata nessuna ricetta corrispondente ai parametri inseriti.</p>
     {% endfor %}
