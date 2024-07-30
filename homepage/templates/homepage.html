@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% load crispy_forms_tags %}
+
+{%  block title %} TasteTribe {% endblock %}
+
+{% block content %}
+
+<h1> TasteTribe - Homepage </h1>
+
+<form method="GET" action="{% url 'search' %}">
+    {% crispy form %}
+</form>
+
+{% endblock %}
