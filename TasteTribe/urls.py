@@ -15,13 +15,16 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, re_path
+from homepage.views import *
 from recipedetail.views import *
 from login.views import *
 from quiz.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    re_path(r"^$|^/$|^home/?$|^homepage/?$", home_page_view, name="homepage"),
+    re_path(r"^search$|^search/$|^home/search/?$|^homepage/search/?$", search, name="search"),
     path("recipe/<uuid:recipe_guid>/", RecipeDetailView.as_view(), name="recipe_details"),
     path("recipe/create/", RecipeCreateView.as_view(), name="recipe_create"),
     path("check-ingredient/", check_ingredient, name="check_ingredient"),
