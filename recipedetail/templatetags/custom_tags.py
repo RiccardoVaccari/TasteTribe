@@ -44,7 +44,7 @@ def render_recipe_ingredients(recipe_guid):
         for ingredient in ingredients_in_recipe:
             ingredient_guid = ingredient.ixr_ingredient_guid.ingredient_guid
             dosage = ingredient.ixr_dosage_per_person
-            allergen_list = Allergen.objects.filter(allergen_id__in=ingredient.ixr_ingredient_guid.ingredient_allergens["allergen_ids"])
+            allergen_list = Allergen.objects.filter(allergen_id__in=ingredient.ixr_ingredient_guid.ingredient_allergens)
             allergens = []
             for allergen in allergen_list:
                 allergens.append(Allergen.objects.get(allergen_id=allergen.allergen_id))

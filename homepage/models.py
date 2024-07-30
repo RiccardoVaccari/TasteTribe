@@ -8,7 +8,7 @@ class Recipe(models.Model):
     recipe_guid = models.UUIDField(primary_key=True)
     recipe_name = models.CharField(max_length=50)
     recipe_prep_time = models.DurationField()
-    recipe_cover = models.TextField()
+    recipe_cover = models.TextField(null=True)
     recipe_notes = models.CharField(max_length=500)
     recipe_description = models.CharField(max_length=100)
     recipe_category = models.TextField()

@@ -18,9 +18,8 @@ class RecipeStep(models.Model):
 
 class Ingredient(models.Model):
     ingredient_guid = models.UUIDField(primary_key=True)
-    ingredient_name = models.CharField(max_length=100)
+    ingredient_name = models.CharField(max_length=100, unique=True)
     ingredient_image = models.TextField()
-    ingredient_category = models.CharField(max_length=100)
     ingredient_allergens = models.JSONField()
 
 
