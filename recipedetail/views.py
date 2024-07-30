@@ -7,7 +7,8 @@ from django.http import Http404
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 
-from .models import Ingredient, Recipe, Allergen, IngredientXRecipe, RecipeStep
+from homepage.models import Recipe, Tag, TagXRecipe
+from .models import Ingredient, Allergen, IngredientXRecipe, RecipeStep
 from .forms import CreateRecipeForm
 
 
@@ -50,19 +51,31 @@ class RecipeCreateView(LoginRequiredMixin, CreateView):
         form.instance = recipe
 
         self.ingredients_x_recipe: list[IngredientXRecipe] = list()
+        self.recipe_steps: list[RecipeStep] = list()
+        self.tags_x_recipe: list[TagXRecipe] = list()
+
         # Create the Ingreidients
         for ingredient_data in form.cleaned_data.get("ingredients_list"):
             allergens = ingredient_data.get("allergens")
+            ingredient_name = ingredient_data.get("name")
 
             if allergens is None:   # Ingrediente già presente nel db
-                ingredient = Ingredient.objects.filter(ingredient_name__iexact=ingredient_data.get("name")).first()
+                ingredient = Ingredient.objects.filter(ingredient_name__iexact=ingredient_name).first()
+                tag = Tag.objects.filter(tag_name__iexact=tag_data).first()
             else:
                 ingredient = Ingredient(
                     ingredient_guid=uuid4(),
-                    ingredient_name=ingredient_data.get("name"),
-                    ingredient_allergens=[int(allergen["id"]) for allergen in ingredient_data.get("allergens")],
+                    ingredient_name=ingredient_name.capitalize(),
+                    ingredient_allergens=[int(allergen["id"]) for allergen in allergens],
+                )
+                tag = Tag(
+                    tag_guid=uuid4(),
+                    tag_name=ingredient_name.capitalize(),
+                    tag_field="Ingredient",
+                    tag_relevance=10
                 )
                 ingredient.save()
+                tag.save()
             
             ingredient_x_recipe = IngredientXRecipe(
                 ixr_recipe_guid=recipe,
@@ -70,9 +83,14 @@ class RecipeCreateView(LoginRequiredMixin, CreateView):
                 ixr_dosage_per_person=ingredient_data.get("dosage")
             )
             self.ingredients_x_recipe.append(ingredient_x_recipe)
+
+            tag_x_recipe = TagXRecipe(
+                txr_recipe_guid=recipe,
+                txr_tag_guid=tag
+            )
+            self.tags_x_recipe.append(tag_x_recipe)
         
         # Create the RecipeSteps
-        self.recipe_steps: list[RecipeStep] = list()
         for i, step_data in enumerate(form.cleaned_data.get("steps_list")):
             step = RecipeStep(
                 step_sequential_id=i+1,
@@ -82,15 +100,49 @@ class RecipeCreateView(LoginRequiredMixin, CreateView):
                 step_required_time=f"{step_data.get("hours")}:{step_data.get("minutes")}"
             )
             self.recipe_steps.append(step)
+        
+        # Create the tags
+
+        for tag_data in form.cleaned_data.get("tags_list"):
+            tag_query = Tag.objects.filter(tag_name__iexact=tag_data)
+            if tag_query.exists():
+               tag = tag_query.first()
+            else:
+                tag = Tag(
+                    tag_guid=uuid4(),
+                    tag_name=tag_data,
+                    tag_field="Custom",
+                    tag_relevance=5
+                )
+                tag.save()
+            
+            tag_x_recipe = TagXRecipe(
+                txr_recipe_guid=recipe,
+                txr_tag_guid=tag
+            )
+            self.tags_x_recipe.append(tag_x_recipe)
+        
+        self.tags_x_recipe.append(
+            TagXRecipe(
+                txr_recipe_guid=recipe,
+                txr_tag_guid=Tag.objects.filter(tag_name__iexact=form.cleaned_data.get("recipe_category")).first()
+            )
+        )
+
+        
+        
 
         return super().form_valid(form)
     
     def get_success_url(self) -> str:
         for ixr in self.ingredients_x_recipe:
             ixr.save()
-            
+
         for step in self.recipe_steps:
             step.save()
+
+        for txr in self.tags_x_recipe:
+            txr.save()
 
         return f"/recipe/{self.object.pk}"
 

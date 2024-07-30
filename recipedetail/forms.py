@@ -3,17 +3,17 @@ from typing import Any
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Submit, Field, Div
-from crispy_forms.bootstrap import StrictButton, InlineRadios
+from crispy_forms.bootstrap import StrictButton, InlineRadios, FieldWithButtons
 
 from homepage.models import Recipe
 from .models import Allergen
 
 CATEGORIES = [
-    ("antipasto", "Antipasto"),
-    ("primo-piatto", "Primo piatto"),
-    ("secondo-piatto", "Secondo piatto"),
-    ("contorno", "Contorno"),
-    ("dessert", "Dessert"),
+    ("Antipasto", "Antipasto"),
+    ("Primo piatto", "Primo piatto"),
+    ("Secondo piatto", "Secondo piatto"),
+    ("Contorno", "Contorno"),
+    ("Dessert", "Dessert"),
 ]
 
 
@@ -24,19 +24,28 @@ class CreateRecipeForm(forms.ModelForm):
         choices=CATEGORIES,
         label="Seleziona il tipo di portata",
         widget=forms.RadioSelect,
-        initial="primo-piatto",
+        initial="Primo piatto",
     )
 
     hours = forms.IntegerField(min_value=0, initial=0)
     minutes = forms.IntegerField(min_value=0, initial=0)
 
+    # INGREDIENTS
     ingredient = forms.CharField(max_length=50, required=False)
     ingredients_list = forms.CharField(
         widget=forms.HiddenInput(), required=False)
     dosage_per_person = forms.CharField(
         max_length=50, required=False, label="Dose per persona")
+    allergens = forms.ModelMultipleChoiceField(
+        queryset=Allergen.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+        label="Allergeni"
+    )
 
-    step_description = forms.CharField(min_length=30, widget=forms.Textarea, required=False)
+    # STEPS
+    step_description = forms.CharField(
+        min_length=30, widget=forms.Textarea, required=False)
     step_image = forms.ImageField(required=False)
     step_required_hours = forms.IntegerField(
         min_value=0, initial=0, required=False)
@@ -45,12 +54,10 @@ class CreateRecipeForm(forms.ModelForm):
     steps_list = forms.CharField(
         widget=forms.HiddenInput(), required=False)
 
-    allergens = forms.ModelMultipleChoiceField(
-        queryset=Allergen.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        required=False,
-        label="Allergeni"
-    )
+    # TAGS
+    tag = forms.CharField(max_length=100, required=False)
+    tags_list = forms.CharField(
+        widget=forms.HiddenInput(), required=False)
 
     class Meta:
         model = Recipe
@@ -107,9 +114,8 @@ class CreateRecipeForm(forms.ModelForm):
                 "Aggiungi ingredienti",
                 Div(
                     Div("ingredient", css_class="col-md-7",),
-                    Div("dosage_per_person", css_class="col-md-3",),
-                    StrictButton(
-                        "Aggiungi", css_class="col-md-1 btn btn-info", css_id="add-ingredient-btn"),
+                    FieldWithButtons("dosage_per_person", StrictButton(
+                        "Aggiungi", css_class="btn btn-info", css_id="add-ingredient-btn"), css_class="col-md-4"),
                     Field("ingredients_list", css_class="d-none"),
                     css_class="row align-items-center",
                 ),
@@ -130,33 +136,50 @@ class CreateRecipeForm(forms.ModelForm):
                              css_class="btn btn-info", css_id="add-step-btn"),
                 Field("steps_list", css_class="d-none"),
                 css_class="border p-2 my-2"
+            ),
+            Fieldset(
+                "Aggiungi tags",
+                FieldWithButtons("tag", StrictButton(
+                    "Aggiungi tag", css_class="btn btn-info", css_id="add-tag-btn"),),
+                Field("tags_list", css_class="d-none"),
+                css_class="border p-2 my-2"
             )
         )
+
         self.helper.add_input(Submit("submit", "Crea ricetta"))
 
     def clean_ingredients_list(self):
-        ingredients_list = self.cleaned_data.get("ingredients_list")
-        if ingredients_list:
-            return json.loads(ingredients_list)
-        return []
+        return self.json_clean(self.cleaned_data.get("ingredients_list"))
 
     def clean_steps_list(self):
-        steps_list = self.cleaned_data.get("steps_list")
-        if steps_list:
-            return json.loads(steps_list)
-        return []
+        return self.json_clean(self.cleaned_data.get("steps_list"))
+
+    def clean_tags_list(self):
+        return self.json_clean(self.cleaned_data.get("tags_list"))
+    
+    def json_clean(self, data) -> list:
+        if data:
+            return json.loads(data)
+        return [] 
+
 
     def clean(self) -> dict[str, Any]:
         cleaned_data = super().clean()
 
         if not len(cleaned_data.get("ingredients_list")):
-            self.add_error(field="ingredient", error="La ricetta deve avere almeno un ingrediente")
-        
+            self.add_error(field="ingredient",
+                           error="La ricetta deve avere almeno un ingrediente")
+
         if not len(cleaned_data.get("steps_list")):
-            self.add_error(field="step_description", error="La ricetta deve avere almeno un passo di preparazione")
+            self.add_error(field="step_description",
+                           error="La ricetta deve avere almeno un passo di preparazione")
+
+        if not len(cleaned_data.get("tags_list")):
+            self.add_error(field="tag",
+                           error="La ricetta deve avere almeno un custom tag")
 
         if cleaned_data.get("hours") == 0 and cleaned_data.get("minutes") == 0:
-            self.add_error(field=None, error="Il tempo di preparazione non può essere 0 ore e 0 minuti")
+            self.add_error(
+                field=None, error="Il tempo di preparazione non può essere 0 ore e 0 minuti")
 
-        
         return cleaned_data
