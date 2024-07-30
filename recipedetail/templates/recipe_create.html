@@ -110,11 +110,12 @@
         const stepRequiredMinutesInput = document.getElementById(
             "id_step_required_minutes"
         );
-        const tagListInput = document.getElementById("id_steps_list");
+        const stepsListInput = document.getElementById("id_steps_list");
         const addStepButton = document.getElementById("add-step-btn");
-
+        
         const tagInput = document.getElementById("id_tag");
         const addTagButton = document.getElementById("add-tag-btn");
+        const tagsListInput = document.getElementById("id_tags_list");
 
         let currentIngredient = null;
         let currentDosage = null;
@@ -212,41 +213,44 @@
         });
 
         function addStepToList(description, hours, minutes) {
-            let tagList = [];
+            let stepsList = [];
 
             try {
-                tagList = JSON.parse(tagListInput.value || "[]");
+                stepsList = JSON.parse(stepsListInput.value || "[]");
             } catch (e) {
                 console.error("Errore nel parsing della lista dei passi", e);
             }
 
-            tagList.push({ description, hours, minutes });
-            tagListInput.value = JSON.stringify(tagList);
+            stepsList.push({ description, hours, minutes });
+            stepsListInput.value = JSON.stringify(stepsList);
 
             stepDescriptionInput.value = "";
             stepRequiredHoursInput.value = 0;
             stepRequiredMinutesInput.value = 0;
         }
-
+        
+        /* TAG */
         addTagButton.addEventListener("click", function (event) {
             event.preventDefault();
             const tag = tagInput.value.trim();
             if (tag) {
+                addTagToList(tag);
             }
         });
 
         function addTagToList(tag) {
-            let tagList = [];
+            let tagsList = [];
 
             try {
-                tagList = JSON.parse(tagListInput.value || "[]");
+                tagsList = JSON.parse(tagsListInput.value || "[]");
             } catch (e) {
                 console.error("Errore nel parsing della lista dei tag", e);
             }
 
-            tagList.push(tag);
-            tagListInput.value = JSON.stringify(tagList);
+            tagsList.push(tag);
+            tagsListInput.value = JSON.stringify(tagsList);
             tagInput.value = "";
+            console.log(tagsList);
         }
     });
 </script>

@@ -128,10 +128,7 @@ class RecipeCreateView(LoginRequiredMixin, CreateView):
                 txr_tag_guid=Tag.objects.filter(tag_name__iexact=form.cleaned_data.get("recipe_category")).first()
             )
         )
-
         
-        
-
         return super().form_valid(form)
     
     def get_success_url(self) -> str:

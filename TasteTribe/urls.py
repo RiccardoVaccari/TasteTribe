@@ -24,7 +24,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("recipe/<uuid:recipe_guid>/", RecipeDetailView.as_view(), name="recipe_details"),
     path("recipe/create/", RecipeCreateView.as_view(), name="recipe_create"),
-    path("check-ingredient/", check_ingredient, name="chek_ingredient"),
+    path("check-ingredient/", check_ingredient, name="check_ingredient"),
     path("register/", UserRegistrationView.as_view(), name="register"),
     path("login/", TasteTribeLoginView.as_view(), name="login"),
     path("logout/", TasteTribeLogoutView.as_view(), name="logout"),
