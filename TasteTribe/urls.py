@@ -15,10 +15,10 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, re_path
-from django.contrib.auth import views as auth_views
+from django.urls import path
 from recipedetail.views import *
 from login.views import *
+from quiz.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -34,4 +34,7 @@ urlpatterns = [
     path("googleauth/", google_auth, name="googleauth"),
     path("change-pw/", TasteTribePwChangeView.as_view(), name="password_change"),
     path("change-pw/done/", TasteTribePwChangeDone.as_view(), name="password_change_done"),
+    path("quiz/", QuizListView.as_view(), name="quiz_home"),
+    path("quiz/create/", QuizCreationView.as_view(), name="quiz_creation"),
+    path("quiz/play/<uuid:quiz_guid>/", play_quiz, name="quiz_game")
 ]

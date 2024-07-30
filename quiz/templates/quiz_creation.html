@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block head %}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+
+{% endblock %}
+
+{% block title %} Creazione quiz {% endblock %}
+
+{% block content %}
+
+<h1>Ciao {{ request.user.first_name }} {{ request.user.last_name }}, benvenuto nella pagina di creazione quiz!</h1>
+<form method="post">
+    {% csrf_token %}
+    {% crispy form %}
+    <div></div>
+</form>
+<script>
+    document.addEventListener("DOMContentLoaded", function (){
+        const addQuestionButton = document.getElementById("add-question-btn");
+        const questionsListInput = document.getElementById("id_quiz_questions_list");
+        const questionTextInput = document.getElementById("id_quiz_question_text");
+        const questionAnsw1Input = document.getElementById("id_quiz_question_answer1");
+        const questionAnsw2Input = document.getElementById("id_quiz_question_answer2");
+        const questionAnsw3Input = document.getElementById("id_quiz_question_answer3");
+        const questionAnsw4Input = document.getElementById("id_quiz_question_answer4");
+
+        addQuestionButton.addEventListener("click", function (){
+            event.preventDefault();
+
+            /* updating the questions list with the newly created question */
+            let questionsList = [];
+            try{
+                questionsList = JSON.parse(questionsListInput.value || "[]");
+            } catch (e) {
+                console.error("Errore nel parsing della lista di domande", e);
+            }
+            const question = {
+                question_quiz_guid: undefined,
+                question_sequential: questionsList.length + 1,
+                question_text: questionTextInput.value,
+                question_possible_answers: [
+                    questionAnsw1Input.value,
+                    questionAnsw2Input.value,
+                    questionAnsw3Input.value,
+                    questionAnsw4Input.value
+                ],
+                question_correct_answer: +document.querySelector('input[name="quiz_question_correct_answer"]:checked').value
+            };
+            questionsList.push(question);
+
+            /* now updating the view */
+            questionsListInput.value = JSON.stringify(questionsList);
+            console.log("Lista domande: ", questionsList);
+        });
+    });
+</script>
+
+{% endblock %}
