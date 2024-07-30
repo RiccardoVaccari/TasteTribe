@@ -68,3 +68,22 @@ class QuizCreationForm(forms.ModelForm):
         if not len(quiz_questions_list):
             self.add_error(None, "Il quiz deve avere almeno una domanda!")
         return cleaned_data
+
+
+class QuizGameForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        questions = kwargs.pop("questions")
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = "POST"
+        layout = []
+        for question in questions:
+            field_name = f"question_{question.question_sequential}"
+            self.fields[field_name] = forms.ChoiceField(
+                label=question.question_text,
+                choices=[(question.question_possible_answers.index(answer), answer) for answer in question.question_possible_answers],
+                widget=forms.RadioSelect()
+            )
+            layout.append(Fieldset(f"Domanda #{question.question_sequential}", field_name))
+        layout.append(ButtonHolder(Submit("submit", "Rispondi al quiz!")))
+        self.helper.layout = Layout(*layout)

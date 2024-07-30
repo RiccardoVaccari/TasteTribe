@@ -1,1 +1,41 @@
 {% extends "base.html" %}
+
+{%  load crispy_forms_tags %}
+
+{% block head %}
+
+{% endblock %}
+
+{% block title %} Risultati Quiz {% endblock %}
+
+{% block content %}
+<h1>Ecco i risultati del tuo tentativo nel quiz {{ quiz.quiz_title }}:</h1>
+{% for sequential, result in results.items %}
+    <div class="list-group-item">
+        <h5 class="mb-1">Domanda #{{ sequential }}: {{ result.question_text }}</h5>
+        <ul>
+            {% for answer in result.possible_answers %}
+                {% with answer_index=forloop.counter0 %}
+                    <li>
+                        {{ answer }}
+                        {% if answer_index == result.given_answer %}
+                            <strong>(La tua risposta)</strong>
+                        {% endif %}
+                        {% if answer_index == result.correct_answer %}
+                            <span class="text-success"><strong>(Risposta corretta)</strong></span>
+                        {% endif %}
+                    </li>
+                {% endwith %}
+            {% endfor %}
+        </ul>
+        {% if result.question_result == "correct" %}
+            <p class="text-success">Hai risposto correttamente a questa domanda!</p>
+        {% else %}
+            <p class="text-danger">Peccato! La tua risposta era sbagliata.</p>
+        {% endif %}
+    </div>
+{% endfor %}
+Grazie per aver giocato! Torna alla <a href="{% url 'quiz_home' %}">pagina dei quiz</a> oppure torna alla <a href="{% url 'profile' user.id %}">pagina del tuo profilo.</a>
+
+
+{% endblock %}

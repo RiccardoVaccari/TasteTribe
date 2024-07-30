@@ -3,8 +3,8 @@ from datetime import date
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
-from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse_lazy, reverse
 from django.views.generic.edit import CreateView, FormView
 from django.views.generic.list import ListView
 from .forms import *
@@ -50,5 +50,27 @@ class QuizCreationView(LoginRequiredMixin, CreateView):
 
 
 @login_required
-def play_quiz(request):
-    pass
+def play_quiz(request, quiz_guid):
+    quiz = get_object_or_404(Quiz, quiz_guid=quiz_guid)
+    questions = QuizQuestion.objects.filter(question_quiz_guid=quiz).order_by("question_sequential")
+    if request.method == "POST":
+        form = QuizGameForm(request.POST, questions=questions)
+        if form.is_valid():
+            results = {}
+            for question in questions:
+                given_answer = int(form.cleaned_data[f"question_{question.question_sequential}"])
+                if given_answer + 1 == question.question_correct_answer:
+                    question_result = "correct"
+                else:
+                    question_result = "wrong"
+                results[question.question_sequential] = {
+                    "given_answer": given_answer,
+                    "correct_answer": question.question_correct_answer - 1,  # To avoid discrepancies between indexes
+                    "possible_answers": question.question_possible_answers,
+                    "question_text": question.question_text,
+                    "question_result": question_result
+                }
+            return render(request, "quiz_result.html", {"quiz": quiz, "results": results})
+    else:
+        form = QuizGameForm(questions=questions)
+    return render(request, "quiz_play.html", {"quiz": quiz, "form": form})
