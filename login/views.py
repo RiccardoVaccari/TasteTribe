@@ -60,6 +60,7 @@ def logged_out(request):
 
 @login_required
 def edit_profile(request):
+    # Fetch eventual messages
     index = 0
     user_pw = None
     storage = messages.get_messages(request)
@@ -68,6 +69,7 @@ def edit_profile(request):
             user_pw = message.message
             break
         index += 1
+    # Handle the user editing form
     user = request.user
     try:
         reg_user = user.registereduser
@@ -84,7 +86,7 @@ def edit_profile(request):
             reg_user.reg_user_about = form.cleaned_data["reg_user_about"]
             reg_user.reg_user_preferences = form.cleaned_data["reg_user_preferences"]
             form.save()
-            return redirect(f"/profile/{user.id}/")
+            return redirect("/")
     else:
         form = EditProfileForm(instance=reg_user, user=user)
     return render(request, "user_profile_edit_page.html", {"form": form, "user_pw": user_pw})
@@ -131,5 +133,5 @@ def google_auth(request):
     login(request, user)
     if is_new_user:
         return redirect("/profile/edit/")
-    next_url = request.POST.get("next", f"/profile/{user.id}/")
+    next_url = request.POST.get("next", "/")
     return redirect(next_url)
