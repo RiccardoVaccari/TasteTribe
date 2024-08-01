@@ -1,6 +1,7 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Submit
 from django import forms
+from login.models import RegisteredUser
 
 
 class SearchForm(forms.Form):
@@ -15,10 +16,11 @@ class SearchForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop("user", None)
+        user_suspended = kwargs.pop("user_suspended", False)
         super(SearchForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_method = "GET"
-        if user and user.is_authenticated:
+        if user and user.is_authenticated and not user_suspended:
             self.helper.layout = Layout(
                 "search_string",
                 Div("search_param", css_id="search_param_div"),
