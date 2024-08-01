@@ -1,6 +1,7 @@
 from django import template
 from homepage.models import *
 from recipedetail.models import *
+from homepage.views import check_user_suspension
 
 register = template.Library()
 
@@ -28,10 +29,16 @@ def render_recipe_related_tags(recipe_guid):
 
 
 @register.inclusion_tag("recipe_reviews.html")
-def render_recipe_reviews(recipe_guid):
+def render_recipe_reviews(logged_user, recipe_guid):
     try:
         reviews = Review.objects.filter(review_recipe_guid=recipe_guid)
-        return {"reviews": reviews}
+        # Check if the user is suspended
+        reg_user = RegisteredUser.objects.get(user=logged_user)
+        if check_user_suspension(reg_user):
+            locked_reviews = True
+        else:
+            locked_reviews = False
+        return {"reviews": reviews, "locked_reviews": locked_reviews}
     except Recipe.DoesNotExist:
         return {"reviews": None}
 

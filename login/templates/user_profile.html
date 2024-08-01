@@ -29,7 +29,7 @@
     <p>L'utente non ha ancora pubblicato nessuna ricetta!</p>
 {% endif %}
 
-{# if logged_user.id is user.id #}
+{%  if logged_user.id == user.id %}
     <a href="http://localhost:8000/profile/edit/">Modifica il tuo profilo</a>
     <a href="http://localhost:8000/change-pw/">Cambia la password del tuo account</a>
     {% if logged_user.is_authenticated %}
@@ -38,6 +38,6 @@
             <input type="submit" value="Disconnettiti">
         </form>
     {% endif %}
-{# endif #}
+{% endif %}
 
 {% endblock %}

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %} TasteTribe - Quiz {% endblock %}
+
+{% block content %}
+	{% if request.user.is_authenticated %}
+        <h1>Oops! {{ request.user.first_name }} {{ request.user.last_name }} sembra che il tuo account sia sospeso! Durante la sospensione non puoi accedere alla sezione dei quiz! </h1>
+    {% else %}
+        <h1>Oops! Sembra che tu non abbia accesso a questa sezione! Se ritieni che si tratti di un errore invia una mail a tastetribedevs@gmail.com </h1>
+    {% endif %}
+    <p>Torna alla <a href="{% url 'homepage' %}">homepage</a></p>
+{% endblock %}

@@ -8,6 +8,14 @@
 
 <h1> TasteTribe - Homepage </h1>
 
+{% if notifications %}
+    <script type="text/javascript">
+        {% for notification in notifications %}
+            alert("Ciao {{ user.first_name }} {{ user.last_name }}, hai una notifica non letta: {{ notification }}");
+        {% endfor %}
+    </script>
+{% endif %}
+
 <form method="GET" action="{% url 'search' %}">
     {% crispy form %}
 </form>

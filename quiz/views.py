@@ -9,19 +9,42 @@ from django.views.generic.edit import CreateView, FormView
 from django.views.generic.list import ListView
 from .forms import *
 from .models import *
+from homepage.views import check_user_suspension
 
 
 # Create your views here.
 class QuizListView(LoginRequiredMixin, ListView):
     model = Quiz
-    template_name = "quiz_home.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        # Check if the user is suspended
+        try:
+            reg_user = RegisteredUser.objects.get(user=self.request.user.id)
+            if not check_user_suspension(reg_user):
+                self.template_name = "quiz_home.html"
+            else:
+                self.template_name = "quiz_not_allowed.html"
+        except RegisteredUser.DoesNotExist:
+            self.template_name = "quiz_not_allowed.html"
+        return super().dispatch(request, *args, **kwargs)
 
 
 class QuizCreationView(LoginRequiredMixin, CreateView):
     model = Quiz
-    template_name = "quiz_creation.html"
     form_class = QuizCreationForm
     success_url = reverse_lazy("quiz_home")
+
+    def dispatch(self, request, *args, **kwargs):
+        # Check if the user is suspended
+        try:
+            reg_user = RegisteredUser.objects.get(user=self.request.user.id)
+            if not check_user_suspension(reg_user):
+                self.template_name = "quiz_home.html"
+            else:
+                self.template_name = "quiz_not_allowed.html"
+        except RegisteredUser.DoesNotExist:
+            self.template_name = "quiz_not_allowed.html"
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -53,6 +76,14 @@ class QuizCreationView(LoginRequiredMixin, CreateView):
 def play_quiz(request, quiz_guid):
     quiz = get_object_or_404(Quiz, quiz_guid=quiz_guid)
     questions = QuizQuestion.objects.filter(question_quiz_guid=quiz).order_by("question_sequential")
+    # Check if the logged user is suspended and therefore has no access to this page
+    try:
+        reg_user = RegisteredUser.objects.get(user=request.user.id)
+        if check_user_suspension(reg_user):
+            return render(request, "quiz_not_allowed.html")
+    except RegisteredUser.DoesNotExist:
+        return render(request, "quiz_not_allowed.html")
+    # Handle quiz creation form
     if request.method == "POST":
         form = QuizGameForm(request.POST, questions=questions)
         if form.is_valid():
