@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block head %}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+{% endblock %}
+
+{%  block title %} TasteTribe - {{ forum_thread.fthread_title }} {% endblock %}
+
+{% block content %}
+
+{% if user_allowed %}
+<h1>{{ forum_thread.fthread_title }}</h1>
+<div id="messages-section">
+    {% for message in fmessages %}
+    	<div class="thread-message" id="message-{{ message.id }}">
+            <p>{{ message.fmessage_author.first_name }} {{ message.fmessage_author.last_name }}: {{ message.fmessage_content }}</p>
+            <span class="like-icon" data-message-id="{{ message.id }}" data-interaction-type="like">
+                {% if message.user_interaction == 1 %}
+                	<i class="fa-solid fa-thumbs-up" id="like-icon-{{ message.id }}" style="color: #0a9900;"></i>
+                {% else %}
+                    <i class="fa-regular fa-thumbs-up" id="like-icon-{{ message.id }}" style="color: #000000;"></i>
+                {% endif %}
+                <small>{{ message.fmessage_up_votes }}</small>
+            </span>
+            <span class="dislike-icon" data-message-id="{{ message.id }}" data-interaction-type="dislike">
+                {% if message.user_interaction == -1 %}
+                	<i class="fa-solid fa-thumbs-down" id="dislike-icon-{{ message.id }}" style="color: #b80000;"></i>
+                {% else %}
+                    <i class="fa-regular fa-thumbs-down" id="dislike-icon-{{ message.id }}" style="color: #000000;"></i>
+                {% endif %}
+                <small>{{ message.fmessage_down_votes }}</small>
+            </span>
+            <small>{{ message.fmessage_creation_date }}</small>
+        </div>
+    {% endfor %}
+</div>
+<form id="message-form" method="post" action="{% url 'forum_thread' forum_thread.fthread_guid %}">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <button type="submit">Invia messaggio</button>
+</form>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $("#message-form").on("submit", function(event) {
+            event.preventDefault();
+            $.ajax({
+                url: $(this).attr("action"),
+                method: $(this).attr("method"),
+                data: $(this).serialize(),
+                success: function(data) {
+                    $("#messages-section").prepend(
+                        `<div class="thread-message" id="message-${data.message_id}">
+                            <p>${data.message_author}: ${data.message_content}</p>
+                            <span class="like-icon" data-message-id="${data.message_id}" data-interaction-type="like">
+                                <i class="fa-regular fa-thumbs-up" id="like-icon-${data.message_id}" style="color: #000000;"></i>
+                                <small>${data.likes}</small>
+                            </span>
+                            <span class="dislike-icon" data-message-id="${data.message_id}" data-interaction-type="dislike">
+                                <i class="fa-regular fa-thumbs-down" id="dislike-icon-${data.message_id}" style="color: #000000;"></i>
+                                <small>${data.dislikes}</small>
+                            </span>
+                            <small>${data.creation_date}</small>
+                        </div>`
+                    );
+                    $("#message-form")[0].reset();
+                },
+                error: function(xhr, errmsg, err) {
+                    alert('Si è verificato un errore nella creazione del messaggio: ' + errmsg);
+                }
+            });
+        });
+        $(document).on("click", ".like-icon, .dislike-icon", function() {
+            const messageId = $(this).data("message-id");
+            const interactionType = $(this).data("interaction-type");
+
+            $.ajax({
+                url: "{% url 'toggle_interaction' %}",
+                method: "POST",
+                data: {
+                    "message_id": messageId,
+                    "interaction_type": interactionType,
+                    "csrfmiddlewaretoken": "{{ csrf_token }}"
+                },
+                success: function(data) {
+                    const messageElement = $("#message-" + data.message_id);
+                    const likeIcon = $("#like-icon-" + data.message_id);
+                    const dislikeIcon = $("#dislike-icon-" + data.message_id);
+
+                    messageElement.find(".like-icon small").text(data.likes);
+                    messageElement.find(".dislike-icon small").text(data.dislikes);
+
+                    if (data.user_interaction === 1) {
+                        likeIcon.removeClass();
+                        likeIcon.addClass("fa-solid fa-thumbs-up");
+                        likeIcon.css("color", "#0a9900");
+                        dislikeIcon.removeClass();
+                        dislikeIcon.addClass("fa-regular fa-thumbs-down");
+                        dislikeIcon.css("color", "#000000");
+                    } else if (data.user_interaction === -1) {
+                        likeIcon.removeClass();
+                        likeIcon.addClass("fa-regular fa-thumbs-up");
+                        likeIcon.css("color", "#000000");
+                        dislikeIcon.removeClass();
+                        dislikeIcon.addClass("fa-solid fa-thumbs-down");
+                        dislikeIcon.css("color", "#b80000");
+                    } else {
+                        likeIcon.removeClass();
+                        likeIcon.addClass("fa-regular fa-thumbs-up");
+                        likeIcon.css("color", "#000000");
+                        dislikeIcon.removeClass();
+                        dislikeIcon.addClass("fa-regular fa-thumbs-down");
+                        dislikeIcon.css("color", "#000000");
+                    }
+                }
+            });
+        });
+    });
+</script>
+{% else %}
+    {% if request.user.is_authenticated %}
+    	<h1>Oops! {{ request.user.first_name }} {{ request.user.last_name }} sembra che il tuo account TasteTribe sia sospeso! Non puoi entrare nei dettagli in un thread mentre sei sospeso!</h1>
+    {% else %}
+        <h1>Oops! Sembra che tu non abbia i permessi per accedere a questa pagina! Se ritieni si tratti di un errore contatta tastetribedevs@gmail.com</h1>
+    {% endif %}
+    <p>Torna alla <a href="{% url 'homepage' %}">homepage</a></p>
+{% endif %}
+
+{% endblock %}

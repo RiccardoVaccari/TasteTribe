@@ -17,15 +17,7 @@ class QuizListView(LoginRequiredMixin, ListView):
     model = Quiz
 
     def dispatch(self, request, *args, **kwargs):
-        # Check if the user is suspended
-        try:
-            reg_user = RegisteredUser.objects.get(user=self.request.user.id)
-            if not check_user_suspension(reg_user):
-                self.template_name = "quiz_home.html"
-            else:
-                self.template_name = "quiz_not_allowed.html"
-        except RegisteredUser.DoesNotExist:
-            self.template_name = "quiz_not_allowed.html"
+        self.template_name = get_template_based_on_user_status(self.request.user.id)
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -35,15 +27,7 @@ class QuizCreationView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy("quiz_home")
 
     def dispatch(self, request, *args, **kwargs):
-        # Check if the user is suspended
-        try:
-            reg_user = RegisteredUser.objects.get(user=self.request.user.id)
-            if not check_user_suspension(reg_user):
-                self.template_name = "quiz_home.html"
-            else:
-                self.template_name = "quiz_not_allowed.html"
-        except RegisteredUser.DoesNotExist:
-            self.template_name = "quiz_not_allowed.html"
+        self.template_name = get_template_based_on_user_status(self.request.user.id)
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -105,3 +89,16 @@ def play_quiz(request, quiz_guid):
     else:
         form = QuizGameForm(questions=questions)
     return render(request, "quiz_play.html", {"quiz": quiz, "form": form})
+
+
+def get_template_based_on_user_status(user_id):
+    # Check if the user is suspended
+    try:
+        reg_user = RegisteredUser.objects.get(user=user_id)
+        if not check_user_suspension(reg_user):
+            template_name = "quiz_home.html"
+        else:
+            template_name = "quiz_not_allowed.html"
+    except RegisteredUser.DoesNotExist:
+        template_name = "quiz_not_allowed.html"
+    return template_name
