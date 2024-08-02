@@ -25,6 +25,6 @@
 
 {% render_recipe_steps recipe.recipe_guid %}
 
-{% render_recipe_reviews request.user.id recipe.recipe_guid %}
+{% render_recipe_reviews request.user recipe.recipe_guid %}
 
 {% endblock %}
