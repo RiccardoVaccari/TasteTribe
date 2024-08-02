@@ -9,6 +9,10 @@ __pycache__/
 #Connection to DB server - private key
 VPS-RICC
 
+# DB management
+homepage/management/
+TasteTribe/setup.py
+
 # Distribution / packaging
 .Python
 build/

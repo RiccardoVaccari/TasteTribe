@@ -1,15 +1,16 @@
 from typing import Any
 from uuid import uuid4
 from datetime import date
-from django.views.generic import DetailView, CreateView
+from django.views.generic import DetailView, CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
 from django.http import JsonResponse
+from django.shortcuts import redirect
 from django.views.decorators.http import require_GET
 
 from homepage.models import Recipe, Tag, TagXRecipe
 from .models import Ingredient, Allergen, IngredientXRecipe, RecipeStep
-from .forms import CreateRecipeForm
+from .forms import RecipeForm
 
 
 # RECIPE DETAILS APP - VIEWS
@@ -32,7 +33,7 @@ class RecipeDetailView(DetailView):
 
 class RecipeCreateView(LoginRequiredMixin, CreateView):
     model = Recipe
-    form_class = CreateRecipeForm
+    form_class = RecipeForm
     template_name = "recipe_create.html"
 
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
@@ -143,6 +144,28 @@ class RecipeCreateView(LoginRequiredMixin, CreateView):
 
         return f"/recipe/{self.object.pk}"
 
+
+class RecipeEditView(UpdateView):
+    model = Recipe
+    form_class = RecipeForm
+    template_name = "recipe_create.html"
+    pk_url_kwarg = "recipe_guid"
+
+    def dispatch(self, request, *args, **kwargs):
+        # Ottieni l'oggetto che si sta tentando di modificare
+        recipe: Recipe = self.get_object()
+        # Controlla se l'utente corrente è il proprietario della ricetta
+        if recipe.recipe_author != self.request.user:
+            # Se non è il proprietario, reindirizzalo alla pagina di visualizzazione della ricetta
+            return redirect("recipe_details", recipe_guid=recipe.recipe_guid)
+        # Se l'utente è il proprietario, continua con il flusso normale della view
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        pass
+
+    def get_success_url(self) -> str:
+        return f"/recipe/{self.get_object().pk}"
 
 @require_GET
 def check_ingredient(request, *args, **kwargs):

@@ -28,6 +28,7 @@ urlpatterns = [
     re_path(r"^search$|^search/$|^home/search/?$|^homepage/search/?$", RecipeSearchView.as_view(), name="search"),
     path("recipe/<uuid:recipe_guid>/", RecipeDetailView.as_view(), name="recipe_details"),
     path("recipe/create/", RecipeCreateView.as_view(), name="recipe_create"),
+    path("recipe/<uuid:recipe_guid>/edit", RecipeEditView.as_view(), name="recipe_edit"),
     path("check-ingredient/", check_ingredient, name="check_ingredient"),
     path("register/", UserRegistrationView.as_view(), name="register"),
     path("login/", TasteTribeLoginView.as_view(), name="login"),

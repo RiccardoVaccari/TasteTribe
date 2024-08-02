@@ -17,7 +17,7 @@ CATEGORIES = [
 ]
 
 
-class CreateRecipeForm(forms.ModelForm):
+class RecipeForm(forms.ModelForm):
 
     recipe_cover = forms.ImageField(required=False)
     recipe_category = forms.ChoiceField(
