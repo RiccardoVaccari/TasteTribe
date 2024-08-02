@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, re_path
+
 from homepage.views import *
 from recipedetail.views import *
 from login.views import *
@@ -24,7 +25,7 @@ from forum.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    re_path(r"^$|^/$|^home/?$|^homepage/?$", home_page_view, name="homepage"),
+    re_path(r"^$|^/$|^home/?$|^homepage/?$", HomepageView.as_view(), name="homepage"),
     re_path(r"^search$|^search/$|^home/search/?$|^homepage/search/?$", RecipeSearchView.as_view(), name="search"),
     path("recipe/<uuid:recipe_guid>/", RecipeDetailView.as_view(), name="recipe_details"),
     path("recipe/create/", RecipeCreateView.as_view(), name="recipe_create"),
