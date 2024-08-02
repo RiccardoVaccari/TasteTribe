@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% load crispy_forms_tags %}
+
+{%  block title %} TasteTribe {% endblock %}
+
+{% block content %}
+
+<h1> Risultati ricerca </h1>
+
+<form method="GET" action="{% url 'search' %}">
+    {% crispy form %}
+</form>
+<ul>
+    {% for recipe in search_results %}
+        <li><a href="{% url 'recipe_details' recipe.recipe_guid %}">{{ recipe.recipe_name }}</a></li>
+    {% empty %}
+        <p>Non è stata trovata nessuna ricetta corrispondente ai parametri inseriti.</p>
+    {% endfor %}
+</ul>
+<a href="{% url 'homepage' %}">Torna alla homepage</a>
+
+{% endblock %}

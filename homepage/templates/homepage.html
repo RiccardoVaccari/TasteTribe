@@ -9,22 +9,33 @@
 
     <h1> TasteTribe - Homepage </h1>
 
+    {% if notifications %}
+        <script type="text/javascript">
+            {% for notification in notifications %}
+                alert("Ciao {{ user.first_name }} {{ user.last_name }}, hai una notifica non letta: {{ notification }}");
+            {% endfor %}
+        </script>
+    {% endif %}
+    
     <form method="GET" action="{% url 'search' %}">
         {% crispy form %}
     </form>
-
+    
+    {% if latest_recipes %}
     <h2>Ultime ricette pubblicate</h2>
     <ul>
         {% for recipe in latest_recipes %}
-            <li>
-                <b>{{ recipe.recipe_name }}</b>
-                by <a href="/profile/{{ recipe.recipe_author.id }}">@{{ recipe.recipe_author.username }}</a>
-                <i>Created ({{ recipe.recipe_creation_date }})</i>  
-                <a href="/recipe/{{ recipe.recipe_guid }}"> Vai alla ricetta </a>
-            </li>
+        <li>
+            <b>{{ recipe.recipe_name }}</b>
+            by <a href="/profile/{{ recipe.recipe_author.id }}">@{{ recipe.recipe_author.username }}</a>
+            <i>Created ({{ recipe.recipe_creation_date }})</i>  
+            <a href="/recipe/{{ recipe.recipe_guid }}"> Vai alla ricetta </a>
+        </li>
         {% endfor %}
     </ul>
-
+    {% endif %}
+            
+    {% if ingredient_recipes %}
     <h2>Altre ricette con {{ ingredient_name }}</h2>
     <ul>
         {% for recipe in ingredient_recipes %}
@@ -36,7 +47,9 @@
             </li>
         {% endfor %}
     </ul>
+    {% endif %}
 
+    {% if season_recipes %}
     <h2>Altre ricette in {{ season }}</h2>
     <ul>
         {% for recipe in season_recipes %}
@@ -48,6 +61,7 @@
             </li>
         {% endfor %}
     </ul>
+    {% endif %}
 
     <h2>Recipe List</h2>
     <ul>

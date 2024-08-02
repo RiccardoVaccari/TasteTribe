@@ -1,8 +1,10 @@
 import random
-from datetime import date
+from datetime import date, datetime
+import time
 from typing import Any
-from django.views.generic import ListView
-from django.http import JsonResponse, HttpResponse
+from django.shortcuts import render
+from django.views.generic import ListView, View
+from django.db.models import Q
 
 from recipedetail.models import Ingredient
 from login.models import RegisteredUser
@@ -17,9 +19,17 @@ class HomepageView(ListView):
     context_object_name = 'recipes'
     form = SearchForm()
 
+    def dispatch(self, request, *args, **kwargs):
+        self.update_notifications()
+        return super().dispatch(request, *args, **kwargs)
+
     def get_queryset(self):
-        all_ids = Recipe.objects.filter(
-            recipe_is_private=False).exclude(recipe_author=self.request.user).values_list('recipe_guid', flat=True)
+        if self.request.user and self.request.user.is_authenticated and not self.user_suspended:
+            all_ids = Recipe.objects.filter(
+                recipe_is_private=False).exclude(recipe_author=self.request.user).values_list('recipe_guid', flat=True)
+        else:
+            all_ids = Recipe.objects.filter(recipe_is_private=False).values_list('recipe_guid', flat=True)
+        
         all_ids = list(all_ids)
         if len(all_ids) > 200:
             all_ids = random.sample(all_ids, 200)
@@ -29,27 +39,42 @@ class HomepageView(ListView):
         return Recipe.objects.filter(recipe_guid__in=all_ids)
     
     def get_form(self):
-        return SearchForm()
-
+        return SearchForm(user=self.request.user, user_suspended=self.user_suspended)
+    
+    def update_notifications(self):
+        self.notifications_to_read = []
+        try:
+            reg_user = RegisteredUser.objects.get(user=self.request.user.id)
+            self.notifications_to_read = reg_user.reg_user_status.get("notifications", [])
+            reg_user.reg_user_status["notifications"] = [] 
+            reg_user.save()
+            self.user_suspended = check_user_suspension(reg_user)
+        except RegisteredUser.DoesNotExist:
+            self.user_suspended = False
+        
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
+
+        context['notifications_to_read'] = self.notifications_to_read
         context['form'] = self.get_form()
-        
-        context["latest_recipes"] = self.get_latest_publish()
+        context['user'] = self.request.user
 
-        latest_ingredients = RegisteredUser.objects.get(
-            user=self.request.user).reg_user_search_history.get("ingredients")
-        if not latest_ingredients:
-            context["ingredient_recipes"] = None
-        else:
-            latest_ingredient_name = latest_ingredients[0]
-            context["ingredient_name"] = latest_ingredient_name
-            context["ingredient_recipes"] = self.get_recipes_by_ingredient(
-                latest_ingredient_name)
+        if self.request.user and self.request.user.is_authenticated and not self.user_suspended:
+            context["latest_recipes"] = self.get_latest_publish()
 
-        season = self.__get_season_()
-        context["season"] = season
-        context["season_recipes"] = self.get_recipes_by_season(season)
+            latest_ingredients = RegisteredUser.objects.get(
+                user=self.request.user).reg_user_search_history.get("ingredients")
+            if not latest_ingredients:
+                context["ingredient_recipes"] = None
+            else:
+                latest_ingredient_name = latest_ingredients[0]
+                context["ingredient_name"] = latest_ingredient_name
+                context["ingredient_recipes"] = self.get_recipes_by_ingredient(
+                    latest_ingredient_name)
+
+            season = self.__get_season_()
+            context["season"] = season
+            context["season_recipes"] = self.get_recipes_by_season(season)
 
         return context
 
@@ -97,10 +122,49 @@ class HomepageView(ListView):
         return None
 
 
-def search(request):
-    if request.method == "GET":
-        form = SearchForm(request.GET)
+
+class RecipeSearchView(View):
+    def get(self, request):
+        # Fetch RegisteredUser and check if it is suspended
+        user_suspended = False
+        try:
+            reg_user = RegisteredUser.objects.get(user=request.user.id)
+            user_suspended = check_user_suspension(reg_user)
+        except RegisteredUser.DoesNotExist:
+            pass
+        form = SearchForm(request.GET or None, user=request.user, user_suspended=user_suspended)
+        recipes = Recipe.objects.none()
         if form.is_valid():
-            recipe_list = Recipe.objects.filter(recipe_name__contains=form.cleaned_data["search_string"]).values()
-            return JsonResponse(list(recipe_list), safe=False)
-    return HttpResponse("error", status=400)
+            search_string = form.cleaned_data.get("search_string")
+            # Check whether the user is authenticated AND is not suspended or not and eventually force the search parameter
+            if request.user.is_authenticated and not user_suspended:
+                search_param = form.cleaned_data.get("search_param")
+            else:
+                search_param = "recipe_title"
+            # Perform the actual search
+            if search_param == "recipe_title":
+                recipes = Recipe.objects.filter(recipe_name__icontains=search_string)
+            elif search_param == "author_name":
+                recipes = Recipe.objects.filter(Q(recipe_author__first_name__icontains=search_string) | Q(recipe_author__last_name__icontains=search_string))
+            elif search_param == "tag_name":
+                recipes = Recipe.objects.filter(tagxrecipe__txr_tag_guid__tag_name__icontains=search_string)
+            elif search_param == "ingredient_name":
+                recipes = Recipe.objects.filter(ingredientxrecipe__ixr_ingredient_guid__ingredient_name__icontains=search_string)
+        return render(request, template_name="search_results.html", context={"search_results": recipes, "form": form})
+
+
+def check_user_suspension(reg_user):
+    suspension = reg_user.reg_user_status["is_suspended"]
+    # Check whether to remove suspension if it ended
+    if suspension:
+        suspension_end = datetime.strptime(reg_user.reg_user_status["suspension_end"], "%Y-%m-%d")
+        if suspension_end <= datetime.now():
+            # Suspension ended so we reset the user status
+            reg_user.reg_user_status["is_suspended"] = False
+            reg_user.reg_user_status["suspension_end"] = None
+            reg_user.save()
+            return False
+        else:
+            return True
+    else:
+        return False
