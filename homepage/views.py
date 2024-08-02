@@ -168,3 +168,4 @@ def check_user_suspension(reg_user):
             return True
     else:
         return False
+

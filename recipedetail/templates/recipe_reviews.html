@@ -3,7 +3,7 @@
     <ul>
         {% for review in reviews %}
             <li class="review-item">
-                Recensione di {% if request.session.loggeduser %} {{review.review_author_guid.reg_user_name}} {{review.review_author_guid.reg_user_surname}} {% else %} Anonimo {% endif %}:
+                Recensione di {% if request.session.loggeduser and not locked_reviews %} {{review.review_author_guid.reg_user_name}} {{review.review_author_guid.reg_user_surname}} {% else %} Anonimo {% endif %}:
                 <br> {{review.review_grade}} stelle - {{review.review_notes}}
                 <br> Upvotes: {{review.review_up_votes}} Downvotes: {{review.review_down_votes}}
             </li>

@@ -3,7 +3,7 @@ import string
 from django.contrib import messages
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView, PasswordChangeDoneView
 from django.http import HttpResponse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404, resolve_url
 from django.contrib.auth.forms import UserCreationForm
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.edit import CreateView
@@ -34,6 +34,9 @@ class UserRegistrationView(CreateView):
 
 class TasteTribeLoginView(LoginView):
     def get_success_url(self):
+        redirection_page = self.request.GET.get("next")
+        if redirection_page:
+            return resolve_url(redirection_page)
         user_id = self.request.user.id
         return reverse("profile", kwargs={"user_id": user_id})
 
@@ -57,6 +60,7 @@ def logged_out(request):
 
 @login_required
 def edit_profile(request):
+    # Fetch eventual messages
     index = 0
     user_pw = None
     storage = messages.get_messages(request)
@@ -65,6 +69,7 @@ def edit_profile(request):
             user_pw = message.message
             break
         index += 1
+    # Handle the user editing form
     user = request.user
     try:
         reg_user = user.registereduser
@@ -81,7 +86,7 @@ def edit_profile(request):
             reg_user.reg_user_about = form.cleaned_data["reg_user_about"]
             reg_user.reg_user_preferences = form.cleaned_data["reg_user_preferences"]
             form.save()
-            return redirect(f"/profile/{user.id}/")
+            return redirect("/")
     else:
         form = EditProfileForm(instance=reg_user, user=user)
     return render(request, "user_profile_edit_page.html", {"form": form, "user_pw": user_pw})
@@ -128,4 +133,5 @@ def google_auth(request):
     login(request, user)
     if is_new_user:
         return redirect("/profile/edit/")
-    return redirect(f"/profile/{user.id}/")
+    next_url = request.POST.get("next", "/")
+    return redirect(next_url)

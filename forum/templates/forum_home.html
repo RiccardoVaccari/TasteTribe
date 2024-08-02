@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block head %}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+{% endblock %}
+
+{%  block title %} TasteTribe - Forums {% endblock %}
+
+{% block content %}
+
+{% if request.user.is_authenticated %}
+    {% if can_open_threads %}
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createThreadModal">Crea nuovo thread</button>
+    {% endif %}
+    <h1>Benvenuto {{ request.user.first_name }} {{ request.user.last_name }} nel portale dei forum di TasteTribe</h1>
+    <h2>Esplora i forum disponibili {% if can_open_threads %}o <a href="{% url 'forum_create_thread' %}">creane uno nuovo!</a>{% endif %}</h2>
+{% else %}
+	<h1>Benvenuto nel portale dei forum di TasteTribe</h1>
+    <h2>Esplora i forum disponibili o <a href="{% url 'login' %}">accedi</a> per partecipare anche tu!</h2>
+{% endif %}
+
+<ul>
+    {% for thread in fthreads %}
+        <li>
+            {% if can_open_threads %}
+                <a href="{% url 'forum_thread' thread.fthread_guid %}">{{ thread.fthread_title }}</a>
+            {% else %}
+                <p>{{ thread.fthread_title }}</p>
+            {% endif %}
+            <p>Creato da {{ thread.fthread_creator.first_name }} {{ thread.fthread_creator.last_name }} in data {{ thread.fthread_creation_date }}</p>
+        </li>
+    {% endfor %}
+</ul>
+
+<!-- Modal for forum thread creation -->
+<div class="modal fade" id="createThreadModal" tabindex="-1" aria-labelledby="createThreadModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createThreadModalLabel">Creazione nuovo thread</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="thread-creation-form">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="fthread_title" class="form-label">Titolo del thread</label>
+                        <input type="text" class="form-control" id="fthread_title" name="fthread_title" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Crea</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    $("#thread-creation-form").on("submit", function(event) {
+        event.preventDefault();
+        $.ajax({
+            url: "{% url 'forum_create_thread' %}",
+            type: "POST",
+            data: $(this).serialize(),
+            success: function(data) {
+                if (data.fthread_guid) {
+                    window.location.href = "/forum/thread/" + data.fthread_guid + "/";
+                }
+            },
+            error: function(xhr, errmsg, err) {
+                alert('Si è verificato un errore nella creazione del thread: ' + errmsg);
+            }
+        });
+    });
+});
+</script>
+
+{% endblock %}

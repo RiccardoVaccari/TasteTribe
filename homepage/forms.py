@@ -34,5 +34,3 @@ class SearchForm(forms.Form):
             # The following two lines of code are needed in order to set a default for search_param
             self.fields["search_param"].initial = "recipe_title"
             self.fields["search_param"].widget = forms.HiddenInput()
-
-
