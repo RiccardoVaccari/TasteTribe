@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+
+{% load crispy_forms_tags %}
+
+{% block title %} TasteTribe {% endblock %} 
+
+{% block content %}
+
+    <h1> TasteTribe - Homepage </h1>
+
+    <form method="GET" action="{% url 'search' %}">
+        {% crispy form %}
+    </form>
+
+    <h2>Ultime ricette pubblicate</h2>
+    <ul>
+        {% for recipe in latest_recipes %}
+            <li>
+                <b>{{ recipe.recipe_name }}</b>
+                by <a href="/profile/{{ recipe.recipe_author.id }}">@{{ recipe.recipe_author.username }}</a>
+                <i>Created ({{ recipe.recipe_creation_date }})</i>  
+                <a href="/recipe/{{ recipe.recipe_guid }}"> Vai alla ricetta </a>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <h2>Altre ricette con {{ ingredient_name }}</h2>
+    <ul>
+        {% for recipe in ingredient_recipes %}
+            <li>
+                <b>{{ recipe.recipe_name }}</b>
+                by <a href="/profile/{{ recipe.recipe_author.id }}">@{{ recipe.recipe_author.username }}</a>
+                <i>Created ({{ recipe.recipe_creation_date }})</i>  
+                <a href="/recipe/{{ recipe.recipe_guid }}"> Vai alla ricetta </a>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <h2>Altre ricette in {{ season }}</h2>
+    <ul>
+        {% for recipe in season_recipes %}
+            <li>
+                <b>{{ recipe.recipe_name }}</b>
+                by <a href="/profile/{{ recipe.recipe_author.id }}">@{{ recipe.recipe_author.username }}</a>
+                <i>Created ({{ recipe.recipe_creation_date }})</i>  
+                <a href="/recipe/{{ recipe.recipe_guid }}"> Vai alla ricetta </a>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <h2>Recipe List</h2>
+    <ul>
+        {% for recipe in recipes %}
+        <li>
+            <b>{{ recipe.recipe_name }}</b>
+            by <a href="/profile/{{ recipe.recipe_author.id }}">@{{ recipe.recipe_author.username }}</a>
+            <i>Created ({{ recipe.recipe_creation_date }})</i>  
+            <a href="/recipe/{{ recipe.recipe_guid }}"> Vai alla ricetta </a>
+        </li>
+        {% endfor %}
+    </ul>
+
+{% endblock content %}

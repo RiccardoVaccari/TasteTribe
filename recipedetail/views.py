@@ -80,7 +80,7 @@ class RecipeCreateView(LoginRequiredMixin, CreateView):
             ingredient_x_recipe = IngredientXRecipe(
                 ixr_recipe_guid=recipe,
                 ixr_ingredient_guid=ingredient,
-                ixr_dosage_per_person=ingredient_data.get("dosage")
+                ixr_dosage_per_person=ingredient_data.get("dosage")[:50]
             )
             self.ingredients_x_recipe.append(ingredient_x_recipe)
 

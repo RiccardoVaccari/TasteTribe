@@ -7,5 +7,11 @@ class RegisteredUser(models.Model):
     reg_user_profile_pic = models.TextField(null=True)
     reg_user_about = models.CharField(max_length=200, null=True)
     reg_user_preferences = models.JSONField(default=dict())
-    reg_user_status = models.JSONField(default=dict([("is_suspended", False), ("suspension_end", None)]))
+    reg_user_search_history = models.JSONField(default=dict(
+        [("recipes", list()),
+         ("ingredients", list()),
+         ("tags", list())]
+    ))
+    reg_user_status = models.JSONField(default=dict(
+        [("is_suspended", False), ("suspension_end", None), ("notifications", [])]))
     reg_user_warning_count = models.IntegerField(default=0)
