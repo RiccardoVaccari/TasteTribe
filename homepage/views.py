@@ -82,7 +82,6 @@ class HomepageView(ListView):
         return Recipe.objects.order_by('-recipe_creation_date')[:int(n)]
 
     def get_recipes_by_ingredient(self, ingredient_name: str, n: int = 20):
-
         try:
             ingredient = Ingredient.objects.get(
                 ingredient_name=ingredient_name)
@@ -149,7 +148,16 @@ class RecipeSearchView(View):
             elif search_param == "tag_name":
                 recipes = Recipe.objects.filter(tagxrecipe__txr_tag_guid__tag_name__icontains=search_string)
             elif search_param == "ingredient_name":
+                ingredient_query = Ingredient.objects.filter(ingredient_name__icontains=search_string)
                 recipes = Recipe.objects.filter(ingredientxrecipe__ixr_ingredient_guid__ingredient_name__icontains=search_string)
+
+                if reg_user and ingredient_query.exists():
+                    ingredient = ingredient_query.first()
+                    ingredients = reg_user.reg_user_search_history["ingredients"]
+                    ingredients.insert(0, ingredient.ingredient_name)
+                    reg_user.reg_user_search_history["ingredients"] = list(set(ingredients))[:10]
+                    reg_user.save()
+
         return render(request, template_name="search_results.html", context={"search_results": recipes, "form": form})
 
 
