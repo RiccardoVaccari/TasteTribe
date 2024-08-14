@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}TasteTribe - Raccolte{% endblock %}
+
+{% block content %}
+
+<h1>TasteTribe - Raccolte di ricette</h1>
+<h2>Benvenuto nella sezione raccolte!</h2>
+<div class="my-collections">
+    <h2>Le tue raccolte:</h2>
+    {% if user_collections %}
+    <ul class="my-collections-list">
+        {% for user_collection in user_collections %}
+        	<li>
+                <a href="">
+                    <h3>{{ user_collection.collection_name }}</h3> <img src="data:image/jpeg;base64,{{ user_collection.collection_cover }}" alt="">
+                    <small>di {{ user_collection.collection_author.first_name }} {{ user_collection.collection_author.last_name }} - creata in data {{ user_collection.collection_creation_date }}</small>
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>Sembra che tu non abbia ancora creato delle raccolte, <a href="">rimedia subito!</a></p>
+    {% endif %}
+</div>
+<div class="recommended-collections">
+    <h2>Raccolte per te</h2>
+    {% if other_collections %}
+    <ul class="recommended-collections-list">
+            {% for collection in other_collections %}
+                <li>
+                    <a href="">
+                        <h3>{{ collection.collection_name }}</h3> <img src="data:image/png;base64,{{ collection.collection_cover }}" alt="">
+                        <small>di {{ collection.collection_author.first_name }} {{ collection.collection_author.last_name }} - creata in data {{ collection.collection_creation_date }}</small>
+                    </a>
+                </li>
+            {% endfor %}
+
+    </ul>
+    {% else %}
+    <p>Spiacente, al momento non ci sono nuove raccolte di ricette da scoprire!</p>
+    {% endif %}
+</div>
+
+{% endblock %}
