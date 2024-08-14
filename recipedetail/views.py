@@ -1,14 +1,16 @@
 from typing import Any
 from uuid import uuid4
 from datetime import date
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
 from django.views.generic import DetailView, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
 from django.http import JsonResponse
-from django.views.decorators.http import require_GET
-
+from django.views.decorators.http import require_GET, require_POST
 from homepage.models import Recipe, Tag, TagXRecipe
-from .models import Ingredient, Allergen, IngredientXRecipe, RecipeStep
+from .models import *
+from forum.views import elaborate_interaction
 from .forms import CreateRecipeForm
 
 
@@ -154,3 +156,27 @@ def check_ingredient(request, *args, **kwargs):
     exists = Ingredient.objects.filter(ingredient_name__iexact=ingredient_name).exists()
 
     return JsonResponse({'exists': exists})
+
+
+@login_required
+@require_POST
+def toggle_review_interaction(request):
+    # Fetch the review and the user data
+    review_id = request.POST.get("review_id")
+    interaction_type = request.POST.get("interaction_type")
+    user = request.user
+    review = get_object_or_404(Review, id=review_id)
+    interaction, created = ReviewInteraction.objects.get_or_create(rev_interaction_review=review, rev_interaction_user=user)
+    user_rev_interaction = elaborate_interaction(interaction, created, interaction_type)
+    review.review_up_votes = ReviewInteraction.objects.filter(rev_interaction_review=review, interaction_liked=REVIEW_INTERACTION_LIKE).count()
+    review.review_down_votes = ReviewInteraction.objects.filter(rev_interaction_review=review, interaction_liked=REVIEW_INTERACTION_DISLIKE).count()
+    review.save()
+    return JsonResponse({
+        "review_id": review_id,
+        "review_notes": review.review_notes,
+        "review_author": f"{review.review_author_guid.first_name} {review.review_author_guid.last_name}",
+        "likes": review.review_up_votes,
+        "dislikes": review.review_down_votes,
+        "review_grade": review.review_grade,
+        "user_rev_interaction": user_rev_interaction
+    })
