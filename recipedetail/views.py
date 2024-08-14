@@ -8,8 +8,10 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 
 from homepage.models import Recipe, Tag, TagXRecipe
+from login.models import RegisteredUser
 from .models import Ingredient, Allergen, IngredientXRecipe, RecipeStep
 from .forms import CreateRecipeForm
+from utils import check_user_suspension
 
 
 # RECIPE DETAILS APP - VIEWS
@@ -28,6 +30,28 @@ class RecipeDetailView(DetailView):
             raise Http404("Invalid GUID format passed in the url")
         except Recipe.DoesNotExist:
             raise Http404("No recipe found matching the query")
+    
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+
+        if self.get_object().recipe_author != self.request.user:
+            try:
+                reg_user = RegisteredUser.objects.get(user=self.request.user.id)
+                user_suspended = check_user_suspension(reg_user)
+                if not user_suspended:
+                    # Update tags history
+                    tags_query = Tag.objects.filter(tagxrecipe__txr_recipe_guid__recipe_guid=self.get_object().recipe_guid).values_list('tag_name', flat=True)
+                    reg_user.reg_user_search_history["tags"] = list(set(list(tags_query) + reg_user.reg_user_search_history["tags"]))[:30]
+                    
+                    # Update recipes history
+                    recipes_history = reg_user.reg_user_search_history["recipes"]
+                    recipes_history.insert(0, str(self.get_object().recipe_guid))
+                    reg_user.reg_user_search_history["recipes"] = list(set(recipes_history))[:10]
+                    reg_user.save()
+
+            except RegisteredUser.DoesNotExist:
+                pass
+
+        return super().get_context_data(**kwargs)
 
 
 class RecipeCreateView(LoginRequiredMixin, CreateView):
