@@ -285,26 +285,20 @@
 
 <script>
     /* TAG */
-
-    function getHtml(tag){
-        var newTag = document.createElement('div');
-        newTag.className = 'row align-items-center m-2 p-1 border-top';
-        newTag.innerHTML = `
-            <div class="col-md-4">${tag}</div>
-            <div class="col-md-2">
-                <button type="button" class="btn btn-outline-danger btn-sm remove-tag-btn">Rimuovi</button>
-            </div>
-        `;
-        return newTag;
-    }
     
     document.getElementById('add-tag-btn').addEventListener('click', function() {
         var tagName = document.getElementById('id_tag').value;
-    
         if (tagName) {
             var tagsList = document.getElementById('tags-list');
-            var newTag = getHtml(tagName);
-            tagsList.append();
+            var newTag = document.createElement('div');
+            newTag.className = 'row align-items-center m-2 p-1 border-top';
+            newTag.innerHTML = `
+                <div class="col-md-4">${tagName}</div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-outline-danger btn-sm remove-tag-btn">Rimuovi</button>
+                </div>
+            `;
+            tagsList.append(newTag);
     
             var tagsInput = document.getElementById('id_tags_list');
             var tagsData = JSON.parse(tagsInput.value || '[]');

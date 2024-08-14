@@ -207,6 +207,22 @@ class RecipeEditView(UpdateView):
 
         existing_steps.exclude(step_sequential_id__in=keep_steps).delete()
 
+        # TAGS
+        
+        existing_tags = set(recipe.tagxrecipe_set.exclude(txr_tag_guid__tag_field="Ingredient").values_list('txr_tag_guid__tag_name', flat=True))
+        new_tags = set(form.cleaned_data.get("tags_list"))
+
+        tags_to_remove = existing_tags - new_tags
+        tags_to_add = new_tags - existing_tags
+
+        # Rimuovi i tag che non sono più presenti
+        TagXRecipe.objects.filter(txr_recipe_guid=recipe, txr_tag_guid__tag_name__in=tags_to_remove).delete()
+
+        # Aggiungi i nuovi tag
+        for tag_name in tags_to_add:
+            tag, created = Tag.objects.get_or_create(tag_name=tag_name)
+            TagXRecipe.objects.create(txr_recipe_guid=recipe, txr_tag_guid=tag)
+
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
