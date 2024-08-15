@@ -33,11 +33,14 @@ def render_recipe_reviews(logged_user, recipe_guid):
     try:
         reviews = Review.objects.filter(review_recipe_guid=recipe_guid)
         # Check if the user is suspended
-        reg_user = RegisteredUser.objects.get(user=logged_user)
-        if check_user_suspension(reg_user):
-            locked_reviews = True
+        if logged_user.is_authenticated:
+            reg_user = RegisteredUser.objects.get(user=logged_user.id)
+            if check_user_suspension(reg_user):
+                locked_reviews = True
+            else:
+                locked_reviews = False
         else:
-            locked_reviews = False
+            locked_reviews = True
         return {"reviews": reviews, "locked_reviews": locked_reviews}
     except Recipe.DoesNotExist:
         return {"reviews": None}

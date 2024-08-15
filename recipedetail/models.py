@@ -4,6 +4,9 @@ from login.models import RegisteredUser, User
 
 
 # Create your models here.
+REVIEW_INTERACTION_LIKE = 1
+REVIEW_INTERACTION_DISLIKE = -1
+
 
 class RecipeStep(models.Model):
     step_sequential_id = models.IntegerField()
@@ -48,3 +51,12 @@ class Review(models.Model):
 
     class Meta:
         unique_together = [["review_recipe_guid", "review_author_guid"]]
+
+
+class ReviewInteraction(models.Model):
+    rev_interaction_review = models.ForeignKey(Review, on_delete=models.CASCADE)
+    rev_interaction_user = models.ForeignKey(User, on_delete=models.CASCADE)
+    interaction_liked = models.IntegerField(null=True)
+
+    class Meta:
+        unique_together = ("rev_interaction_review", "rev_interaction_user")

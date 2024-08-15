@@ -1,17 +1,18 @@
 from typing import Any
 from uuid import uuid4
-from datetime import date
-from django.views.generic import DetailView, CreateView
+from datetime import date, timedelta
+from django.views.generic import DetailView, CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
 from django.http import JsonResponse
+from django.shortcuts import redirect
 from django.views.decorators.http import require_GET
 
 from homepage.models import Recipe, Tag, TagXRecipe
 from login.models import RegisteredUser
 from .models import Ingredient, Allergen, IngredientXRecipe, RecipeStep
-from .forms import CreateRecipeForm
 from utils import check_user_suspension
+from .forms import CreateRecipeForm, EditRecipeForm 
 
 
 # RECIPE DETAILS APP - VIEWS
@@ -83,23 +84,7 @@ class RecipeCreateView(LoginRequiredMixin, CreateView):
             allergens = ingredient_data.get("allergens")
             ingredient_name = ingredient_data.get("name")
 
-            if allergens is None:   # Ingrediente già presente nel db
-                ingredient = Ingredient.objects.filter(ingredient_name__iexact=ingredient_name).first()
-                tag = Tag.objects.filter(tag_name__iexact=tag_data).first()
-            else:
-                ingredient = Ingredient(
-                    ingredient_guid=uuid4(),
-                    ingredient_name=ingredient_name.capitalize(),
-                    ingredient_allergens=[int(allergen["id"]) for allergen in allergens],
-                )
-                tag = Tag(
-                    tag_guid=uuid4(),
-                    tag_name=ingredient_name.capitalize(),
-                    tag_field="Ingredient",
-                    tag_relevance=10
-                )
-                ingredient.save()
-                tag.save()
+            ingredient, tag = create_ingredient(allergens, ingredient_name)
             
             ingredient_x_recipe = IngredientXRecipe(
                 ixr_recipe_guid=recipe,
@@ -168,6 +153,105 @@ class RecipeCreateView(LoginRequiredMixin, CreateView):
         return f"/recipe/{self.object.pk}"
 
 
+class RecipeEditView(UpdateView):
+    model = Recipe
+    form_class = EditRecipeForm
+    template_name = "recipe_edit.html"
+    pk_url_kwarg = "recipe_guid"
+
+    def dispatch(self, request, *args, **kwargs):
+        recipe: Recipe = self.get_object()
+        if recipe.recipe_author != self.request.user:
+            return redirect("recipe_details", recipe_guid=recipe.recipe_guid)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_initial(self):
+        initial = super().get_initial()
+
+        prep_time = self.get_object().recipe_prep_time
+        initial['hours'] = prep_time.seconds // 3600
+        initial['minutes'] = (prep_time.seconds // 60) % 60
+
+        return initial
+
+    def form_valid(self, form):
+        recipe: Recipe = self.get_object()
+        
+        # INGREDIENTS
+        existing_ingredients = set(recipe.ingredientxrecipe_set.values_list('ixr_ingredient_guid__ingredient_name', flat=True))
+
+        new_ingredients_data = form.cleaned_data.get("ingredients_list")
+        new_ingredients = set(ingredient_data.get("name") for ingredient_data in new_ingredients_data)
+
+        ingredients_to_remove = existing_ingredients - new_ingredients
+        ingredients_to_add = new_ingredients - existing_ingredients
+
+        IngredientXRecipe.objects.filter(ixr_recipe_guid=recipe, ixr_ingredient_guid__ingredient_name__in=ingredients_to_remove).delete()
+        TagXRecipe.objects.filter(txr_recipe_guid=recipe, txr_tag_guid__tag_name__in=ingredients_to_remove).delete()
+
+        for ingredient_data in new_ingredients_data:
+            allergens = ingredient_data.get("allergens")
+            ingredient_name = ingredient_data.get("name")
+            if ingredient_name in ingredients_to_add:
+                ingredient, tag = create_ingredient(allergens, ingredient_name)
+
+                ingredient_x_recipe = IngredientXRecipe(
+                    ixr_recipe_guid=recipe,
+                    ixr_ingredient_guid=ingredient,
+                    ixr_dosage_per_person=ingredient_data.get("dosage")
+                ).save()
+
+                tag_x_recipe = TagXRecipe(
+                    txr_recipe_guid=recipe,
+                    txr_tag_guid=tag
+                ).save()
+        
+        # STEPS
+        new_steps_data = form.cleaned_data.get("steps_list")
+        existing_steps = RecipeStep.objects.filter(step_recipe_guid=recipe).order_by('step_sequential_id')
+
+        keep_steps = set()
+
+        for index, step_data in enumerate(new_steps_data):
+            step_sequential_id = index + 1
+            description = step_data.get("description")
+            hours = step_data.get("hours", 0)
+            minutes = step_data.get("minutes", 0)
+            required_time = timedelta(hours=int(hours), minutes=int(minutes))
+
+            step, created = RecipeStep.objects.update_or_create(
+                step_recipe_guid=recipe,
+                step_sequential_id=step_sequential_id,
+                defaults={
+                    "step_description": description,
+                    "step_required_time": required_time,
+                }
+            )
+            keep_steps.add(step_sequential_id)
+
+        existing_steps.exclude(step_sequential_id__in=keep_steps).delete()
+
+        # TAGS
+        
+        existing_tags = set(recipe.tagxrecipe_set.exclude(txr_tag_guid__tag_field="Ingredient").values_list('txr_tag_guid__tag_name', flat=True))
+        new_tags = set(form.cleaned_data.get("tags_list"))
+
+        tags_to_remove = existing_tags - new_tags
+        tags_to_add = new_tags - existing_tags
+
+        # Rimuovi i tag che non sono più presenti
+        TagXRecipe.objects.filter(txr_recipe_guid=recipe, txr_tag_guid__tag_name__in=tags_to_remove).delete()
+
+        # Aggiungi i nuovi tag
+        for tag_name in tags_to_add:
+            tag, created = Tag.objects.get_or_create(tag_name=tag_name)
+            TagXRecipe.objects.create(txr_recipe_guid=recipe, txr_tag_guid=tag)
+
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        return f"/recipe/{self.get_object().pk}"
+
 @require_GET
 def check_ingredient(request, *args, **kwargs):
     
@@ -178,3 +262,53 @@ def check_ingredient(request, *args, **kwargs):
     exists = Ingredient.objects.filter(ingredient_name__iexact=ingredient_name).exists()
 
     return JsonResponse({'exists': exists})
+
+
+def create_ingredient(allergens: list | None, ingredient_name: str):
+    if allergens is None:   # Ingrediente già presente nel db
+        ingredient = Ingredient.objects.filter(ingredient_name__iexact=ingredient_name).first()
+        tag = Tag.objects.filter(tag_name__iexact=ingredient_name).first()
+    else:
+        ingredient = Ingredient(
+            ingredient_guid=uuid4(),
+            ingredient_name=ingredient_name.capitalize(),
+            ingredient_allergens=[int(allergen["id"]) for allergen in allergens],
+        )
+        tag = None
+        ingredient.save()
+
+    if not tag:
+        tag = Tag(
+            tag_guid=uuid4(),
+            tag_name=ingredient_name.capitalize(),
+            tag_field="Ingredient",
+            tag_relevance=10
+        )
+        tag.save()
+
+    return ingredient, tag
+
+
+@login_required
+@require_POST
+def toggle_review_interaction(request):
+    # Fetch the review and the user data
+    review_id = request.POST.get("review_id")
+    interaction_type = request.POST.get("interaction_type")
+    user = request.user
+    review = get_object_or_404(Review, id=review_id)
+    interaction, created = ReviewInteraction.objects.get_or_create(rev_interaction_review=review, rev_interaction_user=user)
+    user_rev_interaction = elaborate_interaction(interaction, created, interaction_type)
+    review.review_up_votes = ReviewInteraction.objects.filter(rev_interaction_review=review, interaction_liked=REVIEW_INTERACTION_LIKE).count()
+    review.review_down_votes = ReviewInteraction.objects.filter(rev_interaction_review=review, interaction_liked=REVIEW_INTERACTION_DISLIKE).count()
+    review.save()
+    return JsonResponse({
+        "review_id": review_id,
+        "review_notes": review.review_notes,
+        "review_author": f"{review.review_author_guid.first_name} {review.review_author_guid.last_name}",
+        "likes": review.review_up_votes,
+        "dislikes": review.review_down_votes,
+        "review_grade": review.review_grade,
+        "user_rev_interaction": user_rev_interaction
+    })
+
