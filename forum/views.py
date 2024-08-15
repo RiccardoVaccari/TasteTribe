@@ -111,6 +111,24 @@ def toggle_message_interaction(request):
     user = request.user
     fmessage = get_object_or_404(ForumMessage, id=message_id)
     interaction, created = ForumMessageInteraction.objects.get_or_create(interaction_fmessage=fmessage, interaction_user=user)
+    user_interaction = elaborate_interaction(interaction, created, interaction_type)
+    # Update up votes and down votes for the current message
+    fmessage.fmessage_up_votes = ForumMessageInteraction.objects.filter(interaction_fmessage=fmessage, interaction_liked=INTERACTION_LIKE).count()
+    fmessage.fmessage_down_votes = ForumMessageInteraction.objects.filter(interaction_fmessage=fmessage, interaction_liked=INTERACTION_DISLIKE).count()
+    fmessage.save()
+    return JsonResponse({
+        "message_id": fmessage.id,
+        "message_content": fmessage.fmessage_content,
+        "message_author": f"{fmessage.fmessage_author.first_name} {fmessage.fmessage_author.last_name}",
+        "likes": fmessage.fmessage_up_votes,
+        "dislikes": fmessage.fmessage_down_votes,
+        "creation_date": fmessage.fmessage_creation_date,
+        "user_interaction": user_interaction
+    })
+
+
+# To be placed in a util file
+def elaborate_interaction(interaction, created, interaction_type):
     # Parameter to pass to the frontend in order to render dynamically the like/dislike icons
     user_interaction = 0
     if interaction_type == "like":
@@ -136,16 +154,4 @@ def toggle_message_interaction(request):
         else:
             interaction.interaction_liked = INTERACTION_DISLIKE
             interaction.save()
-    # Update up votes and down votes for the current message
-    fmessage.fmessage_up_votes = ForumMessageInteraction.objects.filter(interaction_fmessage=fmessage, interaction_liked=INTERACTION_LIKE).count()
-    fmessage.fmessage_down_votes = ForumMessageInteraction.objects.filter(interaction_fmessage=fmessage, interaction_liked=INTERACTION_DISLIKE).count()
-    fmessage.save()
-    return JsonResponse({
-        "message_id": fmessage.id,
-        "message_content": fmessage.fmessage_content,
-        "message_author": f"{fmessage.fmessage_author.first_name} {fmessage.fmessage_author.last_name}",
-        "likes": fmessage.fmessage_up_votes,
-        "dislikes": fmessage.fmessage_down_votes,
-        "creation_date": fmessage.fmessage_creation_date,
-        "user_interaction": user_interaction
-    })
+    return user_interaction

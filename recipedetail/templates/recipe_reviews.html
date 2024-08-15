@@ -2,11 +2,26 @@
     <strong>RECENSIONI UTENTI:</strong>
     <ul>
         {% for review in reviews %}
-            <li class="review-item">
-                Recensione di {% if request.session.loggeduser and not locked_reviews %} {{review.review_author_guid.reg_user_name}} {{review.review_author_guid.reg_user_surname}} {% else %} Anonimo {% endif %}:
-                <br> {{review.review_grade}} stelle - {{review.review_notes}}
-                <br> Upvotes: {{review.review_up_votes}} Downvotes: {{review.review_down_votes}}
-            </li>
+            <div class="recipe-review" id="review-{{ review.id }}">
+                <p>Recensione di {% if locked_reviews %}Anonimo{% else %}{{ review.review_author_guid.first_name }} {{ review.review_author_guid.last_name }}{% endif %}</p>
+                <p>Voto: {{ review.review_grade }} - {{ review.review_notes }}</p>
+                <span class="like-icon" data-review-id="{{ review.id }}" data-interaction-type="like">
+                    {% if review.user_interaction == 1 %}
+                        <i class="fa-solid fa-thumbs-up" id="like-icon-{{ review.id }}" style="color: #0a9900;"></i>
+                    {% else %}
+                        <i class="fa-regular fa-thumbs-up" id="like-icon-{{ review.id }}" style="color: #000000;"></i>
+                    {% endif %}
+                    <small>{{ review.review_up_votes }}</small>
+                </span>
+                <span class="dislike-icon" data-review-id="{{ review.id }}" data-interaction-type="dislike">
+                    {% if review.user_interaction == -1 %}
+                        <i class="fa-solid fa-thumbs-down" id="dislike-icon-{{ review.id }}" style="color: #b80000;"></i>
+                    {% else %}
+                        <i class="fa-regular fa-thumbs-down" id="dislike-icon-{{ review.id }}" style="color: #000000;"></i>
+                    {% endif %}
+                    <small>{{ review.review_down_votes }}</small>
+                </span>
+            </div>
         {% endfor %}
     </ul>
 </div>

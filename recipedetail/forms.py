@@ -12,7 +12,7 @@ CATEGORIES = [
     ("Antipasto", "Antipasto"),
     ("Primo piatto", "Primo piatto"),
     ("Secondo piatto", "Secondo piatto"),
-    ("Contorno", "Contorno"),
+    # ("Contorno", "Contorno"),
     ("Dessert", "Dessert"),
 ]
 

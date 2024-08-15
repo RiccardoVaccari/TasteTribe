@@ -13,6 +13,7 @@ from .models import Ingredient, Allergen, IngredientXRecipe, RecipeStep
 from .forms import CreateRecipeForm, EditRecipeForm 
 
 
+
 # RECIPE DETAILS APP - VIEWS
 class RecipeDetailView(DetailView):
     model = Recipe
@@ -65,7 +66,7 @@ class RecipeCreateView(LoginRequiredMixin, CreateView):
             ingredient_x_recipe = IngredientXRecipe(
                 ixr_recipe_guid=recipe,
                 ixr_ingredient_guid=ingredient,
-                ixr_dosage_per_person=ingredient_data.get("dosage")
+                ixr_dosage_per_person=ingredient_data.get("dosage")[:50]
             )
             self.ingredients_x_recipe.append(ingredient_x_recipe)
 
@@ -239,6 +240,7 @@ def check_ingredient(request, *args, **kwargs):
 
     return JsonResponse({'exists': exists})
 
+
 def create_ingredient(allergens: list | None, ingredient_name: str):
     if allergens is None:   # Ingrediente già presente nel db
         ingredient = Ingredient.objects.filter(ingredient_name__iexact=ingredient_name).first()
@@ -262,3 +264,28 @@ def create_ingredient(allergens: list | None, ingredient_name: str):
         tag.save()
 
     return ingredient, tag
+
+
+@login_required
+@require_POST
+def toggle_review_interaction(request):
+    # Fetch the review and the user data
+    review_id = request.POST.get("review_id")
+    interaction_type = request.POST.get("interaction_type")
+    user = request.user
+    review = get_object_or_404(Review, id=review_id)
+    interaction, created = ReviewInteraction.objects.get_or_create(rev_interaction_review=review, rev_interaction_user=user)
+    user_rev_interaction = elaborate_interaction(interaction, created, interaction_type)
+    review.review_up_votes = ReviewInteraction.objects.filter(rev_interaction_review=review, interaction_liked=REVIEW_INTERACTION_LIKE).count()
+    review.review_down_votes = ReviewInteraction.objects.filter(rev_interaction_review=review, interaction_liked=REVIEW_INTERACTION_DISLIKE).count()
+    review.save()
+    return JsonResponse({
+        "review_id": review_id,
+        "review_notes": review.review_notes,
+        "review_author": f"{review.review_author_guid.first_name} {review.review_author_guid.last_name}",
+        "likes": review.review_up_votes,
+        "dislikes": review.review_down_votes,
+        "review_grade": review.review_grade,
+        "user_rev_interaction": user_rev_interaction
+    })
+

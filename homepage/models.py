@@ -19,10 +19,12 @@ class Recipe(models.Model):
     recipe_creation_date = models.DateField(default=None)
     recipe_author = models.ForeignKey(User, on_delete=models.PROTECT, null=True)
 
+    def __str__(self) -> str:
+        return f"<b>{self.recipe_name.capitalize()}</b> by "
 
 class Tag(models.Model):
     tag_guid = models.UUIDField(primary_key=True)
-    tag_name = models.CharField(max_length=100)
+    tag_name = models.CharField(max_length=100, unique=True)
     tag_field = models.CharField(max_length=50)
     tag_relevance = models.IntegerField()
 
