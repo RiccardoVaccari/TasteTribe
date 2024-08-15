@@ -6,11 +6,14 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
 from django.http import JsonResponse
 from django.shortcuts import redirect
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_GET, require_POST
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
 
 from homepage.models import Recipe, Tag, TagXRecipe
+from .models import *
+from forum.views import elaborate_interaction
 from login.models import RegisteredUser
-from .models import Ingredient, Allergen, IngredientXRecipe, RecipeStep
 from utils import check_user_suspension
 from .forms import CreateRecipeForm, EditRecipeForm 
 
