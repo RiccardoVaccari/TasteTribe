@@ -5,8 +5,10 @@ from django.core.files.base import ContentFile
 from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 from django.views.generic.edit import FormMixin
+from homepage.forms import SearchForm
+from homepage.views import check_user_suspension
 from .models import *
 from .forms import *
 
@@ -44,3 +46,30 @@ class CollectionsView(LoginRequiredMixin, FormMixin, ListView):
             return redirect(self.get_success_url())
         else:
             return self.form_invalid(form)
+
+
+class CollectionDetailView(DetailView):
+    model = RecipesCollection
+    template_name = "collection_details.html"
+    context_object_name = "collection"
+    pk_url_kwarg = "collection_guid"
+    form = SearchForm()
+
+    def get_form(self):
+        reg_user = RegisteredUser.objects.get(user=self.request.user.id)
+        user_suspended = check_user_suspension(reg_user)
+        return SearchForm(user=self.request.user, user_suspended=user_suspended, from_homepage=False)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Fetch collection related data
+        collection_guid_string = self.kwargs.get(self.pk_url_kwarg)
+        context["collection"] = RecipesCollection.objects.get(collection_guid=collection_guid_string)
+        # Fetch recipes stored in collection
+        recipes_guids = RecipeXCollection.objects.filter(rxc_collection_guid=collection_guid_string)
+        recipes = Recipe.objects.filter(recipe_guid__in=recipes_guids.values_list("rxc_recipe_guid", flat=True))
+        context["recipes"] = recipes
+        # The search form will be displayed only if a user is exploring its own collections
+        context["form"] = self.get_form()
+        context["user"] = self.request.user
+        return context

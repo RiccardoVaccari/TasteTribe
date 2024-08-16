@@ -47,5 +47,6 @@ urlpatterns = [
     path("forum/create/", ForumThreadCreateView.as_view(), name="forum_create_thread"),
     path("forum/thread/<uuid:thread_guid>/", ForumThreadView.as_view(), name="forum_thread"),
     path("forum/thread/toggle_interaction/", toggle_message_interaction, name="toggle_interaction"),
-    path("collections/", CollectionsView.as_view(), name="collections")
+    path("collections/", CollectionsView.as_view(), name="collections"),
+    path("collections/<uuid:collection_guid>/", CollectionDetailView.as_view(), name="collection_details")
 ]

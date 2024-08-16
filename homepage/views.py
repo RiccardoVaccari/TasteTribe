@@ -39,7 +39,7 @@ class HomepageView(ListView):
         return Recipe.objects.filter(recipe_guid__in=all_ids)
     
     def get_form(self):
-        return SearchForm(user=self.request.user, user_suspended=self.user_suspended)
+        return SearchForm(user=self.request.user, user_suspended=self.user_suspended, from_homepage=True)
     
     def update_notifications(self):
         self.notifications_to_read = []
@@ -132,12 +132,13 @@ class RecipeSearchView(View):
             user_suspended = check_user_suspension(reg_user)
         except RegisteredUser.DoesNotExist:
             pass
-        form = SearchForm(request.GET or None, user=request.user, user_suspended=user_suspended)
+        form = SearchForm(request.GET or None, user=request.user, user_suspended=user_suspended, from_homepage=True)
         recipes = Recipe.objects.none()
         if form.is_valid():
             search_string = form.cleaned_data.get("search_string")
             # Check whether the user is authenticated AND is not suspended or not and eventually force the search parameter
-            if request.user.is_authenticated and not user_suspended:
+            from_homepage = form.cleaned_data.get("from_homepage", True)
+            if request.user.is_authenticated and not user_suspended and from_homepage:
                 search_param = form.cleaned_data.get("search_param")
             else:
                 search_param = "recipe_title"

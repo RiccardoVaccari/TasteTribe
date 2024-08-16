@@ -22,7 +22,7 @@
     <ul class="my-collections-list">
         {% for user_collection in user_collections %}
         	<li>
-                <a href="">
+                <a href="{% url 'collection_details' user_collection.collection_guid %}">
                     <h3>{{ user_collection.collection_name }}</h3> <img src="data:image/jpeg;base64,{{ user_collection.collection_cover }}" alt="">
                     <small>di {{ user_collection.collection_author.first_name }} {{ user_collection.collection_author.last_name }} - creata in data {{ user_collection.collection_creation_date }}</small>
                 </a>
@@ -41,7 +41,7 @@
             {% for collection in other_collections %}
                 {% if not collection.collection_is_private %}
                 <li>
-                    <a href="">
+                    <a href="{% url 'collection_details' collection.collection_guid %}">
                         <h3>{{ collection.collection_name }}</h3> <img src="data:image/png;base64,{{ collection.collection_cover }}" alt="">
                         <small>di {{ collection.collection_author.first_name }} {{ collection.collection_author.last_name }} - creata in data {{ collection.collection_creation_date }}</small>
                     </a>
@@ -75,9 +75,8 @@
 
 <script>
     $(document).ready(function() {
-        // Bind to the form submit event
         $("#collectionCreationForm").on("submit", function(event) {
-            event.preventDefault(); // Prevent the default form submission
+            event.preventDefault();
 
             var collectionCover = document.getElementById("id_collection_cover");
             var file = collectionCover.files[0];
@@ -86,28 +85,28 @@
                 var reader = new FileReader();
                 reader.onloadend = function() {
                     var base64String = reader.result;
-                    $("#b64_collection_cover").val(base64String); // Set base64 string to hidden input
-                    submitForm(); // Call the function to submit the form
+                    $("#b64_collection_cover").val(base64String);
+                    submitForm();
                 };
                 reader.readAsDataURL(file);
             } else {
-                submitForm(); // Submit the form if no file is selected
+                submitForm();
             }
         });
 
         function submitForm() {
             $.ajax({
-                url: "{% url 'collections' %}", // Adjust this URL if needed
+                url: "{% url 'collections' %}",
                 type: "POST",
                 data: new FormData($("#collectionCreationForm")[0]),
                 processData: false,
                 contentType: false,
                 success: function(response) {
-                    $("#collectionCreationModal").modal("hide"); // Hide modal on success
-                    location.reload(); // Reload the page to reflect changes
+                    $("#collectionCreationModal").modal("hide");
+                    location.reload();
                 },
                 error: function(xhr, status, error) {
-                    console.error(xhr.responseText); // Log error details
+                    console.error(xhr.responseText);
                     alert("Spiacente, si è verificato un errore in fase di creazione, riprovare!");
                 }
             });
