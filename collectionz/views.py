@@ -3,8 +3,10 @@ import uuid
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.base import ContentFile
 from django.db.models import Q
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
+from django.views.decorators.http import require_POST
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import FormMixin
 from homepage.forms import SearchForm
@@ -73,3 +75,16 @@ class CollectionDetailView(DetailView):
         context["form"] = self.get_form()
         context["user"] = self.request.user
         return context
+
+
+@require_POST
+def delete_recipe_from_collection(request):
+    collection_guid = request.POST.get("collection_guid")
+    recipe_guid = request.POST.get("recipe_guid")
+    try:
+        collection = RecipesCollection.objects.get(collection_guid=collection_guid)
+        recipe = Recipe.objects.get(recipe_guid=recipe_guid)
+        RecipeXCollection.objects.filter(rxc_collection_guid=collection, rxc_recipe_guid=recipe).delete()
+        return JsonResponse({"success": True})
+    except (RecipesCollection.DoesNotExist, Recipe.DoesNotExist):
+        return JsonResponse({"success": False, "error": "Invalid collection or recipe"}, status=400)
