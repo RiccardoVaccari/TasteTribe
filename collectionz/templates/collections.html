@@ -2,6 +2,14 @@
 
 {% load crispy_forms_tags %}
 
+{% block head %}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+{% endblock %}
+
 {% block title %}TasteTribe - Raccolte{% endblock %}
 
 {% block content %}
@@ -21,8 +29,9 @@
             </li>
         {% endfor %}
     </ul>
+    <button id="btnCollectionCreation" data-bs-toggle="modal" data-bs-target="#collectionCreationModal">Crea una nuova raccolta</button>
     {% else %}
-    <p>Sembra che tu non abbia ancora creato delle raccolte, <a href="">rimedia subito!</a></p>
+    <p>Sembra che tu non abbia ancora creato delle raccolte, <button id="btnCollectionCreation" data-bs-toggle="modal" data-bs-target="#collectionCreationModal">creane subito una!</button></p>
     {% endif %}
 </div>
 <div class="recommended-collections">
@@ -30,18 +39,80 @@
     {% if other_collections %}
     <ul class="recommended-collections-list">
             {% for collection in other_collections %}
+                {% if not collection.collection_is_private %}
                 <li>
                     <a href="">
                         <h3>{{ collection.collection_name }}</h3> <img src="data:image/png;base64,{{ collection.collection_cover }}" alt="">
                         <small>di {{ collection.collection_author.first_name }} {{ collection.collection_author.last_name }} - creata in data {{ collection.collection_creation_date }}</small>
                     </a>
                 </li>
+                {% endif %}
             {% endfor %}
-
     </ul>
     {% else %}
     <p>Spiacente, al momento non ci sono nuove raccolte di ricette da scoprire!</p>
     {% endif %}
 </div>
+
+<!-- Modal for Collection Creation -->
+<div class="modal fade" id="collectionCreationModal" tabindex="-1" aria-labelledby="collectionCreationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="collectionCreationModalLabel">Crea una nuova raccolta di ricette</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="collectionCreationForm" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% crispy form %}
+                    <input type="hidden" id="b64_collection_cover" name="collection_cover">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        // Bind to the form submit event
+        $("#collectionCreationForm").on("submit", function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            var collectionCover = document.getElementById("id_collection_cover");
+            var file = collectionCover.files[0];
+
+            if (file) {
+                var reader = new FileReader();
+                reader.onloadend = function() {
+                    var base64String = reader.result;
+                    $("#b64_collection_cover").val(base64String); // Set base64 string to hidden input
+                    submitForm(); // Call the function to submit the form
+                };
+                reader.readAsDataURL(file);
+            } else {
+                submitForm(); // Submit the form if no file is selected
+            }
+        });
+
+        function submitForm() {
+            $.ajax({
+                url: "{% url 'collections' %}", // Adjust this URL if needed
+                type: "POST",
+                data: new FormData($("#collectionCreationForm")[0]),
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    $("#collectionCreationModal").modal("hide"); // Hide modal on success
+                    location.reload(); // Reload the page to reflect changes
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText); // Log error details
+                    alert("Spiacente, si è verificato un errore in fase di creazione, riprovare!");
+                }
+            });
+        }
+    });
+</script>
 
 {% endblock %}
