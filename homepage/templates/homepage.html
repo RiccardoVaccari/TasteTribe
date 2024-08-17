@@ -35,6 +35,20 @@
     </ul>
     {% endif %}
             
+    {% if tags_recipes %}
+    <h2>In base ai tuoi gusti</h2>
+    <ul>
+        {% for recipe in tags_recipes %}
+            <li>
+                <b>{{ recipe.recipe_name }}</b>
+                by <a href="/profile/{{ recipe.recipe_author.id }}">@{{ recipe.recipe_author.username }}</a>
+                <i>Created ({{ recipe.recipe_creation_date }})</i>  
+                <a href="/recipe/{{ recipe.recipe_guid }}"> Vai alla ricetta </a>
+            </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+            
     {% if ingredient_recipes %}
     <h2>Altre ricette con {{ ingredient_name }}</h2>
     <ul>

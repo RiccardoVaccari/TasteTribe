@@ -4,7 +4,7 @@ import time
 from typing import Any
 from django.shortcuts import render
 from django.views.generic import ListView, View
-from django.db.models import Q
+from django.db.models import Q, Count
 
 from recipedetail.models import Ingredient
 from login.models import RegisteredUser
@@ -60,8 +60,16 @@ class HomepageView(ListView):
         context['form'] = self.get_form()
         context['user'] = self.request.user
 
+        # RS
         if self.request.user and self.request.user.is_authenticated and not self.user_suspended:
             context["latest_recipes"] = self.get_latest_publish()
+
+            # TAGs
+            user_recent_tags = RegisteredUser.objects.get(
+                user=self.request.user).reg_user_search_history.get("tags", [])
+
+            if user_recent_tags:
+                context["tags_recipes"] = self.get_reccomended_by_tags(user_recent_tags)
 
             latest_ingredients = RegisteredUser.objects.get(
                 user=self.request.user).reg_user_search_history.get("ingredients")
@@ -81,6 +89,20 @@ class HomepageView(ListView):
 
     def get_latest_publish(self, n: int = 20):
         return Recipe.objects.order_by('-recipe_creation_date')[:int(n)]
+
+    def get_reccomended_by_tags(self, user_recent_tags: list[str], n: int = 20):
+        recommended_recipes = Recipe.objects.filter(
+            tagxrecipe__txr_tag_guid__tag_name__in=user_recent_tags
+        ).exclude(
+            Q(recipe_is_private=True) |
+            Q(recipe_author=self.request.user)
+        ).annotate(
+            matched_tags=Count('tagxrecipe__txr_tag_guid')
+        ).order_by('-matched_tags')
+
+        if recommended_recipes.exists():
+            return list(recommended_recipes)[:n]
+        return []
 
     def get_recipes_by_ingredient(self, ingredient_name: str, n: int = 20):
         try:
