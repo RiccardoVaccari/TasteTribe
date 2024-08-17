@@ -34,16 +34,7 @@ class CollectionsView(LoginRequiredMixin, FormMixin, ListView):
         form = self.get_form()
         if form.is_valid():
             collection = form.save(commit=False)
-            collection.collection_guid = uuid.uuid4()
-            collection.collection_author = request.user
-            collection.collection_creation_date = datetime.datetime.now()
-            # Handle base64 image conversion
-            b64_collection_cover = request.POST.get("collection_cover")
-            if b64_collection_cover:
-                image_data = base64.b64decode(b64_collection_cover.split(',')[1])
-                image_file = ContentFile(image_data, name='collection_cover.png')
-                collection.collection_cover = image_file
-            collection.save()
+            collection_creation(collection, request)
             # After performing all the necessary information, redirect to success url
             return redirect(self.get_success_url())
         else:
@@ -88,3 +79,17 @@ def delete_recipe_from_collection(request):
         return JsonResponse({"success": True})
     except (RecipesCollection.DoesNotExist, Recipe.DoesNotExist):
         return JsonResponse({"success": False, "error": "Invalid collection or recipe"}, status=400)
+
+
+# To be transferred to a utils file
+def collection_creation(collection, request):
+    collection.collection_guid = uuid.uuid4()
+    collection.collection_author = request.user
+    collection.collection_creation_date = datetime.datetime.now()
+    # Handle base64 image conversion
+    b64_collection_cover = request.POST.get("collection_cover")
+    if b64_collection_cover:
+        image_data = base64.b64decode(b64_collection_cover.split(',')[1])
+        image_file = ContentFile(image_data, name='collection_cover.png')
+        collection.collection_cover = image_file
+    collection.save()

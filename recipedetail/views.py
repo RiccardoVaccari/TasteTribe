@@ -2,24 +2,41 @@ from typing import Any
 from uuid import uuid4
 from datetime import date
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import DetailView, CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET, require_POST
-from homepage.models import Recipe, Tag, TagXRecipe
+from django.views.generic.edit import FormMixin
+from collectionz.forms import CollectionCreationForm
+from collectionz.views import collection_creation
+from homepage.models import *
+from collectionz.models import *
 from .models import *
 from forum.views import elaborate_interaction
 from .forms import CreateRecipeForm
 
 
 # RECIPE DETAILS APP - VIEWS
-class RecipeDetailView(DetailView):
+class RecipeDetailView(FormMixin, DetailView):
     model = Recipe
     template_name = "recipe_details.html"
     context_object_name = "recipe"
     pk_url_kwarg = "recipe_guid"
+    form_class = CollectionCreationForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Get the logged user
+        user = self.request.user
+        # Get the recipe to be displayed
+        context["recipe"] = self.get_object()
+        context["user"] = user
+        # If the user is registered then handle the possibility to add the recipe to a collection
+        if user.is_authenticated:
+            context["user_collections"] = RecipesCollection.objects.filter(collection_author=user.id)
+        return context
 
     def get_object(self, queryset=None):
         guid_string = self.kwargs.get(self.pk_url_kwarg)
@@ -30,6 +47,18 @@ class RecipeDetailView(DetailView):
             raise Http404("Invalid GUID format passed in the url")
         except Recipe.DoesNotExist:
             raise Http404("No recipe found matching the query")
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        if form.is_valid():
+            collection = form.save(commit=False)
+            collection_creation(collection, request)
+            # After creating the collection, we now need to insert the current recipe into the collection
+            recipe_x_collection = RecipeXCollection.objects.create(rxc_recipe_guid=self.get_object(), rxc_collection_guid=collection)
+            recipe_x_collection.save()  # This line might not be needed
+            return redirect(self.get_success_url())
+        else:
+            return self.form_invalid(form)
 
 
 class RecipeCreateView(LoginRequiredMixin, CreateView):
