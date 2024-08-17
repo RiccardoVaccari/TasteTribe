@@ -9,7 +9,7 @@ class Recipe(models.Model):
     recipe_name = models.CharField(max_length=50)
     recipe_prep_time = models.DurationField()
     recipe_cover = models.TextField(null=True)
-    recipe_notes = models.CharField(max_length=100)
+    recipe_notes = models.CharField(max_length=500)
     recipe_description = models.TextField()
     recipe_category = models.TextField()
     recipe_is_private = models.BooleanField()
