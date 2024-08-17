@@ -29,6 +29,10 @@
 
 {% endif %}
 
+<a href="{% url 'recipe_create_from_existing' recipe.recipe_guid %}" class="btn btn-secondary">
+    Crea nuova ricetta a partire da questa
+</a>
+
 <p><strong>Preparation Time:</strong> {{ recipe.recipe_prep_time }}</p>
 <p><strong>Cover:</strong> <img src="data:image/png;base64,{{ recipe.recipe_cover }}"> </p>
 <p><strong>Notes:</strong> {{ recipe.recipe_notes }}</p>

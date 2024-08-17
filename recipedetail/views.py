@@ -1,7 +1,9 @@
+import json
 from typing import Any
 from uuid import uuid4
 from datetime import date, timedelta
 from random import choice
+from django.urls import reverse
 from django.views.generic import DetailView, CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
@@ -136,6 +138,15 @@ class RecipeCreateView(LoginRequiredMixin, CreateView):
             "allergen_id", "allergen_name", "allergen_description")
         return context
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        starting_recipe_guid = self.kwargs.get('recipe_guid')
+
+        # Passa il recipe_guid come parametro al costruttore del form
+        starting_recipe = get_object_or_404(Recipe, pk=starting_recipe_guid)
+        kwargs["starting_recipe"] = starting_recipe
+        return kwargs
+
     def form_valid(self, form):
 
         # Set the Recipe attributes
@@ -239,15 +250,6 @@ class RecipeEditView(UpdateView):
             return redirect("recipe_details", recipe_guid=recipe.recipe_guid)
         return super().dispatch(request, *args, **kwargs)
 
-    def get_initial(self):
-        initial = super().get_initial()
-
-        prep_time = self.get_object().recipe_prep_time
-        initial['hours'] = prep_time.seconds // 3600
-        initial['minutes'] = (prep_time.seconds // 60) % 60
-
-        return initial
-
     def form_valid(self, form):
         recipe: Recipe = self.get_object()
 
@@ -348,9 +350,11 @@ def check_ingredient(request, *args, **kwargs):
 
 
 def create_ingredient(allergens: list | None, ingredient_name: str):
-    if allergens is None:   # Ingrediente già presente nel db
-        ingredient = Ingredient.objects.filter(
+
+    ingredient = Ingredient.objects.filter(
             ingredient_name__iexact=ingredient_name).first()
+
+    if ingredient:   # Ingrediente già presente nel db
         tag = Tag.objects.filter(tag_name__iexact=ingredient_name).first()
     else:
         ingredient = Ingredient(
@@ -421,26 +425,21 @@ def add_review(request, recipe_guid):
         review_grade = request.POST.get('review_grade')
         review_notes = request.POST.get('review_notes')
 
-        # Check if a star rating has been selected
         if not review_grade:
             messages.error(request, 'Devi selezionare un numero di stelle per lasciare una recensione.')
             return redirect('recipe_detail', recipe_guid=recipe.recipe_guid)
 
-        # Check if notes are provided
         if not review_notes:
             messages.error(request, 'Le note della recensione non possono essere vuote.')
             return redirect('recipe_detail', recipe_guid=recipe.recipe_guid)
         
-        # Check if user has already reviewed this recipe
         review = Review.objects.filter(review_recipe_guid=recipe, review_author_guid=request.user).first()
         if review:
-            # You can either update the existing review or return an error message
             review.review_grade = review_grade
             review.review_notes = review_notes
             review.save()
             response_data = {"new": False}
         else:
-            # Create a new review
             review = Review(
                 review_recipe_guid=recipe,
                 review_author_guid=request.user,

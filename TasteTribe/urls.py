@@ -33,6 +33,7 @@ urlpatterns = [
     path('recipe/<uuid:recipe_guid>/add_review/', add_review, name='add_review'),
     path("recipe/toggle_interaction", toggle_review_interaction, name="review_interaction"),
     path("recipe/create/", RecipeCreateView.as_view(), name="recipe_create"),
+    path('recipe/create/from/<uuid:recipe_guid>/', RecipeCreateView.as_view(), name='recipe_create_from_existing'),
     path("check-ingredient/", check_ingredient, name="check_ingredient"),
     path("register/", UserRegistrationView.as_view(), name="register"),
     path("login/", TasteTribeLoginView.as_view(), name="login"),

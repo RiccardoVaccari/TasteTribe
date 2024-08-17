@@ -12,7 +12,7 @@ CATEGORIES = [
     ("Antipasto", "Antipasto"),
     ("Primo piatto", "Primo piatto"),
     ("Secondo piatto", "Secondo piatto"),
-    # ("Contorno", "Contorno"),
+    ("Contorno", "Contorno"),
     ("Dessert", "Dessert"),
 ]
 
@@ -74,18 +74,32 @@ class RecipeForm(forms.ModelForm):
         ]
 
     def __init__(self, *args, **kwargs):
+        starting_recipe = kwargs.pop("starting_recipe", None)
+
         super().__init__(*args, **kwargs)
 
-        if self.instance and self.instance.pk:
+        if (self.instance and self.instance.pk) or (starting_recipe):
             recipe = self.instance
+            if starting_recipe:
+                recipe = starting_recipe
+                self.fields['recipe_name'].initial = recipe.recipe_name
+                self.fields['recipe_cover'].initial = recipe.recipe_cover
+                self.fields['recipe_notes'].initial = recipe.recipe_notes
+                self.fields['recipe_description'].initial = recipe.recipe_description
+                self.fields['recipe_category'].initial = recipe.recipe_category
+                self.fields['recipe_is_private'].initial = recipe.recipe_is_private
+                self.fields['recipe_is_vegetarian'].initial = recipe.recipe_is_vegetarian
+                self.fields['recipe_gluten_free'].initial = recipe.recipe_gluten_free
+                self.fields['recipe_is_vegan'].initial = recipe.recipe_is_vegan
+
             prep_time = recipe.recipe_prep_time
-            self.fields['hours'].initial = prep_time.seconds // 3600
-            self.fields['minutes'].initial = (prep_time.seconds // 60) % 60
+            self.fields["hours"].initial = prep_time.seconds // 3600
+            self.fields["minutes"].initial = (prep_time.seconds // 60) % 60
 
             # Popola gli ingredienti, steps e tags esistenti
             ingredients = IngredientXRecipe.objects.filter(
-                ixr_recipe_guid=recipe).select_related('ixr_ingredient_guid')
-            self.fields['ingredients_list'].initial = json.dumps([
+                ixr_recipe_guid=recipe).select_related("ixr_ingredient_guid")
+            self.fields["ingredients_list"].initial = json.dumps([
                 {
                     "name": ingredient_x_recipe.ixr_ingredient_guid.ingredient_name,
                     "dosage": ingredient_x_recipe.ixr_dosage_per_person,
@@ -93,7 +107,7 @@ class RecipeForm(forms.ModelForm):
                 } for ingredient_x_recipe in ingredients
             ])
 
-            self.fields['steps_list'].initial = json.dumps([
+            self.fields["steps_list"].initial = json.dumps([
                 {
                     "description": step.step_description,
                     "hours": step.step_required_time.seconds // 3600,
@@ -102,9 +116,9 @@ class RecipeForm(forms.ModelForm):
             ])
 
             tags = TagXRecipe.objects.filter(
-                txr_recipe_guid=recipe).select_related('txr_tag_guid')
-            self.fields['tags_list'].initial = json.dumps([
-                tag_x_recipe.txr_tag_guid.tag_name for tag_x_recipe in tags if tag_x_recipe.txr_tag_guid.tag_field not in ("Ingredient")
+                txr_recipe_guid=recipe).select_related("txr_tag_guid")
+            self.fields["tags_list"].initial = json.dumps([
+                tag_x_recipe.txr_tag_guid.tag_name for tag_x_recipe in tags if tag_x_recipe.txr_tag_guid.tag_field not in ("Ingredient", "Course")
             ])
 
         self.ingredients = []
@@ -128,9 +142,9 @@ class RecipeForm(forms.ModelForm):
                 css_class="row align-items-center"
             ),
             Fieldset(
-                'Categoria',
+                "Categoria",
                 Div(
-                    InlineRadios('recipe_category'),
+                    InlineRadios("recipe_category"),
                 )
             ),
             Fieldset(
@@ -156,8 +170,8 @@ class RecipeForm(forms.ModelForm):
             Fieldset(
                 "Crea passo di preparazione",
                 Div(
-                    Field('step_description'),
-                    Field('step_image'),
+                    Field("step_description"),
+                    Field("step_image"),
                     Div(
                         Div("step_required_hours", css_class="col-md-3",),
                         Div("step_required_minutes", css_class="col-md-3",),
@@ -231,4 +245,4 @@ class EditRecipeForm(RecipeForm):
 class ReviewForm(forms.ModelForm):
     class Meta:
         model = Review
-        fields = ['review_grade', 'review_notes']
+        fields = ["review_grade", "review_notes"]
