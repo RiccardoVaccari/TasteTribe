@@ -66,3 +66,8 @@ def render_recipe_ingredients(recipe_guid):
         return {"ingredients": ingredients}
     except Recipe.DoesNotExist:
         return {"ingredients": None}
+
+
+@register.inclusion_tag("recipe_related_recipes.html")
+def render_recipe_related_recipes(recipes: list[Recipe]):
+    return {"recipes": recipes}

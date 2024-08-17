@@ -36,6 +36,8 @@
 
 {% render_recipe_reviews request.user recipe.recipe_guid %}
 
+{% render_recipe_related_recipes related_recipes %}
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function() {
