@@ -17,10 +17,11 @@ class SearchForm(forms.Form):
     def __init__(self, *args, **kwargs):
         user = kwargs.pop("user", None)
         user_suspended = kwargs.pop("user_suspended", False)
+        from_homepage = kwargs.pop("from_homepage", True)
         super(SearchForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_method = "GET"
-        if user and user.is_authenticated and not user_suspended:
+        if user and user.is_authenticated and not user_suspended and from_homepage:
             self.helper.layout = Layout(
                 "search_string",
                 Div("search_param", css_id="search_param_div"),
@@ -34,3 +35,8 @@ class SearchForm(forms.Form):
             # The following two lines of code are needed in order to set a default for search_param
             self.fields["search_param"].initial = "recipe_title"
             self.fields["search_param"].widget = forms.HiddenInput()
+        self.fields['from_homepage'] = forms.BooleanField(
+            initial=from_homepage,
+            widget=forms.HiddenInput(),
+            required=False
+        )

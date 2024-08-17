@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, re_path
-
+from collectionz.views import *
 from homepage.views import *
 from recipedetail.views import *
 from login.views import *
@@ -50,5 +50,9 @@ urlpatterns = [
     path("forum/", ForumHomeView.as_view(), name="forums"),
     path("forum/create/", ForumThreadCreateView.as_view(), name="forum_create_thread"),
     path("forum/thread/<uuid:thread_guid>/", ForumThreadView.as_view(), name="forum_thread"),
-    path("forum/thread/toggle_interaction/", toggle_message_interaction, name="toggle_interaction")
+    path("forum/thread/toggle_interaction/", toggle_message_interaction, name="toggle_interaction"),
+    path("collections/", CollectionsView.as_view(), name="collections"),
+    path("collections/<uuid:collection_guid>/", CollectionDetailView.as_view(), name="collection_details"),
+    path("delete-from-collection/", delete_recipe_from_collection, name="delete_from_collection"),
+    path("add-to-collection/", add_to_collection, name="add_to_collection")
 ]

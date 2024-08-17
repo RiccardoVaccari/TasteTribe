@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load custom_tags %}
+{% load crispy_forms_tags %}
 
 {% block head %}
 
@@ -17,6 +18,116 @@
 
 <h1>{{ recipe.recipe_name }}</h1>
 
+
+{% if user.is_authenticated %}
+    <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownCollectionsButton" data-bs-toggle="dropdown" aria-expanded="false">
+            Aggiungi a raccolta
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownCollectionsButton">
+            {% for collection in user_collections %}
+                <li><button class="dropdown-item" data-collection="{{ collection.collection_guid }}">{{ collection.collection_name }}</button></li>
+            {% endfor %}
+            <li><hr class="dropdown-divider"></li>
+            <li><button class="dropdown-item" id="createNewCollection" data-bs-toggle="modal" data-bs-target="#collectionCreationModal"><i class="fa-solid fa-plus"></i> Crea nuova raccolta</button></li>
+        </ul>
+    </div>
+
+    <!-- Modal for Collection Creation -->
+    <div class="modal fade" id="collectionCreationModal" tabindex="-1" aria-labelledby="collectionCreationModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="collectionCreationModalLabel">Crea una nuova raccolta di ricette</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="collectionCreationForm" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {% crispy form %}
+                        <input type="hidden" id="b64_collection_cover" name="collection_cover">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script that handles the modal form compiling -->
+    <script>
+        $(document).ready(function() {
+            /* Code section that handles the creation of a new collection from within the current page */
+            $("#collectionCreationForm").on("submit", function(event) {
+                event.preventDefault();
+
+                var collectionCover = document.getElementById("id_collection_cover");
+                var file = collectionCover.files[0];
+
+                if (file) {
+                    var reader = new FileReader();
+                    reader.onloadend = function() {
+                        var base64String = reader.result;
+                        $("#b64_collection_cover").val(base64String);
+                        submitForm();
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    submitForm();
+                }
+            });
+
+            function submitForm() {
+                $.ajax({
+                    url: "{% url 'recipe_details' recipe.recipe_guid %}",
+                    type: "POST",
+                    data: new FormData($("#collectionCreationForm")[0]),
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        $("#collectionCreationModal").modal("hide");
+                        location.reload();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(xhr.responseText);
+                        alert("Spiacente, si è verificato un errore in fase di creazione, riprovare!");
+                    }
+                });
+            }
+
+            /* Code section that handles the insertion of the current recipe into a collection */
+            document.querySelectorAll(".dropdown-item[data-collection]").forEach(function (dropdownItem) {
+                dropdownItem.addEventListener("click", function (event) {
+                    event.preventDefault();
+
+                    var collectionGUID = this.getAttribute("data-collection");
+
+                    fetch("{% url 'add_to_collection' %}", {
+                        method: "POST",
+                        headers: {
+                            "X-CSRFToken": "{{ csrf_token }}"
+                        },
+                        body: new URLSearchParams({
+                            "collection_guid": collectionGUID,
+                            "recipe_guid": "{{ recipe.recipe_guid }}"
+                        })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if(data.status === "success"){
+                                alert(data.message);
+                            } else{
+                                alert("Si è verificato un errore nell'inserimento nella raccolta!");
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Errore:", error)
+                        });
+                });
+            });
+        });
+    </script>
+{% endif %}
+
+
 {% if owner %}
 
 <a href="{% url 'recipe_edit' recipe.recipe_guid %}" class="btn btn-primary">
@@ -32,6 +143,7 @@
 <a href="{% url 'recipe_create_from_existing' recipe.recipe_guid %}" class="btn btn-secondary">
     Crea nuova ricetta a partire da questa
 </a>
+
 
 <p><strong>Preparation Time:</strong> {{ recipe.recipe_prep_time }}</p>
 <p><strong>Cover:</strong> <img src="data:image/png;base64,{{ recipe.recipe_cover }}"> </p>
@@ -100,48 +212,48 @@
             const interactionType = $(this).data("interaction-type");
 
             {% if request.user.is_authenticated %}
-            $.ajax({
-                url: "{% url 'review_interaction' %}",
-                method: "POST",
-                data: {
-                    "review_id": reviewId,
-                    "interaction_type": interactionType,
-                    "csrfmiddlewaretoken": "{{ csrf_token }}"
-                },
-                success: function(data) {
-                    const reviewElement = $("#review-" + data.review_id);
-                    const likeIcon = $("#like-icon-" + data.review_id);
-                    const dislikeIcon = $("#dislike-icon-" + data.review_id);
+                $.ajax({
+                    url: "{% url 'review_interaction' %}",
+                    method: "POST",
+                    data: {
+                        "review_id": reviewId,
+                        "interaction_type": interactionType,
+                        "csrfmiddlewaretoken": "{{ csrf_token }}"
+                    },
+                    success: function(data) {
+                        const reviewElement = $("#review-" + data.review_id);
+                        const likeIcon = $("#like-icon-" + data.review_id);
+                        const dislikeIcon = $("#dislike-icon-" + data.review_id);
 
-                    reviewElement.find(".like-icon small").text(data.likes);
-                    reviewElement.find(".dislike-icon small").text(data.dislikes);
+                        reviewElement.find(".like-icon small").text(data.likes);
+                        reviewElement.find(".dislike-icon small").text(data.dislikes);
 
-                    if (data.user_rev_interaction === 1) {
-                        likeIcon.removeClass();
-                        likeIcon.addClass("fa-solid fa-thumbs-up");
-                        likeIcon.css("color", "#0a9900");
-                        dislikeIcon.removeClass();
-                        dislikeIcon.addClass("fa-regular fa-thumbs-down");
-                        dislikeIcon.css("color", "#000000");
-                    } else if (data.user_rev_interaction === -1) {
-                        likeIcon.removeClass();
-                        likeIcon.addClass("fa-regular fa-thumbs-up");
-                        likeIcon.css("color", "#000000");
-                        dislikeIcon.removeClass();
-                        dislikeIcon.addClass("fa-solid fa-thumbs-down");
-                        dislikeIcon.css("color", "#b80000");
-                    } else {
-                        likeIcon.removeClass();
-                        likeIcon.addClass("fa-regular fa-thumbs-up");
-                        likeIcon.css("color", "#000000");
-                        dislikeIcon.removeClass();
-                        dislikeIcon.addClass("fa-regular fa-thumbs-down");
-                        dislikeIcon.css("color", "#000000");
+                        if (data.user_rev_interaction === 1) {
+                            likeIcon.removeClass();
+                            likeIcon.addClass("fa-solid fa-thumbs-up");
+                            likeIcon.css("color", "#0a9900");
+                            dislikeIcon.removeClass();
+                            dislikeIcon.addClass("fa-regular fa-thumbs-down");
+                            dislikeIcon.css("color", "#000000");
+                        } else if (data.user_rev_interaction === -1) {
+                            likeIcon.removeClass();
+                            likeIcon.addClass("fa-regular fa-thumbs-up");
+                            likeIcon.css("color", "#000000");
+                            dislikeIcon.removeClass();
+                            dislikeIcon.addClass("fa-solid fa-thumbs-down");
+                            dislikeIcon.css("color", "#b80000");
+                        } else {
+                            likeIcon.removeClass();
+                            likeIcon.addClass("fa-regular fa-thumbs-up");
+                            likeIcon.css("color", "#000000");
+                            dislikeIcon.removeClass();
+                            dislikeIcon.addClass("fa-regular fa-thumbs-down");
+                            dislikeIcon.css("color", "#000000");
+                        }
                     }
-                }
-            });
+                });
             {% else %}
-            alert("ATTENZIONE: Devi essere registrato per poter mettere mi piace alle recensioni!");
+                alert("ATTENZIONE: Devi essere registrato per poter mettere mi piace alle recensioni!");
             {% endif %}
         });
     });
