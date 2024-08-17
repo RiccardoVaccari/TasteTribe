@@ -10,7 +10,7 @@ from django.shortcuts import redirect
 from django.views.decorators.http import require_GET, require_POST
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
-from django.db.models import Q
+from django.db.models import Count, Q
 
 from homepage.models import Recipe, Tag, TagXRecipe
 from .models import *
@@ -70,11 +70,21 @@ class RecipeDetailView(DetailView):
             context["owner"] = True
 
         context["related_recipes"] = list()
-        context["related_recipes"].append(choice(list(Recipe.objects.filter(
-            recipe_author=recipe.recipe_author).exclude(recipe_guid=recipe.recipe_guid, recipe_is_private=True, recipe_author=self.request.user))))
 
+        # Aggiungi ricette dello stesso autore
+        author_related_recipes = Recipe.objects.filter(
+            recipe_author=recipe.recipe_author
+        ).exclude(
+            Q(recipe_guid=recipe.recipe_guid) |
+            Q(recipe_is_private=True)
+        )
+        if author_related_recipes.exists():
+            context["related_recipes"].append(
+                choice(list(author_related_recipes)))
+
+        # Trova il tag "Course" associato alla ricetta corrente
         portata_tag = Tag.objects.filter(
-            tagxrecipe__txr_recipe_guid=recipe, 
+            tagxrecipe__txr_recipe_guid=recipe,
             tag_field="Course"
         ).first()
 
@@ -82,10 +92,33 @@ class RecipeDetailView(DetailView):
         if portata_tag:
             related_recipes = Recipe.objects.filter(
                 tagxrecipe__txr_tag_guid=portata_tag
+            ).exclude(
+                Q(recipe_guid=recipe.recipe_guid) | 
+                Q(recipe_is_private=True) | 
+                Q(recipe_author=self.request.user)
             )
 
             if related_recipes.exists():
-                context["related_recipes"].append(choice(list(related_recipes)))
+                context["related_recipes"].append(
+                    choice(list(related_recipes)))
+
+        user_recent_tags = reg_user.reg_user_search_history.get("tags", [])
+
+        if user_recent_tags:
+            recommended_recipes = Recipe.objects.filter(
+                tagxrecipe__txr_tag_guid__tag_name__in=user_recent_tags
+            ).exclude(
+                Q(recipe_guid=recipe.recipe_guid) |
+                Q(recipe_is_private=True) |
+                Q(recipe_author=self.request.user)
+            ).annotate(
+                matched_tags=Count('tagxrecipe__txr_tag_guid')
+            ).order_by('-matched_tags')
+
+            if recommended_recipes.exists():
+                context["related_recipes"].extend(list(recommended_recipes))
+
+        context["related_recipes"] = context["related_recipes"][:3]
 
         return context
 

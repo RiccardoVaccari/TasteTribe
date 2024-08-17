@@ -26,7 +26,7 @@
 <p><strong>Gluten Free:</strong> {{ recipe.recipe_gluten_free }}</p>
 <p><strong>Vegan:</strong> {{ recipe.recipe_is_vegan }}</p>
 <p><strong>Creation Date:</strong> {{ recipe.recipe_creation_date }}</p>
-<p><strong>Author:</strong> {{ recipe.recipe_author.reg_user_name }} {{ recipe.recipe_author.reg_user_surname }}</p>
+<p><strong>Author:</strong> {{ recipe.recipe_author.first_name }} {{ recipe.recipe_author.last_name }}</p>
 
 {% render_recipe_related_tags recipe.recipe_guid %}
 
