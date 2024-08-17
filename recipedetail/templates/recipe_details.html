@@ -16,6 +16,19 @@
 {% block content %}
 
 <h1>{{ recipe.recipe_name }}</h1>
+
+{% if owner %}
+
+<a href="{% url 'recipe_edit' recipe.recipe_guid %}" class="btn btn-primary">
+    Modifica ricetta
+</a>
+
+<button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+    Elimina ricetta
+</button>
+
+{% endif %}
+
 <p><strong>Preparation Time:</strong> {{ recipe.recipe_prep_time }}</p>
 <p><strong>Cover:</strong> <img src="data:image/png;base64,{{ recipe.recipe_cover }}"> </p>
 <p><strong>Notes:</strong> {{ recipe.recipe_notes }}</p>
@@ -38,9 +51,46 @@
 
 {% render_recipe_related_recipes related_recipes %}
 
+<!-- Modal for confirming deletion -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Conferma eliminazione</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Sei sicuro di voler eliminare questa ricetta? Questa azione non può essere annullata.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Elimina</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function() {
+        // Handle delete confirmation
+        $('#confirmDelete').click(function() {
+            $.ajax({
+                url: "{% url 'delete_recipe' recipe.recipe_guid %}",
+                type: "POST",
+                data: {
+                    csrfmiddlewaretoken: "{{ csrf_token }}"
+                },
+                success: function(response) {
+                    window.location.href = "/";  // Redirect to homepage on success
+                },
+                error: function(xhr) {
+                    alert("Si è verificato un errore durante l'eliminazione della ricetta.");
+                }
+            });
+        });
+
+        // Handling like and dislike interactions (existing functionality)
         $(document).on("click", ".like-icon, .dislike-icon", function() {
             const reviewId = $(this).data("review-id");
             const interactionType = $(this).data("interaction-type");

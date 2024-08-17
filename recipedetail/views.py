@@ -398,3 +398,14 @@ def toggle_review_interaction(request):
         "review_grade": review.review_grade,
         "user_rev_interaction": user_rev_interaction
     })
+
+def delete_recipe(request, recipe_guid):
+    if request.method == "POST":
+        recipe = get_object_or_404(Recipe, recipe_guid=recipe_guid)
+        if recipe.recipe_author == request.user:
+            recipe.delete()
+            return JsonResponse({"success": True})
+        else:
+            return JsonResponse({"success": False}, status=403)
+
+    return JsonResponse({"success": False}, status=405)
