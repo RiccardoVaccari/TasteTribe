@@ -1,16 +1,19 @@
 from typing import Any
 from uuid import uuid4
 from datetime import date, timedelta
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
 from django.views.generic import DetailView, CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
 from django.http import JsonResponse
 from django.shortcuts import redirect
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_GET, require_POST
 
+from forum.views import elaborate_interaction
 from homepage.models import Recipe, Tag, TagXRecipe
 from login.models import RegisteredUser
-from .models import Ingredient, Allergen, IngredientXRecipe, RecipeStep
+from .models import *
 from utils import check_user_suspension
 from .forms import CreateRecipeForm, EditRecipeForm 
 
