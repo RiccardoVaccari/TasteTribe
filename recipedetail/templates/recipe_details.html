@@ -25,7 +25,7 @@
         </button>
         <ul class="dropdown-menu" aria-labelledby="dropdownCollectionsButton">
             {% for collection in user_collections %}
-                <li><a class="dropdown-item" id="collection-{{ collection.collection_guid }}">{{ collection.collection_name }}</a></li>
+                <li><button class="dropdown-item" data-collection="{{ collection.collection_guid }}">{{ collection.collection_name }}</button></li>
             {% endfor %}
             <li><hr class="dropdown-divider"></li>
             <li><button class="dropdown-item" id="createNewCollection" data-bs-toggle="modal" data-bs-target="#collectionCreationModal"><i class="fa-solid fa-plus"></i> Crea nuova raccolta</button></li>
@@ -54,6 +54,7 @@
     <!-- Script that handles the modal form compiling -->
     <script>
         $(document).ready(function() {
+            /* Code section that handles the creation of a new collection from within the current page */
             $("#collectionCreationForm").on("submit", function(event) {
                 event.preventDefault();
 
@@ -75,7 +76,7 @@
 
             function submitForm() {
                 $.ajax({
-                    url: "{% url 'collections' %}",
+                    url: "{% url 'recipe_details' recipe.recipe_guid %}",
                     type: "POST",
                     data: new FormData($("#collectionCreationForm")[0]),
                     processData: false,
@@ -90,6 +91,37 @@
                     }
                 });
             }
+
+            /* Code section that handles the insertion of the current recipe into a collection */
+            document.querySelectorAll(".dropdown-item[data-collection]").forEach(function (dropdownItem) {
+                dropdownItem.addEventListener("click", function (event) {
+                    event.preventDefault();
+
+                    var collectionGUID = this.getAttribute("data-collection");
+
+                    fetch("{% url 'add_to_collection' %}", {
+                        method: "POST",
+                        headers: {
+                            "X-CSRFToken": "{{ csrf_token }}"
+                        },
+                        body: new URLSearchParams({
+                            "collection_guid": collectionGUID,
+                            "recipe_guid": "{{ recipe.recipe_guid }}"
+                        })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if(data.status === "success"){
+                                alert(data.message);
+                            } else{
+                                alert("Si è verificato un errore nell'inserimento nella raccolta!");
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Errore:", error)
+                        });
+                });
+            });
         });
     </script>
 {% endif %}
@@ -122,48 +154,48 @@
             const interactionType = $(this).data("interaction-type");
 
             {% if request.user.is_authenticated %}
-            $.ajax({
-                url: "{% url 'review_interaction' %}",
-                method: "POST",
-                data: {
-                    "review_id": reviewId,
-                    "interaction_type": interactionType,
-                    "csrfmiddlewaretoken": "{{ csrf_token }}"
-                },
-                success: function(data) {
-                    const reviewElement = $("#review-" + data.review_id);
-                    const likeIcon = $("#like-icon-" + data.review_id);
-                    const dislikeIcon = $("#dislike-icon-" + data.review_id);
+                $.ajax({
+                    url: "{% url 'review_interaction' %}",
+                    method: "POST",
+                    data: {
+                        "review_id": reviewId,
+                        "interaction_type": interactionType,
+                        "csrfmiddlewaretoken": "{{ csrf_token }}"
+                    },
+                    success: function(data) {
+                        const reviewElement = $("#review-" + data.review_id);
+                        const likeIcon = $("#like-icon-" + data.review_id);
+                        const dislikeIcon = $("#dislike-icon-" + data.review_id);
 
-                    reviewElement.find(".like-icon small").text(data.likes);
-                    reviewElement.find(".dislike-icon small").text(data.dislikes);
+                        reviewElement.find(".like-icon small").text(data.likes);
+                        reviewElement.find(".dislike-icon small").text(data.dislikes);
 
-                    if (data.user_rev_interaction === 1) {
-                        likeIcon.removeClass();
-                        likeIcon.addClass("fa-solid fa-thumbs-up");
-                        likeIcon.css("color", "#0a9900");
-                        dislikeIcon.removeClass();
-                        dislikeIcon.addClass("fa-regular fa-thumbs-down");
-                        dislikeIcon.css("color", "#000000");
-                    } else if (data.user_rev_interaction === -1) {
-                        likeIcon.removeClass();
-                        likeIcon.addClass("fa-regular fa-thumbs-up");
-                        likeIcon.css("color", "#000000");
-                        dislikeIcon.removeClass();
-                        dislikeIcon.addClass("fa-solid fa-thumbs-down");
-                        dislikeIcon.css("color", "#b80000");
-                    } else {
-                        likeIcon.removeClass();
-                        likeIcon.addClass("fa-regular fa-thumbs-up");
-                        likeIcon.css("color", "#000000");
-                        dislikeIcon.removeClass();
-                        dislikeIcon.addClass("fa-regular fa-thumbs-down");
-                        dislikeIcon.css("color", "#000000");
+                        if (data.user_rev_interaction === 1) {
+                            likeIcon.removeClass();
+                            likeIcon.addClass("fa-solid fa-thumbs-up");
+                            likeIcon.css("color", "#0a9900");
+                            dislikeIcon.removeClass();
+                            dislikeIcon.addClass("fa-regular fa-thumbs-down");
+                            dislikeIcon.css("color", "#000000");
+                        } else if (data.user_rev_interaction === -1) {
+                            likeIcon.removeClass();
+                            likeIcon.addClass("fa-regular fa-thumbs-up");
+                            likeIcon.css("color", "#000000");
+                            dislikeIcon.removeClass();
+                            dislikeIcon.addClass("fa-solid fa-thumbs-down");
+                            dislikeIcon.css("color", "#b80000");
+                        } else {
+                            likeIcon.removeClass();
+                            likeIcon.addClass("fa-regular fa-thumbs-up");
+                            likeIcon.css("color", "#000000");
+                            dislikeIcon.removeClass();
+                            dislikeIcon.addClass("fa-regular fa-thumbs-down");
+                            dislikeIcon.css("color", "#000000");
+                        }
                     }
-                }
-            });
+                });
             {% else %}
-            alert("ATTENZIONE: Devi essere registrato per poter mettere mi piace alle recensioni!");
+                alert("ATTENZIONE: Devi essere registrato per poter mettere mi piace alle recensioni!");
             {% endif %}
         });
     });

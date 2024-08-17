@@ -49,5 +49,6 @@ urlpatterns = [
     path("forum/thread/toggle_interaction/", toggle_message_interaction, name="toggle_interaction"),
     path("collections/", CollectionsView.as_view(), name="collections"),
     path("collections/<uuid:collection_guid>/", CollectionDetailView.as_view(), name="collection_details"),
-    path("delete-from-collection/", delete_recipe_from_collection, name="delete_from_collection")
+    path("delete-from-collection/", delete_recipe_from_collection, name="delete_from_collection"),
+    path("add-to-collection/", add_to_collection, name="add_to_collection")
 ]

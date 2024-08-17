@@ -56,7 +56,7 @@ class RecipeDetailView(FormMixin, DetailView):
             # After creating the collection, we now need to insert the current recipe into the collection
             recipe_x_collection = RecipeXCollection.objects.create(rxc_recipe_guid=self.get_object(), rxc_collection_guid=collection)
             recipe_x_collection.save()  # This line might not be needed
-            return redirect(self.get_success_url())
+            return JsonResponse({"success": True})
         else:
             return self.form_invalid(form)
 
@@ -209,3 +209,22 @@ def toggle_review_interaction(request):
         "review_grade": review.review_grade,
         "user_rev_interaction": user_rev_interaction
     })
+
+
+@require_POST
+def add_to_collection(request):
+    # Fetch parameters passed by frontend
+    collection_guid = request.POST.get("collection_guid")
+    recipe_guid = request.POST.get("recipe_guid")
+    # Obtain respective objects from the database
+    collection = RecipesCollection.objects.get(collection_guid=collection_guid)
+    recipe = Recipe.objects.get(recipe_guid=recipe_guid)
+    # Create the bound between the two objects
+    recipe_x_collection = RecipeXCollection.objects.create(rxc_collection_guid=collection, rxc_recipe_guid=recipe)
+    recipe_x_collection.save()
+    # Send the response to the frontend
+    response_data = {
+        "status": "success",
+        "message": f"La ricetta {recipe.recipe_name} è stata aggiunta con successo nella raccolta {collection.collection_name}"
+    }
+    return JsonResponse(response_data)
