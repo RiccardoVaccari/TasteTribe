@@ -46,7 +46,6 @@ class CollectionDetailView(DetailView):
     template_name = "collection_details.html"
     context_object_name = "collection"
     pk_url_kwarg = "collection_guid"
-    form = SearchForm()
 
     def get_form(self):
         reg_user = RegisteredUser.objects.get(user=self.request.user.id)

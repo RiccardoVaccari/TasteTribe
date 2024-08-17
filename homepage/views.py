@@ -159,9 +159,11 @@ class RecipeSearchView(View):
         if form.is_valid():
             search_string = form.cleaned_data.get("search_string")
             # Check whether the user is authenticated AND is not suspended or not and eventually force the search parameter
-            from_homepage = form.cleaned_data.get("from_homepage", True)
+            from_homepage = form.fields["from_homepage"]
             if request.user.is_authenticated and not user_suspended and from_homepage:
                 search_param = form.cleaned_data.get("search_param")
+                if not search_param:
+                    search_param = "recipe_title"
             else:
                 search_param = "recipe_title"
             # Perform the actual search

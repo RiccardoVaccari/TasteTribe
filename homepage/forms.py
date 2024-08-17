@@ -13,6 +13,7 @@ class SearchForm(forms.Form):
     ]
     search_string = forms.CharField(label="Cerca ricette", max_length=50, min_length=3, required=True)
     search_param = forms.ChoiceField(label="Cerca per", choices=SEARCH_TYPE_PARAM, required=False)
+    from_homepage = forms.BooleanField(required=False, initial=True)
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop("user", None)
@@ -35,8 +36,5 @@ class SearchForm(forms.Form):
             # The following two lines of code are needed in order to set a default for search_param
             self.fields["search_param"].initial = "recipe_title"
             self.fields["search_param"].widget = forms.HiddenInput()
-        self.fields['from_homepage'] = forms.BooleanField(
-            initial=from_homepage,
-            widget=forms.HiddenInput(),
-            required=False
-        )
+        self.fields["from_homepage"].initial = from_homepage
+        self.fields["from_homepage"].widget = forms.HiddenInput()
