@@ -10,6 +10,7 @@ from django.views.decorators.http import require_POST
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import FormMixin
 from homepage.forms import SearchForm
+from homepage.models import Tag
 from homepage.views import check_user_suspension
 from .models import *
 from .forms import *
@@ -25,9 +26,40 @@ class CollectionsView(LoginRequiredMixin, FormMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Fetch the collections created by the currently logged user
-        context["user_collections"] = RecipesCollection.objects.filter(collection_author=self.request.user)
-        # Fetch the collections that haven't been created by the user
-        context["other_collections"] = RecipesCollection.objects.filter(~Q(collection_author=self.request.user))
+        user_collections = RecipesCollection.objects.filter(collection_author=self.request.user)
+        context["user_collections"] = user_collections
+        # Fetch the collections that haven't been created by the user and are not private
+        other_collections = RecipesCollection.objects.filter(~Q(collection_author=self.request.user), collection_is_private=False)
+
+        # Code that implements the RS for collections
+        # First of all we create a set of all the tags that are present in the user's collections
+        user_collections_tag_set = generate_tag_set(user_collections)
+        # Now that the set is created we proceed to create an ordered set with the recommended collections
+        recommended_collections = []
+        other_collections_matched_tags = []
+        for collection in other_collections:
+            collection_tag_set = generate_tag_set([collection])
+            tags_difference = len(user_collections_tag_set.difference(collection_tag_set))
+            other_collections_matched_tags.append({"collection": collection, "tags_difference": tags_difference})
+        # Now that we compiled the list, we order it from the least different to the most different
+        other_collections_matched_tags = sorted(other_collections_matched_tags, key=lambda d: d.get("tags_difference"))
+        # Display only 5 recommended collections (this number might be varied in the future)
+        count = 0
+        for rec_coll in other_collections_matched_tags:
+            if rec_coll not in recommended_collections:
+                count += 1
+                recommended_collections.append(rec_coll.get("collection"))
+            if count == 5:
+                break
+        rec_collections_guids = []
+        for rec_coll in recommended_collections:
+            rec_collections_guids.append(rec_coll.collection_guid)
+        recommended_collections_set = RecipesCollection.objects.filter(collection_guid__in=rec_collections_guids)
+        context["recommended_collections"] = recommended_collections_set
+        # Clean the "other collections" list from the recommended collections
+        other_collections = RecipesCollection.objects.filter(~Q(collection_author=self.request.user), collection_is_private=False).exclude(collection_guid__in=rec_collections_guids)
+        context["other_collections"] = other_collections
+
         return context
 
     def post(self, request, *args, **kwargs):
@@ -92,3 +124,21 @@ def collection_creation(collection, request):
         image_file = ContentFile(image_data, name='collection_cover.png')
         collection.collection_cover = image_file
     collection.save()
+
+
+# To be transferred to a utils file
+def generate_tag_set(collections):
+    collections_tag_set = set()
+    if collections:
+        recipes_set = set()
+        for collection in collections:
+            # Fetch all recipes filtering by the collection guid
+            recipes = Recipe.objects.filter(recipexcollection__rxc_collection_guid=collection.collection_guid)
+            for recipe in recipes:
+                recipes_set.add(recipe)
+        # Right after fetching the recipes, proceed with the creation of the tag set
+        for recipe in recipes_set:
+            tags = Tag.objects.filter(tagxrecipe__txr_recipe_guid=recipe.recipe_guid)
+            for tag in tags:
+                collections_tag_set.add(tag)
+    return collections_tag_set
