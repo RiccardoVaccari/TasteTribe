@@ -6,7 +6,7 @@ from crispy_forms.layout import Layout, Fieldset, Submit, Field, Div
 from crispy_forms.bootstrap import StrictButton, InlineRadios, FieldWithButtons
 
 from homepage.models import Recipe, TagXRecipe
-from .models import Allergen, IngredientXRecipe, RecipeStep
+from .models import Allergen, IngredientXRecipe, RecipeStep, Review
 
 CATEGORIES = [
     ("Antipasto", "Antipasto"),
@@ -226,3 +226,9 @@ class EditRecipeForm(RecipeForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper.add_input(Submit("submit", "Modifica ricetta"))
+
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ['review_grade', 'review_notes']

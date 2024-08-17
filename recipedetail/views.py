@@ -6,18 +6,20 @@ from django.views.generic import DetailView, CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
 from django.http import JsonResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.views.decorators.http import require_GET, require_POST
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.db.models import Count, Q
+from django.contrib import messages
+
 
 from homepage.models import Recipe, Tag, TagXRecipe
 from .models import *
 from forum.views import elaborate_interaction
 from login.models import RegisteredUser
 from utils import check_user_suspension
-from .forms import CreateRecipeForm, EditRecipeForm
+from .forms import CreateRecipeForm, EditRecipeForm, ReviewForm
 
 
 # RECIPE DETAILS APP - VIEWS
@@ -409,3 +411,56 @@ def delete_recipe(request, recipe_guid):
             return JsonResponse({"success": False}, status=403)
 
     return JsonResponse({"success": False}, status=405)
+
+
+@login_required
+def add_review(request, recipe_guid):
+    recipe = get_object_or_404(Recipe, recipe_guid=recipe_guid)
+    
+    if request.method == 'POST':
+        review_grade = request.POST.get('review_grade')
+        review_notes = request.POST.get('review_notes')
+
+        # Check if a star rating has been selected
+        if not review_grade:
+            messages.error(request, 'Devi selezionare un numero di stelle per lasciare una recensione.')
+            return redirect('recipe_detail', recipe_guid=recipe.recipe_guid)
+
+        # Check if notes are provided
+        if not review_notes:
+            messages.error(request, 'Le note della recensione non possono essere vuote.')
+            return redirect('recipe_detail', recipe_guid=recipe.recipe_guid)
+        
+        # Check if user has already reviewed this recipe
+        review = Review.objects.filter(review_recipe_guid=recipe, review_author_guid=request.user).first()
+        if review:
+            # You can either update the existing review or return an error message
+            review.review_grade = review_grade
+            review.review_notes = review_notes
+            review.save()
+            response_data = {"new": False}
+        else:
+            # Create a new review
+            review = Review(
+                review_recipe_guid=recipe,
+                review_author_guid=request.user,
+                review_grade=review_grade,
+                review_notes=review_notes,
+                review_up_votes=0,
+                review_down_votes=0
+            )
+            review.save()
+            response_data = {"new": True}
+        
+        response_data.update({
+            "review_id": review.id,
+            "author": review.review_author_guid.get_full_name(),
+            "review_grade": review.review_grade,
+            "review_notes": review.review_notes,
+            "review_up_votes": review.review_up_votes,
+            "review_down_votes": review.review_down_votes,
+        })
+
+        return JsonResponse(response_data)
+        
+    return redirect("recipe_details", recipe_guid=recipe.recipe_guid)

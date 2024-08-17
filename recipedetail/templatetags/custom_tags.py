@@ -32,6 +32,7 @@ def render_recipe_related_tags(recipe_guid):
 def render_recipe_reviews(logged_user, recipe_guid):
     try:
         reviews = Review.objects.filter(review_recipe_guid=recipe_guid)
+        recipe = Recipe.objects.get(recipe_guid=recipe_guid)
         # Check if the user is suspended
         if logged_user.is_authenticated:
             reg_user = RegisteredUser.objects.get(user=logged_user.id)
@@ -41,7 +42,7 @@ def render_recipe_reviews(logged_user, recipe_guid):
                 locked_reviews = False
         else:
             locked_reviews = True
-        return {"reviews": reviews, "locked_reviews": locked_reviews}
+        return {"recipe": recipe, "reviews": reviews, "locked_reviews": locked_reviews}
     except Recipe.DoesNotExist:
         return {"reviews": None}
 
