@@ -47,9 +47,9 @@
 
 {% render_recipe_steps recipe.recipe_guid %}
 
-{% render_recipe_reviews request.user recipe.recipe_guid %}
-
 {% render_recipe_related_recipes related_recipes %}
+
+{% render_recipe_reviews request.user recipe.recipe_guid %}
 
 <!-- Modal for confirming deletion -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
