@@ -1,0 +1,20 @@
+{% load crispy_forms_tags %}
+
+<!-- Modal for Collection Creation -->
+<div class="modal fade" id="collectionCreationModal" tabindex="-1" aria-labelledby="collectionCreationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="collectionCreationModalLabel">Crea una nuova raccolta di ricette</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="collectionCreationForm" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% crispy form %}
+                    <input type="hidden" id="b64_collection_cover" name="collection_cover">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

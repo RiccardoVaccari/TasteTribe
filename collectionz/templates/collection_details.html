@@ -54,15 +54,7 @@ $(document).ready(function() {
     {% if recipes %}
     <ul>
         {% for recipe in recipes %}
-        	<li>
-                <b>{{ recipe.recipe_name }}</b>
-                di <a href="/profile/{{ recipe.recipe_author.id }}">{{ recipe.recipe_author.first_name }} {{ recipe.recipe_author.last_name }}</a>
-                <i>creata in data ({{ recipe.recipe_creation_date }})</i>
-                <a href="/recipe/{{ recipe.recipe_guid }}"> Vai alla ricetta </a>
-                {% if user.is_authenticated and user.id == collection.collection_author.id %}
-                    <i class="fa-solid fa-trash delete-icon" data-collection-guid="{{ collection.collection_guid }}" data-recipe-guid="{{ recipe.recipe_guid }}" title="Elimina dalla raccolta"></i>
-                {% endif %}
-            </li>
+        	{% include "recipe_list_item.html" %}
         {% endfor %}
     </ul>
     {% else %}

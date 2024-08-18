@@ -20,13 +20,8 @@
     <h2>Le tue raccolte:</h2>
     {% if user_collections %}
     <ul class="my-collections-list">
-        {% for user_collection in user_collections %}
-        	<li>
-                <a href="{% url 'collection_details' user_collection.collection_guid %}">
-                    <h3>{{ user_collection.collection_name }}</h3> <img src="data:image/*;base64,{{ user_collection.collection_cover }}" alt="">
-                    <small>di {{ user_collection.collection_author.first_name }} {{ user_collection.collection_author.last_name }} - creata in data {{ user_collection.collection_creation_date }}</small>
-                </a>
-            </li>
+        {% for collection in user_collections %}
+            {% include "collection_list_item.html" %}
         {% endfor %}
     </ul>
     <button id="btnCollectionCreation" data-bs-toggle="modal" data-bs-target="#collectionCreationModal">Crea una nuova raccolta</button>
@@ -41,12 +36,7 @@
     <ul class="recommended-collections-list">
             {% for collection in recommended_collections %}
                 {% if not collection.collection_is_private %}
-                <li>
-                    <a href="{% url 'collection_details' collection.collection_guid %}">
-                        <h3>{{ collection.collection_name }}</h3> <img src="data:image/*;base64,{{ collection.collection_cover }}" alt="">
-                        <small>di {{ collection.collection_author.first_name }} {{ collection.collection_author.last_name }} - creata in data {{ collection.collection_creation_date }}</small>
-                    </a>
-                </li>
+                    {% include "collection_list_item.html" %}
                 {% endif %}
             {% endfor %}
     </ul>
@@ -61,12 +51,7 @@
     <ul class="other-collections-list">
             {% for collection in other_collections %}
                 {% if not collection.collection_is_private %}
-                <li>
-                    <a href="{% url 'collection_details' collection.collection_guid %}">
-                        <h3>{{ collection.collection_name }}</h3> <img src="data:image/*;base64,{{ collection.collection_cover }}" alt="">
-                        <small>di {{ collection.collection_author.first_name }} {{ collection.collection_author.last_name }} - creata in data {{ collection.collection_creation_date }}</small>
-                    </a>
-                </li>
+                    {% include "collection_list_item.html" %}
                 {% endif %}
             {% endfor %}
     </ul>
@@ -75,24 +60,7 @@
     {% endif %}
 </div>
 
-<!-- Modal for Collection Creation -->
-<div class="modal fade" id="collectionCreationModal" tabindex="-1" aria-labelledby="collectionCreationModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="collectionCreationModalLabel">Crea una nuova raccolta di ricette</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="collectionCreationForm" method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    {% crispy form %}
-                    <input type="hidden" id="b64_collection_cover" name="collection_cover">
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+{% include "collection_creation_modal.html" %}
 
 <script>
     $(document).ready(function() {

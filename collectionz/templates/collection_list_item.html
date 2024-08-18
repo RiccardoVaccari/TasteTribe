@@ -1,0 +1,6 @@
+<li>
+    <a href="{% url 'collection_details' collection.collection_guid %}">
+        <h3>{{ collection.collection_name }}</h3> <img src="data:image/*;base64,{{ collection.collection_cover }}" alt="">
+        <small>di {{ collection.collection_author.first_name }} {{ collection.collection_author.last_name }} - creata in data {{ collection.collection_creation_date }}</small>
+    </a>
+</li>
