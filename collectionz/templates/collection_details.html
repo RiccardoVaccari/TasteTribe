@@ -46,18 +46,6 @@ $(document).ready(function() {
 
 {% block content %}
 
-<div id="userSection">
-    <button id="userPlaceholder" class="user-placeholder">
-        {% if user.is_authenticated %}
-            <a href="{% url 'profile' user.id %}">
-                <img src="data:image/*;base64,{{ reg_user.reg_user_profile_pic }}" alt="{{ user.first_name }} {{ user.last_name }}">
-            </a>
-        {% else %}
-            <a href="{% url 'login' %}"><img src="{% static '/images/user.png' %}" alt="Login"></a>
-        {% endif %}
-    </button>
-</div>
-
 <div id="collectionInfoSection">
     <h1>{{ collection.collection_name }}</h1> <img src="data:image/png;base64,{{ collection.collection_cover }}">
     <h3>Creata da: {{ collection.collection_author.first_name }} {{ collection.collection_author.last_name }} in data {{ collection.collection_creation_date }}</h3>
