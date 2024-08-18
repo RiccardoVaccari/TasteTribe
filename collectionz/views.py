@@ -60,6 +60,13 @@ class CollectionsView(LoginRequiredMixin, FormMixin, ListView):
         other_collections = RecipesCollection.objects.filter(~Q(collection_author=self.request.user), collection_is_private=False).exclude(collection_guid__in=rec_collections_guids)
         context["other_collections"] = other_collections
 
+        user = self.request.user
+        context["user"] = user
+        reg_user = None
+        if user.is_authenticated:
+            reg_user = RegisteredUser.objects.get(user=user.id)
+        context["reg_user"] = reg_user
+
         return context
 
     def post(self, request, *args, **kwargs):
@@ -96,6 +103,10 @@ class CollectionDetailView(DetailView):
         # The search form will be displayed only if a user is exploring its own collections
         context["form"] = self.get_form()
         context["user"] = self.request.user
+        reg_user = None
+        if self.request.user.is_authenticated:
+            reg_user = RegisteredUser.objects.get(user=self.request.user.id)
+        context["reg_user"] = reg_user
         return context
 
 
