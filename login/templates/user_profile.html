@@ -32,14 +32,7 @@
 {% if recipes %}
     <ul>
         {% for recipe in recipes %}
-            <li>
-                <a href="{% url 'recipe_details' recipe.recipe_guid %}"><h3>{{recipe.recipe_name}}</h3></a>
-                <p>{{recipe.recipe_description}}</p>
-                <p>Vegetariana: {{recipe.recipe_is_vegetarian}}</p>
-                <p>Vegana: {{recipe.recipe_is_vegan}}</p>
-                <p>Senza glutine: {{recipe.recipe_gluten_free}}</p>
-                <p>Creata in data {{recipe.recipe_creation_date}}</p>
-            </li>
+            {% include "recipe_list_item.html" %}
         {% endfor %}
     </ul>
 {% else %}

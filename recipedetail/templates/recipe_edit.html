@@ -15,70 +15,7 @@
     {% csrf_token %} {% crispy form %}
 </form>
 
-<!-- Modal per la selezione degli allergeni -->
-<div
-    class="modal fade"
-    id="allergenModal"
-    tabindex="-1"
-    role="dialog"
-    aria-labelledby="allergenModalLabel"
-    aria-hidden="true"
->
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="allergenModalLabel">
-                    Seleziona Allergeni
-                </h5>
-                <button
-                    type="button"
-                    class="close"
-                    data-dismiss="modal"
-                    aria-label="Close"
-                >
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="allergenForm">
-                    {% for allergen in allergens %}
-                    <div class="form-check">
-                        <input
-                            class="form-check-input"
-                            type="checkbox"
-                            value="{{ allergen.allergen_id }}"
-                            id="allergen-{{ allergen.allergen_id }}"
-                            data-name="{{ allergen.allergen_name }}"
-                        />
-                        <label
-                            class="form-check-label"
-                            for="allergen-{{ allergen.allergen_id }}"
-                        >
-                            {{ allergen.allergen_name }}
-                        </label>
-                    </div>
-                    {% endfor %}
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button
-                    type="button"
-                    class="btn btn-secondary"
-                    data-dismiss="modal"
-                >
-                    Chiudi
-                </button>
-                <button
-                    type="button"
-                    class="btn btn-primary"
-                    id="confirmAllergensBtn"
-                >
-                    Conferma
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+{% include "allergen_selection_modal.html" %}
 
 <script>
     /* INGREDIENT */
