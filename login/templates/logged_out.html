@@ -2,10 +2,24 @@
 
 {% block title %} Logout {% endblock %}
 
+{% block head %}
+
+{% load static %}
+    
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+{% endblock %}
+
 {% block content %}
+    
+<a href="{% url 'homepage' %}">
+    <img src="{% static '/images/tastetribe_logo.png' %}" alt="TasteTribe - Homepage">
+</a>
 
 <h1>Grazie e arrivederci</h1>
 <p>Effettua nuovamente il <a href="{% url 'login' %}">login</a></p>
-<p>oppure torna alla <a href="http://localhost:8000/">homepage</a></p>
+<p>oppure torna alla <a href="{% url 'homepage' %}">homepage</a></p>
 
 {% endblock %}
