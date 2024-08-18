@@ -59,6 +59,8 @@ class HomepageView(ListView):
         context['notifications_to_read'] = self.notifications_to_read
         context['form'] = self.get_form()
         context['user'] = self.request.user
+        if self.request.user.is_authenticated:
+            context["reg_user"] = RegisteredUser.objects.get(user=self.request.user.id)
 
         # RS
         if self.request.user and self.request.user.is_authenticated and not self.user_suspended:
@@ -153,7 +155,7 @@ class RecipeSearchView(View):
             reg_user = RegisteredUser.objects.get(user=request.user.id)
             user_suspended = check_user_suspension(reg_user)
         except RegisteredUser.DoesNotExist:
-            pass
+            reg_user = None
         form = SearchForm(request.GET or None, user=request.user, user_suspended=user_suspended, from_homepage=True)
         recipes = Recipe.objects.none()
         if form.is_valid():
@@ -184,5 +186,5 @@ class RecipeSearchView(View):
                     reg_user.reg_user_search_history["ingredients"] = list(set(ingredients))[:10]
                     reg_user.save()
 
-        return render(request, template_name="search_results.html", context={"search_results": recipes, "form": form})
+        return render(request, template_name="search_results.html", context={"search_results": recipes, "form": form, "user": self.request.user, "reg_user": reg_user})
     
