@@ -14,9 +14,8 @@
 
 <h1> Risultati ricerca </h1>
 
-<form method="GET" action="{% url 'search' %}">
-    {% crispy form %}
-</form>
+{% include "search_form_section.html" %}
+
 <ul>
     {% for recipe in search_results %}
         <li><a href="{% url 'recipe_details' recipe.recipe_guid %}">{{ recipe.recipe_name }}</a></li>

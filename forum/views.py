@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.views.decorators.http import require_POST
 from django.views.generic import ListView, DetailView, CreateView
 from django.views.generic.edit import FormMixin
-from homepage.views import check_user_suspension
+from common.utils import *
 from .models import *
 from .forms import *
 from login.models import *
@@ -131,33 +131,3 @@ def toggle_message_interaction(request):
         "creation_date": fmessage.fmessage_creation_date,
         "user_interaction": user_interaction
     })
-
-
-# To be placed in a util file
-def elaborate_interaction(interaction, created, interaction_type):
-    # Parameter to pass to the frontend in order to render dynamically the like/dislike icons
-    user_interaction = 0
-    if interaction_type == "like":
-        # If the interaction is new, then color the icon
-        user_interaction = 1
-        if not created and interaction.interaction_liked == INTERACTION_LIKE:
-            # If the interaction was already the same, outline the icon
-            user_interaction = 0
-    elif interaction_type == "dislike":
-        user_interaction = -1
-        if not created and interaction.interaction_liked == INTERACTION_DISLIKE:
-            user_interaction = 0
-    # Handle the interaction to change, add or delete
-    if interaction_type == "like":
-        if interaction.interaction_liked == INTERACTION_LIKE:
-            interaction.delete()
-        else:
-            interaction.interaction_liked = INTERACTION_LIKE
-            interaction.save()
-    elif interaction_type == "dislike":
-        if interaction.interaction_liked == INTERACTION_DISLIKE:
-            interaction.delete()
-        else:
-            interaction.interaction_liked = INTERACTION_DISLIKE
-            interaction.save()
-    return user_interaction

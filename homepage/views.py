@@ -5,13 +5,11 @@ from typing import Any
 from django.shortcuts import render
 from django.views.generic import ListView, View
 from django.db.models import Q, Count
-
 from recipedetail.models import Ingredient
 from login.models import RegisteredUser
-
 from .forms import SearchForm
 from .models import Recipe, Tag
-from utils import check_user_suspension
+from common.utils import check_user_suspension
 
 
 class HomepageView(ListView):

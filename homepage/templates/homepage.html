@@ -29,10 +29,8 @@
             {% endfor %}
         </script>
     {% endif %}
-    
-    <form method="GET" action="{% url 'search' %}">
-        {% crispy form %}
-    </form>
+
+    {% include "search_form_section.html" %}
     
     {% if latest_recipes %}
     <h2>Ultime ricette pubblicate</h2>

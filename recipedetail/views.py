@@ -15,14 +15,12 @@ from django.views.decorators.http import require_GET, require_POST
 from django.views.generic.edit import FormMixin
 from django.db.models import Count, Q
 from django.contrib import messages
-
-
 from collectionz.forms import CollectionCreationForm
 from collectionz.views import collection_creation
 from collectionz.models import *
 from forum.views import elaborate_interaction
 from login.models import RegisteredUser
-from utils import check_user_suspension
+from common.utils import check_user_suspension
 from homepage.models import *
 from .forms import CreateRecipeForm, EditRecipeForm, ReviewForm
 from .models import *
@@ -36,17 +34,17 @@ class RecipeDetailView(FormMixin, DetailView):
     pk_url_kwarg = "recipe_guid"
     form_class = CollectionCreationForm
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # Get the logged user
-        user = self.request.user
-        # Get the recipe to be displayed
-        context["recipe"] = self.get_object()
-        context["user"] = user
-        # If the user is registered then handle the possibility to add the recipe to a collection
-        if user.is_authenticated:
-            context["user_collections"] = RecipesCollection.objects.filter(collection_author=user.id)
-        return context
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     # Get the logged user
+    #     user = self.request.user
+    #     # Get the recipe to be displayed
+    #     context["recipe"] = self.get_object()
+    #     context["user"] = user
+    #     # If the user is registered then handle the possibility to add the recipe to a collection
+    #     if user.is_authenticated:
+    #         context["user_collections"] = RecipesCollection.objects.filter(collection_author=user.id)
+    #     return context
 
     def get_object(self, queryset=None):
         guid_string = self.kwargs.get(self.pk_url_kwarg)

@@ -70,9 +70,7 @@ $(document).ready(function() {
     {% endif %}
 </div>
 {% if user.is_authenticated and user.id == collection.collection_author.id %}
-	<form method="GET" action="{% url 'search' %}">
-        {% crispy form %}
-    </form>
+	{% include "search_form_section.html" %}
 {% endif %}
 
 {% endblock %}

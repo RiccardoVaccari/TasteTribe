@@ -2,8 +2,6 @@ from django.db import models
 from login.models import RegisteredUser, User
 
 
-INTERACTION_LIKE = 1
-INTERACTION_DISLIKE = -1
 # Create your models here.
 
 class ForumThread(models.Model):
