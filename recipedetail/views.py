@@ -91,7 +91,10 @@ class RecipeDetailView(FormMixin, DetailView):
                 return super().get_context_data(**kwargs)
 
         except RegisteredUser.DoesNotExist:
+            reg_user = None
             return super().get_context_data(**kwargs)
+
+        context["reg_user"] = reg_user
 
         if recipe.recipe_author != self.request.user:
             context["owner"] = False
@@ -175,6 +178,12 @@ class RecipeCreateView(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context['allergens'] = Allergen.objects.all().values(
             "allergen_id", "allergen_name", "allergen_description")
+        context["user"] = self.request.user
+        if self.request.user.is_authenticated:
+            reg_user = RegisteredUser.objects.get(user=self.request.user.id)
+        else:
+            reg_user = None
+        context["reg_user"] = reg_user
         return context
 
     def get_form_kwargs(self):
@@ -182,8 +191,9 @@ class RecipeCreateView(LoginRequiredMixin, CreateView):
         starting_recipe_guid = self.kwargs.get('recipe_guid')
 
         # Passa il recipe_guid come parametro al costruttore del form
-        starting_recipe = get_object_or_404(Recipe, pk=starting_recipe_guid)
-        kwargs["starting_recipe"] = starting_recipe
+        if starting_recipe_guid:
+            starting_recipe = get_object_or_404(Recipe, pk=starting_recipe_guid)
+            kwargs["starting_recipe"] = starting_recipe
         return kwargs
 
     def form_valid(self, form):

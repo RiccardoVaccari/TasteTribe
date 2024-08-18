@@ -27,6 +27,7 @@
         {% if user.is_authenticated %}
         	<button><a href="{% url 'collections' %}">Raccolte di ricette</a></button>
         	<button><a href="{% url 'quiz_home' %}">Quiz culinari</a></button>
+            <button><a href="{% url 'recipe_create' %}">Crea una nuova ricetta</a></button>
         {% endif %}
     </div>
     <div id="userSection">
