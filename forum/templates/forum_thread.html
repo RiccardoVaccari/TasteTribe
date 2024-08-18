@@ -14,9 +14,6 @@
 
 {% block content %}
 
-<a href="{% url 'homepage' %}">
-    <img src="{% static '/images/tastetribe_logo.png' %}" alt="TasteTribe - Homepage">
-</a>
 <div id="userSection">
     <button id="userPlaceholder" class="user-placeholder">
         {% if user.is_authenticated %}

@@ -11,6 +11,9 @@
     <title> {% block title %}{% endblock %}</title>
 </head>
 <body>
+    <a href="{% url 'homepage' %}">
+        <img src="/static/images/tastetribe_logo.png" alt="TasteTribe - Homepage">
+    </a>
     {% block content %} {% endblock %}
 
     {% block scripts %} {% endblock %}

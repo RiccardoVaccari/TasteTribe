@@ -17,10 +17,6 @@
 {% block title %} Modifica info utente {% endblock %}
 
 {% block content %}
-    
-<a href="{% url 'homepage' %}">
-    <img src="{% static '/images/tastetribe_logo.png' %}" alt="TasteTribe - Homepage">
-</a>
 
 <form method="post" class="user-edit-form">
     {% csrf_token %}

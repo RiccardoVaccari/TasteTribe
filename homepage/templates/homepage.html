@@ -12,20 +12,6 @@
 
 {% block content %}
 
-    <!-- <h1> TasteTribe - Homepage </h1> -->
-    <a href="{% url 'homepage' %}">
-        <img src="{% static '/images/tastetribe_logo.png' %}" alt="TasteTribe - Homepage">
-    </a>
-
-    <div id="otherSections">
-        <h3>Esplora il sito:</h3>
-        <button><a href="{% url 'forums' %}">Forum</a></button>
-        {% if user.is_authenticated %}
-        	<button><a href="{% url 'collections' %}">Raccolte di ricette</a></button>
-        	<button><a href="{% url 'quiz_home' %}">Quiz culinari</a></button>
-            <button><a href="{% url 'recipe_create' %}">Crea una nuova ricetta</a></button>
-        {% endif %}
-    </div>
     <div id="userSection">
         <button id="userPlaceholder" class="user-placeholder">
             {% if user.is_authenticated %}
@@ -36,6 +22,15 @@
                 <a href="{% url 'login' %}"><img src="{% static '/images/user.png' %}" alt="Login"></a>
             {% endif %}
         </button>
+    </div>
+    <div id="otherSections">
+        <h3>Esplora il sito:</h3>
+        <button><a href="{% url 'forums' %}">Forum</a></button>
+        {% if user.is_authenticated %}
+        	<button><a href="{% url 'collections' %}">Raccolte di ricette</a></button>
+        	<button><a href="{% url 'quiz_home' %}">Quiz culinari</a></button>
+            <button><a href="{% url 'recipe_create' %}">Crea una nuova ricetta</a></button>
+        {% endif %}
     </div>
 
     {% if notifications %}

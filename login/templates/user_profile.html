@@ -9,10 +9,6 @@
 {% endblock %}
 
 {% block content %}
-    
-<a href="{% url 'homepage' %}">
-    <img src="{% static '/images/tastetribe_logo.png' %}" alt="TasteTribe - Homepage">
-</a>
 
 <h1>Profilo utente - {{user.first_name}} {{user.last_name}}</h1>
 <img src="data:image/png;base64,{{reg_user.reg_user_profile_pic}}" alt="Nessuna foto profilo trovata">
