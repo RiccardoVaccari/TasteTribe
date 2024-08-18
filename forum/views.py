@@ -30,6 +30,9 @@ class ForumHomeView(ListView):
                 context["can_open_threads"] = True
         except RegisteredUser.DoesNotExist:
             context["can_open_threads"] = False
+            reg_user = None
+        context["user"] = self.request.user
+        context["reg_user"] = reg_user
         return context
 
 
@@ -74,6 +77,9 @@ class ForumThreadView(LoginRequiredMixin, FormMixin, ListView):
             context["user_allowed"] = not check_user_suspension(reg_user)
         except RegisteredUser.DoesNotExist:
             context["user_allowed"] = False
+            reg_user = None
+        context["user"] = self.request.user
+        context["reg_user"] = reg_user
         return context
 
     def post(self, request, *args, **kwargs):
