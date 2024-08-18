@@ -17,7 +17,7 @@ class QuizListView(LoginRequiredMixin, ListView):
     model = Quiz
 
     def dispatch(self, request, *args, **kwargs):
-        self.template_name = get_template_based_on_user_status(self.request.user.id)
+        self.template_name = get_template_based_on_user_status(self.request.user.id, "home")
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -27,11 +27,16 @@ class QuizCreationView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy("quiz_home")
 
     def dispatch(self, request, *args, **kwargs):
-        self.template_name = get_template_based_on_user_status(self.request.user.id)
+        self.template_name = get_template_based_on_user_status(self.request.user.id, "creation")
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["user"] = self.request.user
+        reg_user = None
+        if self.request.user.is_authenticated:
+            reg_user = RegisteredUser.objects.get(user=self.request.user.id)
+        context["reg_user"] = reg_user
         return context
 
     def form_valid(self, form):
@@ -64,9 +69,9 @@ def play_quiz(request, quiz_guid):
     try:
         reg_user = RegisteredUser.objects.get(user=request.user.id)
         if check_user_suspension(reg_user):
-            return render(request, "quiz_not_allowed.html")
+            return render(request, "quiz_not_allowed.html", {"user": request.user, "reg_user": reg_user})
     except RegisteredUser.DoesNotExist:
-        return render(request, "quiz_not_allowed.html")
+        return render(request, "quiz_not_allowed.html", {"user": request.user, "reg_user": None})
     # Handle quiz creation form
     if request.method == "POST":
         form = QuizGameForm(request.POST, questions=questions)
@@ -85,18 +90,21 @@ def play_quiz(request, quiz_guid):
                     "question_text": question.question_text,
                     "question_result": question_result
                 }
-            return render(request, "quiz_result.html", {"quiz": quiz, "results": results})
+            return render(request, "quiz_result.html", {"quiz": quiz, "results": results, "user": request.user, "reg_user": reg_user})
     else:
         form = QuizGameForm(questions=questions)
-    return render(request, "quiz_play.html", {"quiz": quiz, "form": form})
+    return render(request, "quiz_play.html", {"quiz": quiz, "form": form, "user": request.user, "reg_user": reg_user})
 
 
-def get_template_based_on_user_status(user_id):
+def get_template_based_on_user_status(user_id, landing_page):
     # Check if the user is suspended
     try:
         reg_user = RegisteredUser.objects.get(user=user_id)
         if not check_user_suspension(reg_user):
-            template_name = "quiz_home.html"
+            if landing_page == "home":
+                template_name = "quiz_home.html"
+            else:
+                template_name = "quiz_creation.html"
         else:
             template_name = "quiz_not_allowed.html"
     except RegisteredUser.DoesNotExist:

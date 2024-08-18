@@ -38,8 +38,9 @@ class QuizCreationForm(forms.ModelForm):
                 Field("quiz_difficulty")
             ),
             Div(
-                "Aggiungi domande al quiz",
-                Div(
+                Fieldset(
+                    "Aggiungi domande al quiz",
+            Div(
                     Field("quiz_question_text"),
                     Row(
                         Field("quiz_question_answer1"),
@@ -51,6 +52,7 @@ class QuizCreationForm(forms.ModelForm):
                     StrictButton("Aggiungi domanda", css_class="col-md-1 btn btn-info", css_id="add-question-btn"),
                     Field("quiz_questions_list", css_class="d-none"),
                     css_class="row align-items-center"
+                    )
                 )
             )
         )
