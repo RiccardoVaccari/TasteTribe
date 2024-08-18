@@ -36,12 +36,7 @@
     <h2>Ultime ricette pubblicate</h2>
     <ul>
         {% for recipe in latest_recipes %}
-        <li>
-            <b>{{ recipe.recipe_name }}</b>
-            by <a href="/profile/{{ recipe.recipe_author.id }}">@{{ recipe.recipe_author.username }}</a>
-            <i>Created ({{ recipe.recipe_creation_date }})</i>  
-            <a href="/recipe/{{ recipe.recipe_guid }}"> Vai alla ricetta </a>
-        </li>
+            {% include "recipe_list_item.html" %}
         {% endfor %}
     </ul>
     {% endif %}
@@ -50,12 +45,7 @@
     <h2>In base ai tuoi gusti</h2>
     <ul>
         {% for recipe in tags_recipes %}
-            <li>
-                <b>{{ recipe.recipe_name }}</b>
-                by <a href="/profile/{{ recipe.recipe_author.id }}">@{{ recipe.recipe_author.username }}</a>
-                <i>Created ({{ recipe.recipe_creation_date }})</i>  
-                <a href="/recipe/{{ recipe.recipe_guid }}"> Vai alla ricetta </a>
-            </li>
+            {% include "recipe_list_item.html" %}
         {% endfor %}
     </ul>
     {% endif %}
@@ -64,12 +54,7 @@
     <h2>Altre ricette con {{ ingredient_name }}</h2>
     <ul>
         {% for recipe in ingredient_recipes %}
-            <li>
-                <b>{{ recipe.recipe_name }}</b>
-                by <a href="/profile/{{ recipe.recipe_author.id }}">@{{ recipe.recipe_author.username }}</a>
-                <i>Created ({{ recipe.recipe_creation_date }})</i>  
-                <a href="/recipe/{{ recipe.recipe_guid }}"> Vai alla ricetta </a>
-            </li>
+            {% include "recipe_list_item.html" %}
         {% endfor %}
     </ul>
     {% endif %}
@@ -78,12 +63,7 @@
     <h2>Altre ricette in {{ season }}</h2>
     <ul>
         {% for recipe in season_recipes %}
-            <li>
-                <b>{{ recipe.recipe_name }}</b>
-                by <a href="/profile/{{ recipe.recipe_author.id }}">@{{ recipe.recipe_author.username }}</a>
-                <i>Created ({{ recipe.recipe_creation_date }})</i>  
-                <a href="/recipe/{{ recipe.recipe_guid }}"> Vai alla ricetta </a>
-            </li>
+            {% include "recipe_list_item.html" %}
         {% endfor %}
     </ul>
     {% endif %}
@@ -91,12 +71,7 @@
     <h2>Tutte le ricette</h2>
     <ul>
         {% for recipe in recipes %}
-        <li>
-            <b>{{ recipe.recipe_name }}</b>
-            by <a href="/profile/{{ recipe.recipe_author.id }}">@{{ recipe.recipe_author.username }}</a>
-            <i>Created ({{ recipe.recipe_creation_date }})</i>  
-            <a href="/recipe/{{ recipe.recipe_guid }}"> Vai alla ricetta </a>
-        </li>
+            {% include "recipe_list_item.html" %}
         {% endfor %}
     </ul>
 

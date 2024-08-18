@@ -18,7 +18,7 @@
 
 <ul>
     {% for recipe in search_results %}
-        <li><a href="{% url 'recipe_details' recipe.recipe_guid %}">{{ recipe.recipe_name }}</a></li>
+        {% include "recipe_list_item.html" %}
     {% empty %}
         <p>Non è stata trovata nessuna ricetta corrispondente ai parametri inseriti.</p>
     {% endfor %}
