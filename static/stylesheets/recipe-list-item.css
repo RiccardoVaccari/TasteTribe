@@ -3,12 +3,16 @@
     list-style: none;
     background-color: #fff;
     border-radius: 8px;
-    border-color: darkkhaki;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    border: solid darkkhaki;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     max-width: 300px;
     margin: 10px;
     font-family: Arial, sans-serif;
+}
+
+.recipe-list-item:hover {
+    border: solid saddlebrown;
 }
 
 .recipe-list-item-cover {
@@ -52,27 +56,22 @@
     text-decoration: none;
 }
 
-.recipe-list-item-rating .recipe-list-item-stars {
-    font-size: 16px;
-    color: #ccc;
+.recipe-list-item-stars {
     position: relative;
     display: inline-block;
-}
-
-.recipe-list-item-rating .recipe-list-item-stars i {
+    font-size: 14px;
     color: #ccc;
-    margin-right: 2px;
 }
 
-.recipe-list-item-rating .recipe-list-item-stars::before {
-    content: '\f005\f005\f005\f005\f005';
-    font-family: 'Font Awesome 5 Free', serif;
-    font-weight: 900;
+.fa-star {
+    display: inline-block;
+    color: #ccc;
+}
+
+.fa-star.filled {
     color: gold;
-    position: absolute;
-    top: 0;
-    left: 0;
-    overflow: hidden;
-    white-space: nowrap;
-    width: calc({{ recipe.recipe_avg_rating }} / 5 * 100%);
+}
+
+.fa-star.half-filled {
+  background-image: linear-gradient(to right, gold, #ccc);
 }
