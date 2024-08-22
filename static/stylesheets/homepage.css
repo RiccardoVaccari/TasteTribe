@@ -1,0 +1,84 @@
+.carousel-container {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+.carousel-wrapper {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+}
+
+.homepage-recipe-list {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    flex-shrink: 0;
+}
+
+.homepage-recipe-list li {
+    flex: 0 0 33.333%;
+    box-sizing: border-box;
+    padding: 10px;
+}
+
+/* Arrows */
+.carousel-container .carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 2rem;
+    color: #333;
+    background-color: rgba(255, 255, 255, 0.7);
+    border: none;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.carousel-container .carousel-arrow.prev {
+    left: 10px;
+}
+
+.carousel-container .carousel-arrow.next {
+    right: 10px;
+}
+
+/* Hide default arrow appearance */
+.carousel-container .carousel-arrow:focus {
+    outline: none;
+}
+
+/* Dots */
+.carousel-dots {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.carousel-dots button {
+    border: none;
+    background: #ccc;
+    border-radius: 50%;
+    width: 12px;
+    height: 12px;
+    margin: 5px;
+    cursor: pointer;
+}
+
+.carousel-dots button.active {
+    background: #333;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+    .homepage-recipe-list li {
+        flex: 0 0 33%;
+    }
+}
+
+@media (max-width: 600px) {
+    .homepage-recipe-list li {
+        flex: 0 0 50%;
+    }
+}

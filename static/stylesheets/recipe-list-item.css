@@ -1,0 +1,78 @@
+.recipe-list-item {
+    display: block;
+    list-style: none;
+    background-color: #fff;
+    border-radius: 8px;
+    border-color: darkkhaki;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    max-width: 300px;
+    margin: 10px;
+    font-family: Arial, sans-serif;
+}
+
+.recipe-list-item-cover {
+    width: 100%;
+    height: 180px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.recipe-list-item-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.recipe-list-item-info {
+    padding: 15px;
+    text-align: center;
+}
+
+.recipe-list-item-info h2 {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.recipe-list-item-time {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    margin: 10px 0;
+}
+
+.recipe-list-item-author {
+    font-size: 12px;
+    color: #777;
+}
+
+.recipe-list-item-author a {
+    color: #333;
+    text-decoration: none;
+}
+
+.recipe-list-item-rating .recipe-list-item-stars {
+    font-size: 16px;
+    color: #ccc;
+    position: relative;
+    display: inline-block;
+}
+
+.recipe-list-item-rating .recipe-list-item-stars i {
+    color: #ccc;
+    margin-right: 2px;
+}
+
+.recipe-list-item-rating .recipe-list-item-stars::before {
+    content: '\f005\f005\f005\f005\f005';
+    font-family: 'Font Awesome 5 Free', serif;
+    font-weight: 900;
+    color: gold;
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    width: calc({{ recipe.recipe_avg_rating }} / 5 * 100%);
+}

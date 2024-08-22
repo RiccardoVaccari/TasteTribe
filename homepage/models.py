@@ -1,9 +1,9 @@
 from django.db import models
 from login.models import RegisteredUser, User
+from common.ratings_util import *
 
 
 # Create your models here.
-
 class Recipe(models.Model):
     recipe_guid = models.UUIDField(primary_key=True)
     recipe_name = models.CharField(max_length=50)
@@ -21,6 +21,11 @@ class Recipe(models.Model):
 
     def __str__(self) -> str:
         return f"<b>{self.recipe_name.capitalize()}</b> by "
+
+    @property
+    def recipe_avg_rating(self):
+        return get_average_rating(self.recipe_guid)
+
 
 class Tag(models.Model):
     tag_guid = models.UUIDField(primary_key=True)
