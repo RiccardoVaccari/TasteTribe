@@ -8,7 +8,7 @@
             <small class="recipe-list-item-author">
                 di <a href="{% url 'profile' recipe.recipe_author.id %}">@{{ recipe.recipe_author.username }}</a>
             </small>
-            <i>Creata ({{ recipe.recipe_creation_date }})</i>
+            <small>Creata ({{ recipe.recipe_creation_date }})</small>
             <span class="recipe-list-item-time">Tempo di preparazione: {{ recipe.recipe_prep_time }}</span>
             <div class="recipe-list-item-rating">
                 <div class="recipe-list-item-stars" data-rating="{{ recipe.recipe_avg_rating }}">
@@ -16,6 +16,5 @@
                 </div>
             </div>
         </div>
-        <!-- <a href="{% url 'recipe_details' recipe.recipe_guid %}"> Vai alla ricetta </a> -->
     </a>
 </li>

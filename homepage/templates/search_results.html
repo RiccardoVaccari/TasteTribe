@@ -8,6 +8,10 @@
 
 {% load static %}
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="{% static 'stylesheets/homepage.css' %}">
+<link rel="stylesheet" href="{% static 'stylesheets/recipe-list-item.css' %}">
+
 {% endblock %}
 
 {% block content %}
@@ -16,7 +20,7 @@
 
 {% include "search_form_section.html" %}
 
-<ul>
+<ul class="search-recipe-list">
     {% for recipe in search_results %}
         {% include "recipe_list_item.html" %}
     {% empty %}
