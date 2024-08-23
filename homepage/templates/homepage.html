@@ -18,16 +18,6 @@
 
 {% block content %}
 
-    <div id="otherSections">
-        <h3>Esplora il sito:</h3>
-        <button><a href="{% url 'forums' %}">Forum</a></button>
-        {% if user.is_authenticated %}
-        	<button><a href="{% url 'collections' %}">Raccolte di ricette</a></button>
-        	<button><a href="{% url 'quiz_home' %}">Quiz culinari</a></button>
-            <button><a href="{% url 'recipe_create' %}">Crea una nuova ricetta</a></button>
-        {% endif %}
-    </div>
-
     {% if notifications %}
         <script type="text/javascript">
             {% for notification in notifications %}
@@ -39,66 +29,66 @@
     {% include "search_form_section.html" %}
     
     {% if latest_recipes %}
-    <h2>Ultime ricette pubblicate</h2>
-    <div class="carousel-container">
-        <button class="carousel-arrow prev">&#8249;</button>
-        <div class="carousel-wrapper">
-            <ul class="homepage-recipe-list">
-                {% for recipe in latest_recipes %}
-                    {% include "recipe_list_item.html" %}
-                {% endfor %}
-            </ul>
+        <h2 style="text-align: center;">Ultime ricette pubblicate</h2>
+        <div class="carousel-container">
+            <button class="carousel-arrow prev">&#8249;</button>
+            <div class="carousel-wrapper">
+                <ul class="homepage-recipe-list">
+                    {% for recipe in latest_recipes %}
+                        {% include "recipe_list_item.html" %}
+                    {% endfor %}
+                </ul>
+            </div>
+            <button class="carousel-arrow next">&#8250;</button>
         </div>
-        <button class="carousel-arrow next">&#8250;</button>
-    </div>
     {% endif %}
             
     {% if tags_recipes %}
-    <h2>In base ai tuoi gusti</h2>
-    <div class="carousel-container">
-        <button class="carousel-arrow prev">&#8249;</button>
-        <div class="carousel-wrapper">
-            <ul class="homepage-recipe-list">
-                {% for recipe in tags_recipes %}
-                    {% include "recipe_list_item.html" %}
-                {% endfor %}
-            </ul>
+        <h2 style="text-align: center;">In base ai tuoi gusti</h2>
+        <div class="carousel-container">
+            <button class="carousel-arrow prev">&#8249;</button>
+            <div class="carousel-wrapper">
+                <ul class="homepage-recipe-list">
+                    {% for recipe in tags_recipes %}
+                        {% include "recipe_list_item.html" %}
+                    {% endfor %}
+                </ul>
+            </div>
+            <button class="carousel-arrow next">&#8250;</button>
         </div>
-        <button class="carousel-arrow next">&#8250;</button>
-    </div>
     {% endif %}
             
     {% if ingredient_recipes %}
-    <h2>Altre ricette con {{ ingredient_name }}</h2>
-    <div class="carousel-container">
-        <button class="carousel-arrow prev">&#8249;</button>
-        <div class="carousel-wrapper">
-            <ul class="homepage-recipe-list">
-                {% for recipe in ingredient_recipes %}
-                    {% include "recipe_list_item.html" %}
-                {% endfor %}
-            </ul>
+        <h2 style="text-align: center;">Altre ricette con {{ ingredient_name }}</h2>
+        <div class="carousel-container">
+            <button class="carousel-arrow prev">&#8249;</button>
+            <div class="carousel-wrapper">
+                <ul class="homepage-recipe-list">
+                    {% for recipe in ingredient_recipes %}
+                        {% include "recipe_list_item.html" %}
+                    {% endfor %}
+                </ul>
+            </div>
+            <button class="carousel-arrow next">&#8250;</button>
         </div>
-        <button class="carousel-arrow next">&#8250;</button>
-    </div>
     {% endif %}
 
     {% if season_recipes %}
-    <h2>Altre ricette in {{ season }}</h2>
-    <div class="carousel-container">
-        <button class="carousel-arrow prev">&#8249;</button>
-        <div class="carousel-wrapper">
-            <ul class="homepage-recipe-list">
-                {% for recipe in season_recipes %}
-                    {% include "recipe_list_item.html" %}
-                {% endfor %}
-            </ul>
+        <h2 style="text-align: center;">Altre ricette in {{ season }}</h2>
+        <div class="carousel-container">
+            <button class="carousel-arrow prev">&#8249;</button>
+            <div class="carousel-wrapper">
+                <ul class="homepage-recipe-list">
+                    {% for recipe in season_recipes %}
+                        {% include "recipe_list_item.html" %}
+                    {% endfor %}
+                </ul>
+            </div>
+            <button class="carousel-arrow next">&#8250;</button>
         </div>
-        <button class="carousel-arrow next">&#8250;</button>
-    </div>
     {% endif %}
 
-    <h2>Tutte le altre ricette</h2>
+    <h2 style="text-align: center;">Tutte le altre ricette</h2>
     <div class="carousel-container">
         <button class="carousel-arrow prev">&#8249;</button>
         <div class="carousel-wrapper">
@@ -111,5 +101,18 @@
         <button class="carousel-arrow next">&#8250;</button>
     </div>
 
-{% endblock content %}
+{% endblock %}
 
+{% block other_headers %}
+    <div id="otherSections">
+        <h3 style="text-align: center;">Esplora il sito:</h3>
+        <div class="other-section-btns">
+            <button class="section-btn forum-btn"><a href="{% url 'forums' %}">Forum</a></button>
+            {% if user.is_authenticated %}
+                <button class="section-btn collections-btn"><a href="{% url 'collections' %}">Raccolte di ricette</a></button>
+                <button class="section-btn quiz-btn"><a href="{% url 'quiz_home' %}">Quiz culinari</a></button>
+                <button class="section-btn new-recipe-btn"><a href="{% url 'recipe_create' %}">Crea una nuova ricetta</a></button>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

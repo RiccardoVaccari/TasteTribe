@@ -17,6 +17,7 @@
         <a href="{% url 'homepage' %}" class="to-home-logo">
             <img src="/static/images/tastetribe_logo.png" alt="TasteTribe - Homepage">
         </a>
+        {% block other_headers %} {% endblock %}
         <div id="userSection">
             <button id="userPlaceholder" class="user-placeholder">
                 {% if user.is_authenticated %}

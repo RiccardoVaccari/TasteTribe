@@ -1,6 +1,20 @@
-/*
-    STYLING FOR THE HOMEPAGE
-*/
+/* STYLING FOR THE HOMEPAGE */
+.other-section-btns{
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.section-btn{
+    border-radius: 15px;
+    margin-right: 5px;
+}
+
+.section-btn a{
+    text-decoration: none;
+    color: inherit;
+}
+
 .carousel-container {
     width: 100%;
     overflow: hidden;
@@ -25,6 +39,11 @@
     flex: 0 0 33.333%;
     box-sizing: border-box;
     padding: 10px;
+}
+
+.homepage-recipe-list li a {
+    text-decoration: none;
+    color: inherit;
 }
 
 /* Arrows */
@@ -83,9 +102,7 @@
     }
 }
 
-/*
-    STYLING FOR THE SEARCH RESULTS PAGE
-*/
+/* STYLING FOR THE SEARCH RESULTS PAGE */
 .search-recipe-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));

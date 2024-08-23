@@ -1,5 +1,5 @@
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Div, Submit
+from crispy_forms.layout import Layout, Div, Submit, Field
 from django import forms
 from login.models import RegisteredUser
 
@@ -24,14 +24,21 @@ class SearchForm(forms.Form):
         self.helper.form_method = "GET"
         if user and user.is_authenticated and not user_suspended and from_homepage:
             self.helper.layout = Layout(
-                "search_string",
-                Div("search_param", css_id="search_param_div"),
-                Submit("submit", "Cerca")
+                Div(
+                    Field("search_string", css_id="search_string_text_search"),
+                    Field("search_param", css_id="search_param_text_search"),
+                    Submit("submit", "<i class=\"fa fa-search\"></i>", css_class="search-btn"),
+                    css_id="search_param_div"
+                )
             )
         else:
             self.helper.layout = Layout(
-                "search_string",
-                Submit("submit", "Cerca")
+                Div(
+                    Field("search_string", css_id="search_string_text_search"),
+                    Field("search_param", css_id="search_param_text_search"),
+                    Submit("submit", "<i class=\"fa fa-search\"></i>", css_class="search-btn"),
+                    css_id="search_param_div"
+                )
             )
             # The following two lines of code are needed in order to set a default for search_param
             self.fields["search_param"].initial = "recipe_title"
