@@ -1,14 +1,14 @@
 <div class="recipe-steps-section">
-    Passi di preparazione della ricetta:
-    <ul>
+    <strong>Passi di preparazione della ricetta:</strong>
+    <ul id="stepsList">
         {% for step in steps %}
             <li class="recipe-step">
-                <p>Step #{{step.step_sequential_id}}</p>
+                <strong class="step-header">Step #{{step.step_sequential_id}}</strong>
                 <p>{{ step.step_description }}</p>
                 {% if step.step_image %}
                     <img src="{{ step.step_image }}" alt="Step Image">
                 {% endif %}
-                <p>Tempo richiesto: {{ step.step_required_time }}</p>
+                <p class="step-required-time">Tempo richiesto: {{ step.step_required_time }}</p>
             </li>
         {% endfor %}
     </ul>

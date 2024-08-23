@@ -1,10 +1,16 @@
 <div class="review-section">
     <strong>RECENSIONI UTENTI:</strong>
-    <ul>
+    {% if reviews %}
+    <ul class="reviews-list">
         {% for review in reviews %}
             <div class="recipe-review" id="review-{{ review.id }}">
-                <p>Recensione di {% if locked_reviews %}Anonimo{% else %}{{ review.review_author_guid.first_name }} {{ review.review_author_guid.last_name }}{% endif %}</p>
-                <p>Voto: {{ review.review_grade }} - {{ review.review_notes }}</p>
+                <p>Recensione di {% if locked_reviews %}Anonimo{% else %}<a href="{% url 'profile' review.review_author_guid.id %}">{{ review.review_author_guid.first_name }} {{ review.review_author_guid.last_name }}</a>{% endif %}</p>
+                <div class="review-rating" data-rating="{{ review.review_grade }}">
+                    <div class="stars">
+                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                    </div>
+                    {{ review.review_notes }}
+                </div>
                 <span class="like-icon" data-review-id="{{ review.id }}" data-interaction-type="like">
                     {% if review.user_interaction == 1 %}
                         <i class="fa-solid fa-thumbs-up" id="like-icon-{{ review.id }}" style="color: #0a9900;"></i>
@@ -24,6 +30,9 @@
             </div>
         {% endfor %}
     </ul>
+    {% else %}
+        <p>Ancora nessuna recensione per questa ricetta. {% if not locked_reviews %}Lasciane una per primo!{% endif %}</p>
+    {% endif %}
 </div>
 
 {% if not locked_reviews %}
@@ -76,31 +85,47 @@
     $(document).ready(function() {
         $('#reviewForm').on('submit', function(event) {
             event.preventDefault();
-        var reviewGrade = $('input[name="review_grade"]:checked').val();
-        var reviewNotes = $('textarea[name="review_notes"]').val().trim();
+            var reviewGrade = $('input[name="review_grade"]:checked').val();
+            var reviewNotes = $('textarea[name="review_notes"]').val().trim();
 
-        if (!reviewGrade) {
-            alert('Devi selezionare un numero di stelle per lasciare una recensione.');
-            return;
-        }
-        if (!reviewNotes) {
-            alert('Le note della recensione non possono essere vuote.');
-            return;
-        }
+            if (!reviewGrade) {
+                alert('Devi selezionare un numero di stelle per lasciare una recensione.');
+                return;
+            }
+            if (!reviewNotes) {
+                alert('Le note della recensione non possono essere vuote.');
+                return;
+            }
 
-        $.ajax({
-            url: "{% url 'add_review' recipe.recipe_guid %}", // Modifica l'URL in base al tuo URL pattern
-            type: "POST",
-            data: {
-                review_grade: reviewGrade,
-                review_notes: reviewNotes,
-                csrfmiddlewaretoken: "{{ csrf_token }}"
-            },
-            success: function(response) {
-                if (response.new){
-                    // Aggiungi la nuova recensione alla lista
-                    var newReviewHtml = `
-                        <div class="recipe-review" id="review-${response.review_id}">
+            $.ajax({
+                url: "{% url 'add_review' recipe.recipe_guid %}", // Modifica l'URL in base al tuo URL pattern
+                type: "POST",
+                data: {
+                    review_grade: reviewGrade,
+                    review_notes: reviewNotes,
+                    csrfmiddlewaretoken: "{{ csrf_token }}"
+                },
+                success: function(response) {
+                    if (response.new){
+                        // Aggiungi la nuova recensione alla lista
+                        var newReviewHtml = `
+                            <div class="recipe-review" id="review-${response.review_id}">
+                                <p>Recensione di ${response.author}</p>
+                                <p>Voto: ${response.review_grade} - ${response.review_notes}</p>
+                                <span class="like-icon" data-review-id="${response.review_id}" data-interaction-type="like">
+                                    <i class="fa-regular fa-thumbs-up" id="like-icon-${response.review_id}"></i>
+                                    <small>${response.review_up_votes}</small>
+                                </span>
+                                <span class="dislike-icon" data-review-id="${response.review_id}" data-interaction-type="dislike">
+                                    <i class="fa-regular fa-thumbs-down" id="dislike-icon-${response.review_id}"></i>
+                                    <small>${response.review_down_votes}</small>
+                                </span>
+                            </div>
+                        `;
+                        $('.review-section ul').append(newReviewHtml);
+                    } else {
+                        // Aggiorna la recensione esistente
+                        var reviewHtml = `
                             <p>Recensione di ${response.author}</p>
                             <p>Voto: ${response.review_grade} - ${response.review_notes}</p>
                             <span class="like-icon" data-review-id="${response.review_id}" data-interaction-type="like">
@@ -111,36 +136,31 @@
                                 <i class="fa-regular fa-thumbs-down" id="dislike-icon-${response.review_id}"></i>
                                 <small>${response.review_down_votes}</small>
                             </span>
-                        </div>
-                    `;
-                    $('.review-section ul').append(newReviewHtml);
-    
-                } else {
-                    // Aggiorna la recensione esistente
-                    var reviewHtml = `
-                        <p>Recensione di ${response.author}</p>
-                        <p>Voto: ${response.review_grade} - ${response.review_notes}</p>
-                        <span class="like-icon" data-review-id="${response.review_id}" data-interaction-type="like">
-                            <i class="fa-regular fa-thumbs-up" id="like-icon-${response.review_id}"></i>
-                            <small>${response.review_up_votes}</small>
-                        </span>
-                        <span class="dislike-icon" data-review-id="${response.review_id}" data-interaction-type="dislike">
-                            <i class="fa-regular fa-thumbs-down" id="dislike-icon-${response.review_id}"></i>
-                            <small>${response.review_down_votes}</small>
-                        </span>
-                    `;
-                    $('#review-' + response.review_id).html(reviewHtml);
+                        `;
+                        $('#review-' + response.review_id).html(reviewHtml);
+                    }
+
+                    // Resetta il form
+                    $('#reviewForm')[0].reset();
+                },
+                error: function(xhr, errmsg, err) {
+                    alert("Si è verificato un errore durante l'aggiunta della recensione.");
                 }
-                
-                // Resetta il form
-                $('#reviewForm')[0].reset();
-            },
-            error: function(xhr, errmsg, err) {
-                alert("Si è verificato un errore durante l'aggiunta della recensione.");
-            }
+            });
+        });
+        document.querySelectorAll(".review-rating").forEach(element => {
+                const ratingValue = parseFloat(element.dataset.rating);
+                const fullStars = Math.floor(ratingValue);
+                const halfStar = ratingValue - fullStars >= 0.5;
+                const starIcons = element.querySelector(".stars").children;
+                for (let i = 0; i < fullStars; i++) {
+                    starIcons[i].classList.add("filled");
+                }
+                if (halfStar) {
+                    starIcons[fullStars].classList.add("half-filled");
+                }
         });
     });
-});
 </script>
 
 {% endif %}

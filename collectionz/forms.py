@@ -16,6 +16,9 @@ class CollectionCreationForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_method = "post"
+        self.fields["collection_name"].label = "Nome della nuova raccolta"
+        self.fields["collection_cover"].label = "Copertina della nuova raccolta"
+        self.fields["collection_is_private"].label = "Raccolta privata"
         self.helper.add_input(Submit("submit", "Crea", css_class="btn-primary"))
 
     def clean_collection_cover(self):

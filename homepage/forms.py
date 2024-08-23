@@ -1,6 +1,6 @@
 from crispy_forms.bootstrap import FieldWithButtons
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Div, Submit, Field, Fieldset
+from crispy_forms.layout import Layout, Div, Submit, Field, Fieldset, HTML
 from django import forms
 from login.models import RegisteredUser
 
@@ -28,12 +28,9 @@ class SearchForm(forms.Form):
                 "Cerca ricette:",
                 Div(
                     Div("search_string", css_class="col-md-6"),
-                    FieldWithButtons(
-                        "search_param",
-                        Submit("submit", "Cerca", css_class="btn btn-submit", css_id="search-btn"),
-                        css_class="col-md-2"
-                    ),
-                    css_class="row align-items-center mb-2",
+                    Div("search_param", css_class="col-md-2"),
+                    Div(HTML('<button type="submit" name="submit" id="create-recipe-btn" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i> Cerca </button>'), css_class="col-md-2"),
+                    css_class="row align-items-center mb-2 search-div",
                 )
             )
         )

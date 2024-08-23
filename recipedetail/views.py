@@ -448,6 +448,7 @@ def toggle_review_interaction(request):
         rev_interaction_review=review, interaction_liked=REVIEW_INTERACTION_DISLIKE).count()
     review.save()
     return JsonResponse({
+        "user_is_authenticated": request.user.is_authenticated,
         "review_id": review_id,
         "review_notes": review.review_notes,
         "review_author": f"{review.review_author_guid.first_name} {review.review_author_guid.last_name}",

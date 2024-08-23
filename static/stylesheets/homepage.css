@@ -75,3 +75,15 @@
     text-decoration: none;
     color: inherit;
 }
+
+fieldset legend {
+    margin-left: 5px;
+}
+
+.search-div {
+    margin-left: 15px;
+}
+
+#create-recipe-btn {
+    margin-top: 15px;
+}

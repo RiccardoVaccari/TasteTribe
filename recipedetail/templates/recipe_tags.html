@@ -1,6 +1,12 @@
 <div class="recipe-tags">
-    Tags:
-    {% for tag in tags %}
-        <p class="tag-element">{{tag.tag_name}}</p>
-    {% endfor %}
+    <strong>Tags:</strong>
+    {% if tags %}
+        <div id="tagList" class="row align-items-center">
+            {% for tag in tags %}
+                <div class="col-auto"><p class="tag-element">{{tag.tag_name}}</p></div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Sembra che per questa ricetta non siano presenti tag!</p>
+    {% endif %}
 </div>

@@ -1,0 +1,94 @@
+/* STYLING FOR THE RECIPE DETAILS PAGE */
+#detailsPageContent {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+#recipeTitle {
+    text-align: center;
+    font-size: 3rem;
+    font-weight: bold;
+}
+
+#recipeCover {
+    display: block;
+    margin: auto;
+    object-fit: cover;
+    border-radius: 10px;
+    max-height: 150rem;
+    max-width: 150rem;
+}
+
+#recipeActionsDiv {
+    margin-top: 10px;
+}
+
+#recipeDescription {
+    font-size: 1.5rem;
+}
+
+#recipeAuthor {
+    text-decoration: none;
+    pointer-events: auto;
+    font-weight: bold;
+}
+
+.recipe-icon {
+    margin-bottom: 20px;
+}
+
+#tagList {
+    margin-bottom: 10px;
+}
+
+.tag-element {
+    background-color: #0c5215;
+    color: #ffffff;
+    border: thin #6dff1b;
+    border-radius: 15px;
+    padding: 8px;
+}
+
+.ingredient-name{
+    font-weight: bold;
+    color: #b57006;
+}
+
+.step-header{
+    font-weight: bold;
+    color: #b57006;
+}
+
+#stepsList {
+    list-style-type: none;
+}
+
+.recipe-step {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    border-radius: 15px;
+    padding: 5px;
+}
+
+.recipe-step:hover {
+    border-left: solid #b57006;
+    border-right: solid #b57006;
+}
+
+.reviews-list {
+    list-style-type: none;
+}
+
+.recipe-review {
+    border-left: solid #b57006;
+    border-right: solid #b57006;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    border-radius: 15px;
+    padding: 5px;
+}
+
+.recipe-review:hover {
+    border-left: solid #0c5215;
+    border-right: solid #0c5215;
+}

@@ -1,13 +1,14 @@
 <div class="recipe-related-recipes-section">
     <strong>Potrebbero interessarti:</strong>
-    <ul>
+    <div class="row align-items-center">
         {% for recipe in recipes %}
-        <li>
-            <b>{{ recipe.recipe_name }}</b>
-            by <a href="/profile/{{ recipe.recipe_author.id }}">@{{ recipe.recipe_author.username }}</a>
-            <i>Created ({{ recipe.recipe_creation_date }})</i>  
-            <a href="/recipe/{{ recipe.recipe_guid }}"> Vai alla ricetta </a>
-        </li>
+        <div class="col-auto">
+{#            <b>{{ recipe.recipe_name }}</b>#}
+{#            by <a href="/profile/{{ recipe.recipe_author.id }}">@{{ recipe.recipe_author.username }}</a>#}
+{#            <i>Created ({{ recipe.recipe_creation_date }})</i>  #}
+{#            <a href="/recipe/{{ recipe.recipe_guid }}"> Vai alla ricetta </a>#}
+            {% include "recipe_list_item.html" %}
+        </div>
         {% endfor %}
-    </ul>
+    </div>
 </div>

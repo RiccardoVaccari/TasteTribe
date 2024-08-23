@@ -8,6 +8,8 @@
 {% load static %}
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="{% static 'stylesheets/recipe-details.css' %}">
+<link rel="stylesheet" href="{% static 'stylesheets/recipe-list-item.css' %}">
 
 {% endblock %}
 
@@ -15,230 +17,302 @@
 
 {% block content %}
 
-<h1>{{ recipe.recipe_name }}</h1>
+<div id="detailsPageContent">
+    <h1 id="recipeTitle">{{ recipe.recipe_name }}</h1>
+    <img id="recipeCover" src="data:image/*;base64,{{ recipe.recipe_cover }}" alt="Immagine non disponibile per questa ricetta">
 
+    {% if user.is_authenticated %}
+        <div id="recipeActionsDiv" class="row align-items-center">
+            <div class="col-auto">
+                <div class="dropdown">
+                    <button class="btn btn-dark dropdown-toggle" type="button" id="dropdownCollectionsButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        Aggiungi a raccolta
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownCollectionsButton">
+                        {% for collection in user_collections %}
+                            <li><button class="dropdown-item" data-collection="{{ collection.collection_guid }}">{{ collection.collection_name }}</button></li>
+                        {% endfor %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li><button class="dropdown-item" id="createNewCollection" data-bs-toggle="modal" data-bs-target="#collectionCreationModal"><i class="fa-solid fa-plus"></i> Crea nuova raccolta</button></li>
+                    </ul>
+                </div>
+            </div>
+            {% include "collection_creation_modal.html" %}
 
-{% if user.is_authenticated %}
-    <div class="dropdown">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownCollectionsButton" data-bs-toggle="dropdown" aria-expanded="false">
-            Aggiungi a raccolta
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="dropdownCollectionsButton">
-            {% for collection in user_collections %}
-                <li><button class="dropdown-item" data-collection="{{ collection.collection_guid }}">{{ collection.collection_name }}</button></li>
-            {% endfor %}
-            <li><hr class="dropdown-divider"></li>
-            <li><button class="dropdown-item" id="createNewCollection" data-bs-toggle="modal" data-bs-target="#collectionCreationModal"><i class="fa-solid fa-plus"></i> Crea nuova raccolta</button></li>
-        </ul>
-    </div>
+            {% if owner %}
+                <div class="col-auto">
+                    <a href="{% url 'recipe_edit' recipe.recipe_guid %}" class="btn btn-primary">
+                        Modifica ricetta
+                    </a>
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        Elimina ricetta
+                    </button>
+                </div>
+            {% endif %}
+            <div class="col-auto">
+                <a href="{% url 'recipe_create_from_existing' recipe.recipe_guid %}" class="btn btn-secondary">
+                    Crea nuova ricetta a partire da questa
+                </a>
+            </div>
+        </div>
 
-    {% include "collection_creation_modal.html" %}
-
-    <!-- Script that handles the modal form compiling -->
-    <script>
-        $(document).ready(function() {
-            /* Code section that handles the creation of a new collection from within the current page */
-            $("#collectionCreationForm").on("submit", function(event) {
-                event.preventDefault();
-
-                var collectionCover = document.getElementById("id_collection_cover");
-                var file = collectionCover.files[0];
-
-                if (file) {
-                    var reader = new FileReader();
-                    reader.onloadend = function() {
-                        var base64String = reader.result;
-                        $("#b64_collection_cover").val(base64String);
+        <!-- Script that handles the modal form compiling -->
+        <script>
+            $(document).ready(function() {
+                /* Code section that handles the creation of a new collection from within the current page */
+                $("#collectionCreationForm").on("submit", function(event) {
+                    event.preventDefault();
+                    var collectionCover = document.getElementById("id_collection_cover");
+                    var file = collectionCover.files[0];
+                    if (file) {
+                        var reader = new FileReader();
+                        reader.onloadend = function() {
+                            var base64String = reader.result;
+                            $("#b64_collection_cover").val(base64String);
+                            submitForm();
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
                         submitForm();
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    submitForm();
-                }
-            });
-
-            function submitForm() {
-                $.ajax({
-                    url: "{% url 'recipe_details' recipe.recipe_guid %}",
-                    type: "POST",
-                    data: new FormData($("#collectionCreationForm")[0]),
-                    processData: false,
-                    contentType: false,
-                    success: function(response) {
-                        $("#collectionCreationModal").modal("hide");
-                        location.reload();
-                    },
-                    error: function(xhr, status, error) {
-                        console.error(xhr.responseText);
-                        alert("Spiacente, si è verificato un errore in fase di creazione, riprovare!");
                     }
                 });
-            }
-
-            /* Code section that handles the insertion of the current recipe into a collection */
-            document.querySelectorAll(".dropdown-item[data-collection]").forEach(function (dropdownItem) {
-                dropdownItem.addEventListener("click", function (event) {
-                    event.preventDefault();
-
-                    var collectionGUID = this.getAttribute("data-collection");
-
-                    fetch("{% url 'add_to_collection' %}", {
-                        method: "POST",
-                        headers: {
-                            "X-CSRFToken": "{{ csrf_token }}"
+                function submitForm() {
+                    $.ajax({
+                        url: "{% url 'recipe_details' recipe.recipe_guid %}",
+                        type: "POST",
+                        data: new FormData($("#collectionCreationForm")[0]),
+                        processData: false,
+                        contentType: false,
+                        success: function(response) {
+                            $("#collectionCreationModal").modal("hide");
+                            location.reload();
                         },
-                        body: new URLSearchParams({
-                            "collection_guid": collectionGUID,
-                            "recipe_guid": "{{ recipe.recipe_guid }}"
+                        error: function(xhr, status, error) {
+                            console.error(xhr.responseText);
+                            alert("Spiacente, si è verificato un errore in fase di creazione, riprovare!");
+                        }
+                    });
+                }
+                /* Code section that handles the insertion of the current recipe into a collection */
+                document.querySelectorAll(".dropdown-item[data-collection]").forEach(function (dropdownItem) {
+                    dropdownItem.addEventListener("click", function (event) {
+                        event.preventDefault();
+
+                        var collectionGUID = this.getAttribute("data-collection");
+
+                        fetch("{% url 'add_to_collection' %}", {
+                            method: "POST",
+                            headers: {
+                                "X-CSRFToken": "{{ csrf_token }}"
+                            },
+                            body: new URLSearchParams({
+                                "collection_guid": collectionGUID,
+                                "recipe_guid": "{{ recipe.recipe_guid }}"
+                            })
                         })
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            if(data.status === "success"){
-                                alert(data.message);
-                            } else{
-                                alert("Si è verificato un errore nell'inserimento nella raccolta!");
-                            }
-                        })
-                        .catch(error => {
-                            console.error("Errore:", error)
-                        });
+                            .then(response => response.json())
+                            .then(data => {
+                                if(data.status === "success"){
+                                    alert(data.message);
+                                } else{
+                                    alert("Si è verificato un errore nell'inserimento nella raccolta!");
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Errore:", error)
+                            });
+                    });
                 });
             });
-        });
-    </script>
-{% endif %}
+        </script>
+    {% endif %}
 
+    <p id="recipeCreationInfo">creata da <a href="{% url 'profile' recipe.recipe_author.id %}" id="recipeAuthor">{{ recipe.recipe_author.first_name }} {{ recipe.recipe_author.last_name }}</a>, in data {{ recipe.recipe_creation_date }}</p>
+    <p id="recipeDescription">{{ recipe.recipe_description }}</p>
+    <div id="recipeSideInfo" class="row align-items-center">
+        <div class="col-auto"><p id="recipeCategory"><strong>Portata:</strong> {{ recipe.recipe_category }}</p></div>
+        <div class="col-auto"><p id="prepTime"><strong>Tempo di preparazione:</strong> {{ recipe.recipe_prep_time }}</p></div>
+        {% if recipe.recipe_is_private %}
+            <div class="col-auto"><p id="privateRecipe"><i class="fa-solid fa-lock"></i> <strong>Ricetta privata</strong></p></div>
+        {% endif %}
+        <div class="col-auto recipe-icon">
+            <i class="fa-solid fa-leaf"
+                {% if recipe.recipe_is_vegetarian %}
+                    style="color: #0d633e;" title="Ricetta vegetariana"
+                {% else %}
+                    style="color: #333333;" title="Ricetta NON vegetariana"
+                {% endif %}></i>
+        </div>
+        <div class="col-auto recipe-icon">
+            <i class="fa-brands fa-envira"
+                {% if recipe.recipe_is_vegan %}
+                    style="color: #858f00;" title="Ricetta vegana"
+                {% else %}
+                    style="color: #333333;" title="Ricetta NON vegana"
+                {% endif %}></i>
+        </div>
+        <div class="col-auto recipe-icon">
+            <i class="fa-solid fa-wheat-awn"
+                {% if recipe.recipe_gluten_free %}
+                    style="color: #9c5e07;" title="Ricetta senza glutine"
+                {% else %}
+                    style="color: #333333;" title="Ricetta CON glutine"
+                {% endif %}></i>
+        </div>
+    </div>
 
-{% if owner %}
+    {% render_recipe_related_tags recipe.recipe_guid %}
 
-<a href="{% url 'recipe_edit' recipe.recipe_guid %}" class="btn btn-primary">
-    Modifica ricetta
-</a>
+    {% render_recipe_ingredients recipe.recipe_guid %}
 
-<button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
-    Elimina ricetta
-</button>
+    {% render_recipe_steps recipe.recipe_guid %}
 
-{% endif %}
+    {% render_recipe_related_recipes related_recipes %}
 
-<a href="{% url 'recipe_create_from_existing' recipe.recipe_guid %}" class="btn btn-secondary">
-    Crea nuova ricetta a partire da questa
-</a>
+    {% render_recipe_reviews request.user recipe.recipe_guid %}
 
-
-<p><strong>Preparation Time:</strong> {{ recipe.recipe_prep_time }}</p>
-<p><strong>Cover:</strong> <img src="data:image/*;base64,{{ recipe.recipe_cover }}"> </p>
-<p><strong>Notes:</strong> {{ recipe.recipe_notes }}</p>
-<p><strong>Description:</strong> {{ recipe.recipe_description }}</p>
-<p><strong>Category:</strong> {{ recipe.recipe_category }}</p>
-<p><strong>Private:</strong> {{ recipe.recipe_is_private }}</p>
-<p><strong>Vegetarian:</strong> {{ recipe.recipe_is_vegetarian }}</p>
-<p><strong>Gluten Free:</strong> {{ recipe.recipe_gluten_free }}</p>
-<p><strong>Vegan:</strong> {{ recipe.recipe_is_vegan }}</p>
-<p><strong>Creation Date:</strong> {{ recipe.recipe_creation_date }}</p>
-<p><strong>Author:</strong> {{ recipe.recipe_author.first_name }} {{ recipe.recipe_author.last_name }}</p>
-
-{% render_recipe_related_tags recipe.recipe_guid %}
-
-{% render_recipe_ingredients recipe.recipe_guid %}
-
-{% render_recipe_steps recipe.recipe_guid %}
-
-{% render_recipe_related_recipes related_recipes %}
-
-{% render_recipe_reviews request.user recipe.recipe_guid %}
-
-<!-- Modal for confirming deletion -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Conferma eliminazione</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                Sei sicuro di voler eliminare questa ricetta? Questa azione non può essere annullata.
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
-                <button type="button" class="btn btn-danger" id="confirmDelete">Elimina</button>
+    <!-- Modal for confirming deletion -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Conferma eliminazione</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Sei sicuro di voler eliminare questa ricetta? Questa azione non può essere annullata.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" class="btn btn-danger" id="confirmDelete">Elimina</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
+    <script>
+        $(document).ready(function() {
+            // Handle delete confirmation
+            $('#confirmDelete').click(function() {
+                $.ajax({
+                    url: "{% url 'delete_recipe' recipe.recipe_guid %}",
+                    type: "POST",
+                    data: {
+                        csrfmiddlewaretoken: "{{ csrf_token }}"
+                    },
+                    success: function(response) {
+                        window.location.href = "/";  // Redirect to homepage on success
+                    },
+                    error: function(xhr) {
+                        alert("Si è verificato un errore durante l'eliminazione della ricetta.");
+                    }
+                });
+            });
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    $(document).ready(function() {
-        // Handle delete confirmation
-        $('#confirmDelete').click(function() {
-            $.ajax({
-                url: "{% url 'delete_recipe' recipe.recipe_guid %}",
-                type: "POST",
-                data: {
-                    csrfmiddlewaretoken: "{{ csrf_token }}"
-                },
-                success: function(response) {
-                    window.location.href = "/";  // Redirect to homepage on success
-                },
-                error: function(xhr) {
-                    alert("Si è verificato un errore durante l'eliminazione della ricetta.");
-                }
+            // Handling like and dislike interactions (existing functionality)
+            $(document).on("click", ".like-icon, .dislike-icon", function() {
+                const reviewId = $(this).data("review-id");
+                const interactionType = $(this).data("interaction-type");
+
+                {% if request.user.is_authenticated %}
+                    $.ajax({
+                        url: "{% url 'review_interaction' %}",
+                        method: "POST",
+                        data: {
+                            "review_id": reviewId,
+                            "interaction_type": interactionType,
+                            "csrfmiddlewaretoken": "{{ csrf_token }}"
+                        },
+                        success: function(data) {
+                            const reviewElement = $("#review-" + data.review_id);
+                            const likeIcon = $("#like-icon-" + data.review_id);
+                            const dislikeIcon = $("#dislike-icon-" + data.review_id);
+
+                            reviewElement.find(".like-icon small").text(data.likes);
+                            reviewElement.find(".dislike-icon small").text(data.dislikes);
+
+                            if (data.user_rev_interaction === 1) {
+                                likeIcon.removeClass();
+                                likeIcon.addClass("fa-solid fa-thumbs-up");
+                                likeIcon.css("color", "#0a9900");
+                                dislikeIcon.removeClass();
+                                dislikeIcon.addClass("fa-regular fa-thumbs-down");
+                                dislikeIcon.css("color", "#000000");
+                            } else if (data.user_rev_interaction === -1) {
+                                likeIcon.removeClass();
+                                likeIcon.addClass("fa-regular fa-thumbs-up");
+                                likeIcon.css("color", "#000000");
+                                dislikeIcon.removeClass();
+                                dislikeIcon.addClass("fa-solid fa-thumbs-down");
+                                dislikeIcon.css("color", "#b80000");
+                            } else {
+                                likeIcon.removeClass();
+                                likeIcon.addClass("fa-regular fa-thumbs-up");
+                                likeIcon.css("color", "#000000");
+                                dislikeIcon.removeClass();
+                                dislikeIcon.addClass("fa-regular fa-thumbs-down");
+                                dislikeIcon.css("color", "#000000");
+                            }
+                        }
+                    });
+                {% else %}
+                    alert("ATTENZIONE: Devi essere registrato per poter mettere mi piace alle recensioni!");
+                {% endif %}
+            });
+
+            //Handling duration formatting for prep time
+            const prepTimeElement = document.querySelector("#prepTime");
+            const prepTimeString = prepTimeElement.innerText.split(": ")[1];
+            parseDuration(prepTimeString, prepTimeElement, "<strong>Tempo di preparazione: </strong>");
+            //Handling date formatting for creation date
+            const recipeCreationInfoElement = document.querySelector("#recipeCreationInfo");
+            const creationDate = "{{ recipe.recipe_creation_date }}";
+            getFormattedDate(
+                creationDate,
+                recipeCreationInfoElement,
+                `creata da <a href="{% url 'profile' recipe.recipe_author.id %}" id="recipeAuthor">{{ recipe.recipe_author.first_name }} {{ recipe.recipe_author.last_name }}</a>, in data `
+            );
+            //Parsing duration for each recipe step
+            const recipeStepsElements = document.querySelectorAll(".step-required-time");
+            recipeStepsElements.forEach(stepElement => {
+                const stepDurationString = stepElement.innerText.split(": ")[1];
+                parseDuration(stepDurationString, stepElement, "<strong>Tempo richiesto: </strong>");
+            });
+            //Handling date formatting for related recipes
+            const relatedRecipes = document.querySelectorAll(".recipe-list-item-creation-date");
+            relatedRecipes.forEach(relatedRecipe => {
+                const recipeCreationDate = relatedRecipe.innerText.substring(relatedRecipe.innerText.indexOf("(") + 1, relatedRecipe.innerText.indexOf(")"));
+                getFormattedDate(recipeCreationDate, relatedRecipe, "creata il ");
+            });
+            //Parsing duration for related recipes
+            const relatedRecipesDurations = document.querySelectorAll(".recipe-list-item-time");
+            relatedRecipesDurations.forEach(relatedRecipeDuration => {
+                const relatedDurationString = relatedRecipeDuration.innerText.split(": ")[1];
+                parseDuration(relatedDurationString, relatedRecipeDuration, "Tempo di preparazione: ");
             });
         });
 
-        // Handling like and dislike interactions (existing functionality)
-        $(document).on("click", ".like-icon, .dislike-icon", function() {
-            const reviewId = $(this).data("review-id");
-            const interactionType = $(this).data("interaction-type");
+        function parseDuration(durationString, htmlElement, htmlLabel){
+            const timeIntervals = durationString.split(":");
+            const hours = parseInt(timeIntervals[0]);
+            const minutes = parseInt(timeIntervals[1]);
+            if(hours > 0){
+                htmlElement.innerHTML = `${htmlLabel}${hours} ore ${minutes} minuti`;
+            } else {
+                htmlElement.innerHTML = `${htmlLabel}${minutes} minuti`;
+            }
+        }
 
-            {% if request.user.is_authenticated %}
-                $.ajax({
-                    url: "{% url 'review_interaction' %}",
-                    method: "POST",
-                    data: {
-                        "review_id": reviewId,
-                        "interaction_type": interactionType,
-                        "csrfmiddlewaretoken": "{{ csrf_token }}"
-                    },
-                    success: function(data) {
-                        const reviewElement = $("#review-" + data.review_id);
-                        const likeIcon = $("#like-icon-" + data.review_id);
-                        const dislikeIcon = $("#dislike-icon-" + data.review_id);
-
-                        reviewElement.find(".like-icon small").text(data.likes);
-                        reviewElement.find(".dislike-icon small").text(data.dislikes);
-
-                        if (data.user_rev_interaction === 1) {
-                            likeIcon.removeClass();
-                            likeIcon.addClass("fa-solid fa-thumbs-up");
-                            likeIcon.css("color", "#0a9900");
-                            dislikeIcon.removeClass();
-                            dislikeIcon.addClass("fa-regular fa-thumbs-down");
-                            dislikeIcon.css("color", "#000000");
-                        } else if (data.user_rev_interaction === -1) {
-                            likeIcon.removeClass();
-                            likeIcon.addClass("fa-regular fa-thumbs-up");
-                            likeIcon.css("color", "#000000");
-                            dislikeIcon.removeClass();
-                            dislikeIcon.addClass("fa-solid fa-thumbs-down");
-                            dislikeIcon.css("color", "#b80000");
-                        } else {
-                            likeIcon.removeClass();
-                            likeIcon.addClass("fa-regular fa-thumbs-up");
-                            likeIcon.css("color", "#000000");
-                            dislikeIcon.removeClass();
-                            dislikeIcon.addClass("fa-regular fa-thumbs-down");
-                            dislikeIcon.css("color", "#000000");
-                        }
-                    }
-                });
-            {% else %}
-                alert("ATTENZIONE: Devi essere registrato per poter mettere mi piace alle recensioni!");
-            {% endif %}
-        });
-    });
-</script>
+        function getFormattedDate(dateString, htmlElement, htmlString) {
+            const timestamp = Date.parse(dateString);
+            const dateObject = new Date(timestamp);
+            const day = dateObject.getDate();
+            const month = dateObject.getMonth() + 1;
+            const year = dateObject.getFullYear();
+            htmlElement.innerHTML = htmlString + `${day}-${month}-${year}`;
+        }
+    </script>
+</div>
 
 {% endblock %}

@@ -33,6 +33,6 @@ document.addEventListener("DOMContentLoaded", function() {
         const day = dateObject.getDate();
         const month = dateObject.getMonth() + 1;
         const year = dateObject.getFullYear();
-        dateElement.innerHTML = `creata il ${day}/${month}/${year}`;
+        dateElement.innerHTML = `creata il ${day}-${month}-${year}`;
     });
 });
