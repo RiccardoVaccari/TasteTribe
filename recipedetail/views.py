@@ -297,6 +297,11 @@ class RecipeEditView(UpdateView):
             return redirect("recipe_details", recipe_guid=recipe.recipe_guid)
         return super().dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['allergens'] = Allergen.objects.all().values("allergen_id", "allergen_name", "allergen_description")
+        return context
+
     def form_valid(self, form):
         recipe: Recipe = self.get_object()
 

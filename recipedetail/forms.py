@@ -2,7 +2,7 @@ import json
 from typing import Any
 from django import forms
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Fieldset, Submit, Field, Div
+from crispy_forms.layout import Layout, Fieldset, Submit, Field, Div, HTML
 from crispy_forms.bootstrap import StrictButton, InlineRadios, FieldWithButtons
 from homepage.models import Recipe, TagXRecipe
 from .models import Allergen, IngredientXRecipe, RecipeStep, Review
@@ -18,7 +18,7 @@ CATEGORIES = [
 
 class RecipeForm(forms.ModelForm):
 
-    recipe_cover = forms.ImageField(required=False)
+    recipe_cover = forms.ImageField(label="Immagine di copertina", required=False)
     recipe_category = forms.ChoiceField(
         choices=CATEGORIES,
         label="Seleziona il tipo di portata",
@@ -26,15 +26,13 @@ class RecipeForm(forms.ModelForm):
         initial="Primo piatto",
     )
 
-    hours = forms.IntegerField(min_value=0, initial=0)
-    minutes = forms.IntegerField(min_value=0, initial=0)
+    hours = forms.IntegerField(label="Ore", min_value=0, initial=0)
+    minutes = forms.IntegerField(label="Minuti", min_value=0, initial=0)
 
     # INGREDIENTS
-    ingredient = forms.CharField(max_length=50, required=False)
-    ingredients_list = forms.CharField(
-        widget=forms.HiddenInput(), required=False)
-    dosage_per_person = forms.CharField(
-        max_length=50, required=False, label="Dose per persona")
+    ingredient = forms.CharField(label="Ingrediente", max_length=50, required=False)
+    ingredients_list = forms.CharField(widget=forms.HiddenInput(), required=False)
+    dosage_per_person = forms.CharField(max_length=50, required=False, label="Dose per persona")
     allergens = forms.ModelMultipleChoiceField(
         queryset=Allergen.objects.all(),
         widget=forms.CheckboxSelectMultiple,
@@ -43,20 +41,15 @@ class RecipeForm(forms.ModelForm):
     )
 
     # STEPS
-    step_description = forms.CharField(
-        min_length=30, widget=forms.Textarea, required=False)
-    step_image = forms.ImageField(required=False)
-    step_required_hours = forms.IntegerField(
-        min_value=0, initial=0, required=False)
-    step_required_minutes = forms.IntegerField(
-        min_value=0, initial=0, required=False)
-    steps_list = forms.CharField(
-        widget=forms.HiddenInput(), required=False)
+    step_description = forms.CharField(label="Descrizione", min_length=30, widget=forms.Textarea, required=False)
+    step_image = forms.ImageField(label="Immagine esplicativa", required=False)
+    step_required_hours = forms.IntegerField(label="Ore per step", min_value=0, initial=0, required=False)
+    step_required_minutes = forms.IntegerField(label="Minuti per step", min_value=0, initial=0, required=False)
+    steps_list = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     # TAGS
     tag = forms.CharField(max_length=100, required=False)
-    tags_list = forms.CharField(
-        widget=forms.HiddenInput(), required=False)
+    tags_list = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     class Meta:
         model = Recipe
@@ -77,6 +70,14 @@ class RecipeForm(forms.ModelForm):
 
         super().__init__(*args, **kwargs)
 
+        self.fields["recipe_name"].label = "Titolo ricetta"
+        self.fields["recipe_notes"].label = "Note sulla ricetta"
+        self.fields["recipe_description"].label = "Descrizione ricetta"
+        self.fields["recipe_is_private"].label = "Ricetta privata"
+        self.fields["recipe_is_vegetarian"].label = "Ricetta vegetariana"
+        self.fields["recipe_is_vegan"].label = "Ricetta vegana"
+        self.fields["recipe_gluten_free"].label = "Senza glutine"
+
         if (self.instance and self.instance.pk) or (starting_recipe):
             recipe = self.instance
             if starting_recipe:
@@ -96,8 +97,7 @@ class RecipeForm(forms.ModelForm):
             self.fields["minutes"].initial = (prep_time.seconds // 60) % 60
 
             # Popola gli ingredienti, steps e tags esistenti
-            ingredients = IngredientXRecipe.objects.filter(
-                ixr_recipe_guid=recipe).select_related("ixr_ingredient_guid")
+            ingredients = IngredientXRecipe.objects.filter(ixr_recipe_guid=recipe).select_related("ixr_ingredient_guid")
             self.fields["ingredients_list"].initial = json.dumps([
                 {
                     "name": ingredient_x_recipe.ixr_ingredient_guid.ingredient_name,
@@ -114,8 +114,7 @@ class RecipeForm(forms.ModelForm):
                 } for step in RecipeStep.objects.filter(step_recipe_guid=recipe)
             ])
 
-            tags = TagXRecipe.objects.filter(
-                txr_recipe_guid=recipe).select_related("txr_tag_guid")
+            tags = TagXRecipe.objects.filter(txr_recipe_guid=recipe).select_related("txr_tag_guid")
             self.fields["tags_list"].initial = json.dumps([
                 tag_x_recipe.txr_tag_guid.tag_name for tag_x_recipe in tags if tag_x_recipe.txr_tag_guid.tag_field not in ("Ingredient", "Course")
             ])
@@ -144,6 +143,7 @@ class RecipeForm(forms.ModelForm):
                 "Categoria",
                 Div(
                     InlineRadios("recipe_category"),
+                    css_class="form-check-inline radio-input"
                 )
             ),
             Fieldset(
@@ -158,38 +158,35 @@ class RecipeForm(forms.ModelForm):
                 "Aggiungi ingredienti",
                 Div(
                     Div("ingredient", css_class="col-md-7",),
-                    FieldWithButtons("dosage_per_person", StrictButton(
-                        "Aggiungi", css_class="btn btn-info", css_id="add-ingredient-btn"), css_class="col-md-4"),
+                    FieldWithButtons("dosage_per_person", StrictButton("Aggiungi", css_class="btn btn-info", css_id="add-ingredient-btn"), css_class="col-md-4"),
                     Field("ingredients_list", css_class="d-none"),
                     css_class="row align-items-center mb-2",
                 ),
                 Div(css_id="ingredients-list"),
-                css_class="border p-2 my-2"
+                css_class="p-2 my-2"
             ),
             Fieldset(
-                "Crea passo di preparazione",
+                "Crea step di preparazione",
                 Div(
                     Field("step_description"),
                     Field("step_image"),
                     Div(
                         Div("step_required_hours", css_class="col-md-3",),
                         Div("step_required_minutes", css_class="col-md-3",),
+                        StrictButton("Aggiungi step", css_class="col-md-2 btn btn-info", css_id="add-step-btn"),
                         css_class="row",
                     ),
                 ),
-                StrictButton("Aggiungi passo",
-                             css_class="btn btn-info", css_id="add-step-btn"),
                 Field("steps_list", css_class="d-none"),
                 Div(css_id="steps-list"),
-                css_class="border p-2 my-2"
+                css_class="p-2 my-2"
             ),
             Fieldset(
                 "Aggiungi tags",
-                FieldWithButtons("tag", StrictButton(
-                    "Aggiungi tag", css_class="btn btn-info", css_id="add-tag-btn"),),
+                FieldWithButtons("tag", StrictButton("Aggiungi tag", css_class="btn btn-info", css_id="add-tag-btn"),),
                 Field("tags_list", css_class="d-none"),
                 Div(css_id="tags-list"),
-                css_class="border p-2 my-2"
+                css_class="p-2 my-2"
             )
         )
 
@@ -211,20 +208,16 @@ class RecipeForm(forms.ModelForm):
         cleaned_data = super().clean()
 
         if not len(cleaned_data.get("ingredients_list")):
-            self.add_error(field="ingredient",
-                           error="La ricetta deve avere almeno un ingrediente")
+            self.add_error(field="ingredient", error="La ricetta deve avere almeno un ingrediente")
 
         if not len(cleaned_data.get("steps_list")):
-            self.add_error(field="step_description",
-                           error="La ricetta deve avere almeno un passo di preparazione")
+            self.add_error(field="step_description", error="La ricetta deve avere almeno un passo di preparazione")
 
         if not len(cleaned_data.get("tags_list")):
-            self.add_error(field="tag",
-                           error="La ricetta deve avere almeno un custom tag")
+            self.add_error(field="tag", error="La ricetta deve avere almeno un custom tag")
 
         if cleaned_data.get("hours") == 0 and cleaned_data.get("minutes") == 0:
-            self.add_error(
-                field=None, error="Il tempo di preparazione non può essere 0 ore e 0 minuti")
+            self.add_error(field=None, error="Il tempo di preparazione non può essere 0 ore e 0 minuti")
 
         return cleaned_data
 
@@ -232,13 +225,23 @@ class RecipeForm(forms.ModelForm):
 class CreateRecipeForm(RecipeForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.helper.add_input(Submit("submit", "Crea ricetta"))
+        self.helper.layout.append(
+            Div(
+                HTML('<button type="submit" name="submit" id="create-recipe-btn" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Crea ricetta</button>'),
+                css_class="form-group text-center"
+            )
+        )
 
 
 class EditRecipeForm(RecipeForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.helper.add_input(Submit("submit", "Modifica ricetta"))
+        self.helper.layout.append(
+            Div(
+                HTML('<button type="submit" name="submit" id="edit-recipe-btn" class="btn btn-primary"><i class="fa-solid fa-pen"></i> Modifica ricetta</button>'),
+                css_class="form-group text-center"
+            )
+        )
 
 
 class ReviewForm(forms.ModelForm):
