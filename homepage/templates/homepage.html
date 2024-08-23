@@ -8,72 +8,87 @@
 
 {% load static %}
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="{% static 'stylesheets/homepage.css' %}">
+<link rel="stylesheet" href="{% static 'stylesheets/recipe-list-item.css' %}">
+{% if user.is_authenticated %}
+    <link rel="stylesheet" href="{% static 'stylesheets/carousel.css' %}">
+    <script src="{% static 'scripts/carousel-handler.js' %}" async></script>
+{% endif %}
+<script src="{% static 'scripts/scripts.js' %}" async></script>
+
 {% endblock %}
 
 {% block content %}
 
-    <div id="otherSections">
-        <h3>Esplora il sito:</h3>
-        <button><a href="{% url 'forums' %}">Forum</a></button>
-        {% if user.is_authenticated %}
-        	<button><a href="{% url 'collections' %}">Raccolte di ricette</a></button>
-        	<button><a href="{% url 'quiz_home' %}">Quiz culinari</a></button>
-            <button><a href="{% url 'recipe_create' %}">Crea una nuova ricetta</a></button>
-        {% endif %}
-    </div>
-
-    {% if notifications %}
+    {% if notifications_to_read %}
         <script type="text/javascript">
-            {% for notification in notifications %}
+            {% for notification in notifications_to_read %}
                 alert("Ciao {{ user.first_name }} {{ user.last_name }}, hai una notifica non letta: {{ notification }}");
             {% endfor %}
         </script>
     {% endif %}
 
     {% include "search_form_section.html" %}
-    
+
     {% if latest_recipes %}
-    <h2>Ultime ricette pubblicate</h2>
-    <ul>
-        {% for recipe in latest_recipes %}
-            {% include "recipe_list_item.html" %}
-        {% endfor %}
-    </ul>
+        <h2 style="text-align: center;">Ultime ricette pubblicate</h2>
+        {% with recipe_list=latest_recipes %}
+            {% include "recipe-section-carousel.html" %}
+        {% endwith %}
     {% endif %}
             
     {% if tags_recipes %}
-    <h2>In base ai tuoi gusti</h2>
-    <ul>
-        {% for recipe in tags_recipes %}
-            {% include "recipe_list_item.html" %}
-        {% endfor %}
-    </ul>
+        <h2 style="text-align: center;">In base ai tuoi gusti</h2>
+        {% with recipe_list=tags_recipes %}
+            {% include "recipe-section-carousel.html" %}
+        {% endwith %}
     {% endif %}
             
     {% if ingredient_recipes %}
-    <h2>Altre ricette con {{ ingredient_name }}</h2>
-    <ul>
-        {% for recipe in ingredient_recipes %}
-            {% include "recipe_list_item.html" %}
-        {% endfor %}
-    </ul>
+        <h2 style="text-align: center;">Altre ricette con {{ ingredient_name }}</h2>
+        {% with recipe_list=ingredient_recipes %}
+            {% include "recipe-section-carousel.html" %}
+        {% endwith %}
     {% endif %}
 
     {% if season_recipes %}
-    <h2>Altre ricette in {{ season }}</h2>
-    <ul>
-        {% for recipe in season_recipes %}
-            {% include "recipe_list_item.html" %}
-        {% endfor %}
-    </ul>
+        <h2 style="text-align: center;">Altre ricette in {{ season }}</h2>
+        {% with recipe_list=season_recipes %}
+            {% include "recipe-section-carousel.html" %}
+        {% endwith %}
     {% endif %}
 
-    <h2>Tutte le ricette</h2>
-    <ul>
-        {% for recipe in recipes %}
-            {% include "recipe_list_item.html" %}
-        {% endfor %}
-    </ul>
+    {% if not user.is_authenticated %}
+        <h2 style="text-align: center;">Esplora le ricette su TasteTribe</h2>
+        {% if recipes %}
+            <ul class="search-recipe-list">
+                {% for recipe in recipes %}
+                    {% include "recipe_list_item.html" %}
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Attualmente non sono disponibili ricette sul portale.</p>
+        {% endif %}
+    {% else %}
+        <h2 style="text-align: center;">Tutte le altre ricette</h2>
+        {% with recipe_list=recipes %}
+            {% include "recipe-section-carousel.html" %}
+        {% endwith %}
+    {% endif %}
 
-{% endblock content %}
+{% endblock %}
 
+{% block other_headers %}
+    <div id="otherSections">
+        <h3 style="text-align: center;">Esplora il sito:</h3>
+        <div class="other-section-btns">
+            <button class="section-btn forum-btn"><a href="{% url 'forums' %}"><i class="fa-solid fa-comments"></i> Forum</a></button>
+            {% if user.is_authenticated %}
+                <button class="section-btn collections-btn"><a href="{% url 'collections' %}"><i class="fa-solid fa-layer-group"></i> Raccolte di ricette</a></button>
+                <button class="section-btn quiz-btn"><a href="{% url 'quiz_home' %}"><i class="fa-regular fa-circle-question"></i> Quiz culinari</a></button>
+                <button class="section-btn new-recipe-btn"><a href="{% url 'recipe_create' %}"><i class="fa-solid fa-circle-plus"></i> Crea una nuova ricetta</a></button>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

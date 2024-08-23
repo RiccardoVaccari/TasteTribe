@@ -2,14 +2,18 @@ import random
 from datetime import date, datetime
 import time
 from typing import Any
+
+from django.db.models.functions import Random
 from django.shortcuts import render
 from django.views.generic import ListView, View
 from django.db.models import Q, Count
+
+from common.ratings_util import get_average_rating
 from recipedetail.models import Ingredient
 from login.models import RegisteredUser
 from .forms import SearchForm
-from .models import Recipe, Tag
-from common.utils import check_user_suspension
+from .models import *
+from common.utils import *
 
 
 class HomepageView(ListView):
@@ -23,19 +27,29 @@ class HomepageView(ListView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
+        # if self.request.user and self.request.user.is_authenticated and not self.user_suspended:
+        #     all_ids = Recipe.objects.filter(
+        #         recipe_is_private=False).exclude(recipe_author=self.request.user).values_list('recipe_guid', flat=True)
+        # else:
+        #     all_ids = Recipe.objects.filter(recipe_is_private=False).values_list('recipe_guid', flat=True)
+        #
+        # all_ids = list(all_ids)
+        # if len(all_ids) > 200:
+        #     all_ids = random.sample(all_ids, 200)
+        # else:
+        #     random.shuffle(all_ids)
+        #
+        # return Recipe.objects.filter(recipe_guid__in=all_ids)
         if self.request.user and self.request.user.is_authenticated and not self.user_suspended:
-            all_ids = Recipe.objects.filter(
-                recipe_is_private=False).exclude(recipe_author=self.request.user).values_list('recipe_guid', flat=True)
+            queryset = Recipe.objects.filter(
+                recipe_is_private=False
+            ).exclude(
+                recipe_author=self.request.user
+            )
         else:
-            all_ids = Recipe.objects.filter(recipe_is_private=False).values_list('recipe_guid', flat=True)
-        
-        all_ids = list(all_ids)
-        if len(all_ids) > 200:
-            all_ids = random.sample(all_ids, 200)
-        else:
-            random.shuffle(all_ids)
+            queryset = Recipe.objects.filter(recipe_is_private=False)
 
-        return Recipe.objects.filter(recipe_guid__in=all_ids)
+        return queryset.order_by(Random())[:200]
     
     def get_form(self):
         return SearchForm(user=self.request.user, user_suspended=self.user_suspended, from_homepage=True)
@@ -63,6 +77,8 @@ class HomepageView(ListView):
         # RS
         if self.request.user and self.request.user.is_authenticated and not self.user_suspended:
             context["latest_recipes"] = self.get_latest_publish()
+            # for recipe in context["latest_recipes"]:
+            #    recipe.recipe_avg_rating = get_average_rating(recipe.recipe_guid)
 
             # TAGs
             user_recent_tags = RegisteredUser.objects.get(
@@ -70,6 +86,8 @@ class HomepageView(ListView):
 
             if user_recent_tags:
                 context["tags_recipes"] = self.get_reccomended_by_tags(user_recent_tags)
+                # for recipe in context["tags_recipes"]:
+                #    recipe.recipe_avg_rating = get_average_rating(recipe.recipe_guid)
 
             latest_ingredients = RegisteredUser.objects.get(
                 user=self.request.user).reg_user_search_history.get("ingredients")
@@ -80,10 +98,14 @@ class HomepageView(ListView):
                 context["ingredient_name"] = latest_ingredient_name
                 context["ingredient_recipes"] = self.get_recipes_by_ingredient(
                     latest_ingredient_name)
+                # for recipe in context["ingredient_recipes"]:
+                #     recipe.recipe_avg_rating = get_average_rating(recipe.recipe_guid)
 
             season = self.__get_season_()
             context["season"] = season
             context["season_recipes"] = self.get_recipes_by_season(season)
+            # for recipe in context["season_recipes"]:
+            #     recipe.recipe_avg_rating = get_average_rating(recipe.recipe_guid)
 
         return context
 
@@ -183,6 +205,9 @@ class RecipeSearchView(View):
                     ingredients.insert(0, ingredient.ingredient_name)
                     reg_user.reg_user_search_history["ingredients"] = list(set(ingredients))[:10]
                     reg_user.save()
+
+        # for recipe in recipes:
+        #     recipe.recipe_avg_rating = get_average_rating(recipe.recipe_guid)
 
         return render(request, template_name="search_results.html", context={"search_results": recipes, "form": form, "user": self.request.user, "reg_user": reg_user})
     

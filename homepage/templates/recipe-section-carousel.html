@@ -1,0 +1,11 @@
+<div class="carousel-container">
+    <button class="carousel-arrow prev">&#8249;</button>
+    <div class="carousel-wrapper">
+        <ul class="homepage-recipe-list">
+            {% for recipe in recipe_list %}
+                {% include "recipe_list_item.html" %}
+            {% endfor %}
+        </ul>
+    </div>
+    <button class="carousel-arrow next">&#8250;</button>
+</div>

@@ -1,5 +1,6 @@
 import random
 import string
+import requests as py_requests
 from django.contrib import messages
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView, PasswordChangeDoneView
 from django.http import HttpResponse
@@ -12,11 +13,15 @@ from django.urls import reverse_lazy, reverse
 from django.contrib.auth import login
 from google.auth.transport import requests
 from google.oauth2 import id_token
+from google.auth import jwt
+from google.auth import exceptions as google_exceptions
+from cachetools import TTLCache
 from homepage.models import Recipe
 from .models import *
 from .forms import EditProfileForm
 
 GOOGLE_CLIENT_ID = "253692078578-gti4mgr39kol8974nhnddi430qbjpkt3.apps.googleusercontent.com"
+GOOGLE_PUBLIC_KEYS_CACHE = TTLCache(maxsize=2, ttl=86400)
 
 
 # Create your views here.
@@ -100,13 +105,42 @@ def profile_details(request, user_id):
     return render(request, "user_profile.html", context)
 
 
+# Views and functions to handle Google login
+def fetch_google_public_keys():
+    response = py_requests.get("https://www.googleapis.com/oauth2/v3/certs")
+    if response.status_code == 200:
+        keys = response.json().get("keys", [])
+        GOOGLE_PUBLIC_KEYS_CACHE.clear()
+        for key in keys:
+            GOOGLE_PUBLIC_KEYS_CACHE[key["kid"]] = key
+    else:
+        raise ValueError("Errore nella richiesta delle chiavi pubbliche di Google")
+
+
+def google_token_local_verification(token):
+    if not GOOGLE_PUBLIC_KEYS_CACHE:
+        fetch_google_public_keys()
+    try:
+        decoded_token = jwt.decode(token, certs=GOOGLE_PUBLIC_KEYS_CACHE, audience=GOOGLE_CLIENT_ID)
+        return decoded_token
+    except ValueError:
+        fetch_google_public_keys()
+        decoded_token = jwt.decode(token, certs=GOOGLE_PUBLIC_KEYS_CACHE, audience=GOOGLE_CLIENT_ID)
+        return decoded_token
+    except google_exceptions.GoogleAuthError:
+        raise ValueError("Invalid Google Token")
+
+
 @csrf_exempt
 def google_auth(request):
     token = request.POST.get("credential")
     try:
-        user_data = id_token.verify_oauth2_token(token, requests.Request(), GOOGLE_CLIENT_ID)
+        user_data = google_token_local_verification(token)
     except ValueError:
-        return HttpResponse("Invalid Google token", status=403)
+        try:
+            user_data = id_token.verify_oauth2_token(token, requests.Request(), GOOGLE_CLIENT_ID)
+        except ValueError:
+            return HttpResponse("Invalid Google token", status=403)
     # Save user data in the session (might be useless in our case)
     request.session["user_data"] = user_data
     # Now we're going to create the user in order to store it in the database, but first we check if it's already in the database

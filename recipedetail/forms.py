@@ -4,7 +4,6 @@ from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Submit, Field, Div
 from crispy_forms.bootstrap import StrictButton, InlineRadios, FieldWithButtons
-
 from homepage.models import Recipe, TagXRecipe
 from .models import Allergen, IngredientXRecipe, RecipeStep, Review
 

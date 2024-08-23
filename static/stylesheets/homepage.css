@@ -1,0 +1,77 @@
+/* STYLING FOR THE HOMEPAGE */
+.other-section-btns{
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.section-btn{
+    border-radius: 15px;
+    margin-right: 5px;
+    padding: 10px;
+}
+
+.section-btn a{
+    text-decoration: none;
+    color: inherit;
+}
+
+.forum-btn {
+    border: none;
+    background-color: #BA6818;
+    color: #ffffff;
+}
+
+.forum-btn i {
+    color: #ffffff;
+}
+
+.collections-btn {
+    border: none;
+    background-color: #16751d;
+    color: #ffffff;
+}
+
+.collections-btn i {
+    color: #ffffff;
+}
+
+.quiz-btn {
+    border: none;
+    background-color: #176ea0;
+    color: #ffffff;
+}
+
+.quiz-btn i {
+    color: #ffffff;
+}
+
+.new-recipe-btn {
+    border: none;
+    background-color: #b3260d;
+    color: #ffffff;
+}
+
+.new-recipe-btn i {
+    color: #ffffff;
+}
+
+.homepage-recipe-list {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    flex-shrink: 0;
+}
+
+.homepage-recipe-list li {
+    flex: 0 0 33.333%;
+    box-sizing: border-box;
+    padding: 10px;
+}
+
+.homepage-recipe-list li a {
+    text-decoration: none;
+    color: inherit;
+}
