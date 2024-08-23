@@ -6,39 +6,30 @@ document.addEventListener("DOMContentLoaded", function() {
         const prevArrow = container.querySelector(".carousel-arrow.prev");
         const nextArrow = container.querySelector(".carousel-arrow.next");
         const totalItems = items.length;
-        const itemWidth = 100 / totalItems;
+        const scrollFactor = 300;
 
         function updateArrows() {
             // Disable or enable arrows based on the current index
-            prevArrow.disabled = currentIndex === 0;
-            nextArrow.disabled = currentIndex >= totalItems - 1;
+            prevArrow.disabled = (currentIndex === 0);
+            nextArrow.disabled = (currentIndex >= totalItems - 1);
         }
 
         function scrollCarousel(direction) {
-            // Update the index based on the direction
+            const itemWidth = items[0].offsetWidth;
+            const containerWidth = container.offsetWidth;
+            const maxScroll = carouselWrapper.scrollWidth - containerWidth;
             currentIndex += direction;
-
-            // Ensure the index stays within bounds
             if (currentIndex < 0) {
                 currentIndex = 0;
-            } else if (currentIndex >= totalItems) {
-                currentIndex = totalItems - 1;
+            } else if (currentIndex * scrollFactor > maxScroll) {
+                currentIndex = Math.floor(maxScroll / scrollFactor);
             }
-
-            // Calculate the new transform value for scrolling one item at a time
-            const newTransform = -(currentIndex * itemWidth) + "%";
-
-            // Apply the transform to move the carousel
-            carouselWrapper.style.transform = `translateX(${newTransform})`;
-
-            // Update the state of the arrows
+            const newTransform = -(currentIndex * scrollFactor);
+            carouselWrapper.style.transform = `translateX(${newTransform}px)`;
             updateArrows();
         }
 
-        // Initialize the arrows state
         updateArrows();
-
-        // Attach event listeners
         prevArrow.addEventListener("click", () => scrollCarousel(-1));
         nextArrow.addEventListener("click", () => scrollCarousel(1));
     });

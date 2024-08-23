@@ -2,6 +2,8 @@ import random
 from datetime import date, datetime
 import time
 from typing import Any
+
+from django.db.models.functions import Random
 from django.shortcuts import render
 from django.views.generic import ListView, View
 from django.db.models import Q, Count
@@ -25,19 +27,29 @@ class HomepageView(ListView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
+        # if self.request.user and self.request.user.is_authenticated and not self.user_suspended:
+        #     all_ids = Recipe.objects.filter(
+        #         recipe_is_private=False).exclude(recipe_author=self.request.user).values_list('recipe_guid', flat=True)
+        # else:
+        #     all_ids = Recipe.objects.filter(recipe_is_private=False).values_list('recipe_guid', flat=True)
+        #
+        # all_ids = list(all_ids)
+        # if len(all_ids) > 200:
+        #     all_ids = random.sample(all_ids, 200)
+        # else:
+        #     random.shuffle(all_ids)
+        #
+        # return Recipe.objects.filter(recipe_guid__in=all_ids)
         if self.request.user and self.request.user.is_authenticated and not self.user_suspended:
-            all_ids = Recipe.objects.filter(
-                recipe_is_private=False).exclude(recipe_author=self.request.user).values_list('recipe_guid', flat=True)
+            queryset = Recipe.objects.filter(
+                recipe_is_private=False
+            ).exclude(
+                recipe_author=self.request.user
+            )
         else:
-            all_ids = Recipe.objects.filter(recipe_is_private=False).values_list('recipe_guid', flat=True)
-        
-        all_ids = list(all_ids)
-        if len(all_ids) > 200:
-            all_ids = random.sample(all_ids, 200)
-        else:
-            random.shuffle(all_ids)
+            queryset = Recipe.objects.filter(recipe_is_private=False)
 
-        return Recipe.objects.filter(recipe_guid__in=all_ids)
+        return queryset.order_by(Random())[:200]
     
     def get_form(self):
         return SearchForm(user=self.request.user, user_suspended=self.user_suspended, from_homepage=True)

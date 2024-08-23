@@ -8,6 +8,7 @@
 .section-btn{
     border-radius: 15px;
     margin-right: 5px;
+    padding: 10px;
 }
 
 .section-btn a{
@@ -15,15 +16,44 @@
     color: inherit;
 }
 
-.carousel-container {
-    width: 100%;
-    overflow: hidden;
-    position: relative;
+.forum-btn {
+    border: none;
+    background-color: #BA6818;
+    color: #ffffff;
 }
 
-.carousel-wrapper {
-    display: flex;
-    transition: transform 0.5s ease-in-out;
+.forum-btn i {
+    color: #ffffff;
+}
+
+.collections-btn {
+    border: none;
+    background-color: #16751d;
+    color: #ffffff;
+}
+
+.collections-btn i {
+    color: #ffffff;
+}
+
+.quiz-btn {
+    border: none;
+    background-color: #176ea0;
+    color: #ffffff;
+}
+
+.quiz-btn i {
+    color: #ffffff;
+}
+
+.new-recipe-btn {
+    border: none;
+    background-color: #b3260d;
+    color: #ffffff;
+}
+
+.new-recipe-btn i {
+    color: #ffffff;
 }
 
 .homepage-recipe-list {
@@ -44,93 +74,4 @@
 .homepage-recipe-list li a {
     text-decoration: none;
     color: inherit;
-}
-
-/* Arrows */
-.carousel-container .carousel-arrow {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 2rem;
-    color: #333;
-    background-color: rgba(255, 255, 255, 0.7);
-    border: none;
-    cursor: pointer;
-    z-index: 10;
-}
-
-.carousel-container .carousel-arrow.prev {
-    left: 10px;
-}
-
-.carousel-container .carousel-arrow.next {
-    right: 10px;
-}
-
-.carousel-container .carousel-arrow:focus {
-    outline: none;
-}
-
-.carousel-dots {
-    text-align: center;
-    margin-top: 10px;
-}
-
-.carousel-dots button {
-    border: none;
-    background: #ccc;
-    border-radius: 50%;
-    width: 12px;
-    height: 12px;
-    margin: 5px;
-    cursor: pointer;
-}
-
-.carousel-dots button.active {
-    background: #333;
-}
-
-@media (max-width: 1024px) {
-    .homepage-recipe-list li {
-        flex: 0 0 33%;
-    }
-}
-
-@media (max-width: 600px) {
-    .homepage-recipe-list li {
-        flex: 0 0 50%;
-    }
-}
-
-/* STYLING FOR THE SEARCH RESULTS PAGE */
-.search-recipe-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
-    list-style: none;
-    padding: 0;
-    margin: 20px 0;
-}
-
-.search-recipe-list li {
-    background-color: #f8f8f8;
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-}
-
-.search-recipe-list li a {
-    text-decoration: none;
-    color: inherit;
-}
-
-.search-recipe-list li img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 4px;
-}
-
-.search-recipe-list li p {
-    margin: 10px 0 0;
-    font-size: 14px;
 }

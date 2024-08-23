@@ -11,6 +11,10 @@
     font-family: Arial, sans-serif;
 }
 
+.recipe-list-item a{
+    text-decoration: none;
+}
+
 .recipe-list-item:hover {
     border: solid saddlebrown;
 }

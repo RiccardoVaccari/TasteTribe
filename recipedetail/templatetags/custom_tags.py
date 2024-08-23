@@ -1,7 +1,7 @@
 from django import template
 from homepage.models import *
 from recipedetail.models import *
-from homepage.views import check_user_suspension
+from common.utils import check_user_suspension
 
 register = template.Library()
 

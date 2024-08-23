@@ -11,7 +11,7 @@ from django.views.generic import ListView, DetailView
 from django.views.generic.edit import FormMixin
 from homepage.forms import SearchForm
 from homepage.models import Tag
-from homepage.views import check_user_suspension
+from common.utils import check_user_suspension
 from .models import *
 from .forms import *
 

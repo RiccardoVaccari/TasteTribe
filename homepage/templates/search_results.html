@@ -9,9 +9,9 @@
 {% load static %}
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="{% static 'stylesheets/homepage.css' %}">
+<link rel="stylesheet" href="{% static 'stylesheets/search-results-page.css' %}">
 <link rel="stylesheet" href="{% static 'stylesheets/recipe-list-item.css' %}">
-<script src="{% static 'scripts/scripts.js' %}"></script>
+<script src="{% static 'scripts/scripts.js' %}" async></script>
 
 {% endblock %}
 
@@ -21,13 +21,15 @@
 
 {% include "search_form_section.html" %}
 
-<ul class="search-recipe-list">
-    {% for recipe in search_results %}
-        {% include "recipe_list_item.html" %}
-    {% empty %}
-        <p>Non è stata trovata nessuna ricetta corrispondente ai parametri inseriti.</p>
-    {% endfor %}
-</ul>
+{% if search_results %}
+    <ul class="search-recipe-list">
+        {% for recipe in search_results %}
+            {% include "recipe_list_item.html" %}
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>Non è stata trovata nessuna ricetta corrispondente ai parametri inseriti.</p>
+{% endif %}
 <a href="{% url 'homepage' %}">Torna alla homepage</a>
 
 {% endblock %}
