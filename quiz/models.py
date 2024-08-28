@@ -7,7 +7,7 @@ from login.models import RegisteredUser, User
 class Quiz(models.Model):
     quiz_guid = models.UUIDField(primary_key=True)
     quiz_title = models.CharField(max_length=50)
-    quiz_difficulty = models.IntegerField()
+    quiz_difficulty = models.CharField(max_length=10)
     quiz_author = models.ForeignKey(User, on_delete=models.PROTECT)
     quiz_creation_date = models.DateField(null=True)
 

@@ -14,6 +14,7 @@ crispy-bootstrap4 = "*"
 requests = "*"
 jwt = "*"
 google-auth = "*"
+crispy-bootstrap5 = "*"
 
 [dev-packages]
 

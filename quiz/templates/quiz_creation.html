@@ -5,6 +5,8 @@
 {% block head %}
 
 {% load static %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="{% static 'stylesheets/creation-form.css' %}">
 
 {% endblock %}
 
@@ -12,51 +14,13 @@
 
 {% block content %}
 
-<h1>Ciao {{ request.user.first_name }} {{ request.user.last_name }}, benvenuto nella pagina di creazione quiz!</h1>
-<form method="post">
+<h1 style="text-align: center">Ciao {{ request.user.first_name }} {{ request.user.last_name }}, benvenuto nella pagina di creazione quiz!</h1>
+<form method="post" class="container-md">
     {% csrf_token %}
     {% crispy form %}
     <div></div>
 </form>
-<script>
-    document.addEventListener("DOMContentLoaded", function (){
-        const addQuestionButton = document.getElementById("add-question-btn");
-        const questionsListInput = document.getElementById("id_quiz_questions_list");
-        const questionTextInput = document.getElementById("id_quiz_question_text");
-        const questionAnsw1Input = document.getElementById("id_quiz_question_answer1");
-        const questionAnsw2Input = document.getElementById("id_quiz_question_answer2");
-        const questionAnsw3Input = document.getElementById("id_quiz_question_answer3");
-        const questionAnsw4Input = document.getElementById("id_quiz_question_answer4");
+<script src="{% static 'scripts/quiz-creation-scripts.js' %}"></script>
 
-        addQuestionButton.addEventListener("click", function (){
-            event.preventDefault();
-
-            /* updating the questions list with the newly created question */
-            let questionsList = [];
-            try{
-                questionsList = JSON.parse(questionsListInput.value || "[]");
-            } catch (e) {
-                console.error("Errore nel parsing della lista di domande", e);
-            }
-            const question = {
-                question_quiz_guid: undefined,
-                question_sequential: questionsList.length + 1,
-                question_text: questionTextInput.value,
-                question_possible_answers: [
-                    questionAnsw1Input.value,
-                    questionAnsw2Input.value,
-                    questionAnsw3Input.value,
-                    questionAnsw4Input.value
-                ],
-                question_correct_answer: +document.querySelector('input[name="quiz_question_correct_answer"]:checked').value
-            };
-            questionsList.push(question);
-
-            /* now updating the view */
-            questionsListInput.value = JSON.stringify(questionsList);
-            console.log("Lista domande: ", questionsList);
-        });
-    });
-</script>
 
 {% endblock %}
