@@ -56,7 +56,7 @@
     color: #ffffff;
 }
 
-.homepage-recipe-list {
+.homepage-item-list {
     display: flex;
     list-style: none;
     padding: 0;
@@ -65,13 +65,13 @@
     flex-shrink: 0;
 }
 
-.homepage-recipe-list li {
+.homepage-item-list li {
     flex: 0 0 33.333%;
     box-sizing: border-box;
     padding: 10px;
 }
 
-.homepage-recipe-list li a {
+.homepage-item-list li a {
     text-decoration: none;
     color: inherit;
 }

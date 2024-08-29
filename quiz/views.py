@@ -1,3 +1,5 @@
+import random
+from typing import Any
 import uuid
 from datetime import date
 from django.contrib.auth.decorators import login_required
@@ -7,6 +9,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.views.generic.edit import CreateView, FormView
 from django.views.generic.list import ListView
+from django.db.models import Count
 from .forms import *
 from .models import *
 from homepage.views import check_user_suspension
@@ -19,6 +22,23 @@ class QuizListView(LoginRequiredMixin, ListView):
     def dispatch(self, request, *args, **kwargs):
         self.template_name = get_template_based_on_user_status(self.request.user.id, "home")
         return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+
+        all_quizzes = Quiz.objects.annotate(num_questions=Count('quizquestion'))
+        quizzes_by_difficulty = {
+            "Facile": [quiz for quiz in all_quizzes if quiz.quiz_difficulty == "easy"],
+            "Media": [quiz for quiz in all_quizzes if quiz.quiz_difficulty == "medium"],
+            "Difficile": [quiz for quiz in all_quizzes if quiz.quiz_difficulty == "hard"]
+        }
+
+        for difficulty in quizzes_by_difficulty:
+            random.shuffle(quizzes_by_difficulty[difficulty])
+        context['quizzes_by_difficulty'] = quizzes_by_difficulty
+
+        return context
+
 
 
 class QuizCreationView(LoginRequiredMixin, CreateView):

@@ -3,6 +3,16 @@
 {% block head %}
 
 {% load static %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="{% static 'stylesheets/homepage.css' %}">
+<link rel="stylesheet" href="{% static 'stylesheets/quiz-list-item.css' %}">
+
+
+<link rel="stylesheet" href="{% static 'stylesheets/carousel.css' %}">
+<script src="{% static 'scripts/carousel-handler.js' %}" async></script>
+
+<script src="{% static 'scripts/scripts.js' %}" async></script>
+
 
 {% endblock %}
 
@@ -10,18 +20,42 @@
 
 {% block content %}
 
-<h1>Benvenuto {{ request.user.first_name }} {{ request.user.last_name }} nella sezione dei quiz culinari!</h1>
-<h2>Scegli un quiz per giocare e divertirti oppure <a href="{% url 'quiz_creation' %}">crea un tuo quiz personale</a></h2>
-<ul>
-    {% if object_list %}
-        {% for quiz in quiz_list %}
-            <h3><a href="{% url 'quiz_game' quiz.quiz_guid %}">{{ quiz.quiz_title }}</a></h3>
-            <p>Difficoltà: {{ quiz.quiz_difficulty }}</p>
-            <p>Creato da: {{ quiz.quiz_author.first_name }} {{ quiz.quiz_author.last_name }}</p>
-        {% endfor %}
-    {% else %}
-        <h3>Incredibile ma vero, non c'è nessun quiz disponibile sulla piattaforma! <a href="{% url 'quiz_creation' %}">Creane subito uno tu!</a></h3>
-    {% endif %}
-</ul>
+<div class="container-md text-center">
+    <h1>Benvenuto {{ request.user.first_name }} {{ request.user.last_name }}</h1>
+    <h2>Inizia a giocare ad un quiz culinario!</h2>
+</div>
 
+{% with quiz_not_found=True %}
+{% endwith %}
+
+{% for difficulty, quizzes in quizzes_by_difficulty.items %}
+    {% if quizzes %}
+        {% with quiz_not_found=False %}
+        {% endwith %}
+        <h2 class="mt-4" style="text-align: center;">Quiz di difficoltà {{ difficulty }}</h2>
+        {% with quiz_list=quizzes %}
+            {% include "quiz_section_carousel.html" %}
+        {% endwith %}
+
+    {% endif %}
+{% endfor %}
+
+{% if quiz_not_found %}
+    {% comment %} Inserisco un commento su: quiz non trovati {% endcomment %}
+{% endif %}
+
+{% endblock %}
+
+{% block other_headers %}
+    <div id="otherSections">
+        <h3 style="text-align: center;">Esplora il sito:</h3>
+        <div class="other-section-btns">
+            <button class="section-btn forum-btn"><a href="{% url 'forums' %}"><i class="fa-solid fa-comments"></i> Forum</a></button>
+            {% if user.is_authenticated %}
+                <button class="section-btn collections-btn"><a href="{% url 'collections' %}"><i class="fa-solid fa-layer-group"></i> Raccolte di ricette</a></button>
+                <button class="section-btn quiz-btn"><a href="{% url 'homepage' %}"><i class="fa-solid fa-magnifying-glass"></i> Cerca ricette</a></button>
+                <button class="section-btn new-recipe-btn"><a href="{% url 'quiz_creation' %}"><i class="fa-solid fa-circle-plus"></i> Crea un nuovo quiz</a></button>
+            {% endif %}
+        </div>
+    </div>
 {% endblock %}

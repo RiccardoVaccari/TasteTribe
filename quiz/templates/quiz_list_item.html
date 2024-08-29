@@ -1,0 +1,14 @@
+<li class="quiz-list-item">
+    <a href="{% url 'quiz_game' quiz.quiz_guid %}">
+        <div class="quiz-list-item-info">
+            <h2>{{ quiz.quiz_title }}</h2>
+            <small class="quiz-list-item-author">
+                <a href="{% url 'profile' quiz.quiz_author.id %}">@{{ quiz.quiz_author.username }}</a>
+            </small>
+            <br>
+            <small class="quiz-list-item-creation-date">creato il {{ quiz.quiz_creation_date|date  }}</small>
+            <br>
+            <span class="quiz-list-item-questions-number">Numero di domande: {{ quiz.num_questions }}</span>
+        </div>
+    </a>
+</li>

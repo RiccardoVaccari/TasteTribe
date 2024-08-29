@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", function() {
     document.querySelectorAll(".carousel-container").forEach((container) => {
         let currentIndex = 0;
         const carouselWrapper = container.querySelector(".carousel-wrapper");
-        const items = container.querySelectorAll(".homepage-recipe-list li");
+        const items = container.querySelectorAll(".homepage-item-list li");
         const prevArrow = container.querySelector(".carousel-arrow.prev");
         const nextArrow = container.querySelector(".carousel-arrow.next");
         const totalItems = items.length;

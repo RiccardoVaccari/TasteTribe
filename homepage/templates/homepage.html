@@ -9,7 +9,7 @@
 {% load static %}
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="{% static 'stylesheets/homepage.css' %}">
+<link rel="stylesheet" href="{% static 'stylesheets/homepage.quiz-btncss' %}">
 <link rel="stylesheet" href="{% static 'stylesheets/recipe-list-item.css' %}">
 {% if user.is_authenticated %}
     <link rel="stylesheet" href="{% static 'stylesheets/carousel.css' %}">
@@ -34,28 +34,28 @@
     {% if latest_recipes %}
         <h2 style="text-align: center;">Ultime ricette pubblicate</h2>
         {% with recipe_list=latest_recipes %}
-            {% include "recipe-section-carousel.html" %}
+            {% include "recipe_section_carousel.html" %}
         {% endwith %}
     {% endif %}
             
     {% if tags_recipes %}
         <h2 style="text-align: center;">In base ai tuoi gusti</h2>
         {% with recipe_list=tags_recipes %}
-            {% include "recipe-section-carousel.html" %}
+            {% include "recipe_section_carousel.html" %}
         {% endwith %}
     {% endif %}
             
     {% if ingredient_recipes %}
         <h2 style="text-align: center;">Altre ricette con {{ ingredient_name }}</h2>
         {% with recipe_list=ingredient_recipes %}
-            {% include "recipe-section-carousel.html" %}
+            {% include "recipe_section_carousel.html" %}
         {% endwith %}
     {% endif %}
 
     {% if season_recipes %}
         <h2 style="text-align: center;">Altre ricette in {{ season }}</h2>
         {% with recipe_list=season_recipes %}
-            {% include "recipe-section-carousel.html" %}
+            {% include "recipe_section_carousel.html" %}
         {% endwith %}
     {% endif %}
 
@@ -73,7 +73,7 @@
     {% else %}
         <h2 style="text-align: center;">Tutte le altre ricette</h2>
         {% with recipe_list=recipes %}
-            {% include "recipe-section-carousel.html" %}
+            {% include "recipe_section_carousel.html" %}
         {% endwith %}
     {% endif %}
 

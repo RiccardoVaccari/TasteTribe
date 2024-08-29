@@ -54,13 +54,13 @@
 }
 
 @media (max-width: 1024px) {
-    .homepage-recipe-list li {
+    .homepage-item-list li {
         flex: 0 0 33%;
     }
 }
 
 @media (max-width: 600px) {
-    .homepage-recipe-list li {
+    .homepage-item-list li {
         flex: 0 0 50%;
     }
 }
