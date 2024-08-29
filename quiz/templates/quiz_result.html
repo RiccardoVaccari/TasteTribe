@@ -12,32 +12,46 @@
 
 {% block content %}
 
-<h1>Ecco i risultati del tuo tentativo nel quiz {{ quiz.quiz_title }}:</h1>
-{% for sequential, result in results.items %}
-    <div class="list-group-item">
-        <h5 class="mb-1">Domanda #{{ sequential }}: {{ result.question_text }}</h5>
-        <ul>
-            {% for answer in result.possible_answers %}
-                {% with answer_index=forloop.counter0 %}
-                    <li>
-                        {{ answer }}
-                        {% if answer_index == result.given_answer %}
-                            <strong>(La tua risposta)</strong>
-                        {% endif %}
-                        {% if answer_index == result.correct_answer %}
-                            <span class="text-success"><strong>(Risposta corretta)</strong></span>
-                        {% endif %}
-                    </li>
-                {% endwith %}
-            {% endfor %}
-        </ul>
-        {% if result.question_result == "correct" %}
-            <p class="text-success">Hai risposto correttamente a questa domanda!</p>
-        {% else %}
-            <p class="text-danger">Peccato! La tua risposta era sbagliata.</p>
-        {% endif %}
-    </div>
-{% endfor %}
-Grazie per aver giocato! Torna alla <a href="{% url 'quiz_home' %}">pagina dei quiz</a> oppure torna alla <a href="{% url 'profile' user.id %}">pagina del tuo profilo.</a>
+<div class="container">
+    <h1>Risultati per: {{ quiz.quiz_title }}</h1>
+    <p>Difficoltà: {{ quiz.get_quiz_difficulty_display }}</p>
+    <p>Autore: <a href="{% url 'profile' quiz.quiz_author.id %}">@{{ quiz.quiz_author.username }}</a></p>
+    <p>Data di creazione: {{ quiz.quiz_creation_date }}</p>
+    <hr>
 
+    <div class="list-group">
+        {% for sequential, result in results.items %}
+            <div class="list-group-item list-group-item-action mb-3 border rounded">
+                <h5 class="mb-3">Domanda {{ sequential }}: {{ result.question_text }}</h5>
+                <ul class="list-group">
+                    {% for answer in result.possible_answers %}
+                        {{forloop.counter}} {{result.given_answer}}
+                        <li class="list-group-item {% if forloop.counter == result.correct_answer %}list-group-item-success{% elif forloop.counter == result.given_answer %}list-group-item-danger{% endif %}">
+                            {{ answer }}
+                            {% if forloop.counter == result.given_answer %}
+                                <span class="badge bg-primary float-end">Risposta data</span>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+                <p class="mt-3">
+                    Risultato: 
+                    {% if result.question_result == "correct" %}
+                        <span class="text-success">Corretta</span>
+                    {% else %}
+                        <span class="text-danger">Sbagliata</span>
+                    {% endif %}
+                </p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="mt-4">
+        <h4>Riepilogo:</h4>
+        <p>Numero di risposte corrette: <span class="text-success">{{ correct_count }}</span></p>
+        <p>Numero di risposte sbagliate: <span class="text-danger">{{ incorrect_count }}</span></p>
+    </div>
+
+    <a href="{% url 'quiz_home' %}" class="btn btn-secondary my-4">Torna alla lista dei quiz</a>
+</div>
 {% endblock %}

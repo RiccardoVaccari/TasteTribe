@@ -98,21 +98,33 @@ def play_quiz(request, quiz_guid):
         if form.is_valid():
             results = {}
             for question in questions:
-                given_answer = int(form.cleaned_data[f"question_{question.question_sequential}"])
-                if given_answer + 1 == question.question_correct_answer:
+                given_answer = int(form.cleaned_data[f"question_{question.question_sequential}"]) + 1
+                if given_answer == question.question_correct_answer:
                     question_result = "correct"
                 else:
                     question_result = "wrong"
                 results[question.question_sequential] = {
                     "given_answer": given_answer,
-                    "correct_answer": question.question_correct_answer - 1,  # To avoid discrepancies between indexes
+                    "correct_answer": question.question_correct_answer,  # To avoid discrepancies between indexes
                     "possible_answers": question.question_possible_answers,
                     "question_text": question.question_text,
                     "question_result": question_result
                 }
-            return render(request, "quiz_result.html", {"quiz": quiz, "results": results, "user": request.user, "reg_user": reg_user})
+
+            correct_count = sum([1 for _, question in results.items() if question.get("question_result") == "correct"])
+            incorrect_count = len(questions) - correct_count
+
+            return render(request, "quiz_result.html", {
+                "quiz": quiz, 
+                "results": results, 
+                "user": request.user, 
+                "reg_user": reg_user,
+                "correct_count": correct_count,
+                "incorrect_count": incorrect_count,
+                })
     else:
         form = QuizGameForm(questions=questions)
+        
     return render(request, "quiz_play.html", {"quiz": quiz, "form": form, "user": request.user, "reg_user": reg_user})
 
 
