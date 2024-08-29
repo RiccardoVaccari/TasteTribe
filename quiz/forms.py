@@ -28,6 +28,7 @@ class QuizCreationForm(forms.ModelForm):
     quiz_question_correct_answer = forms.ChoiceField(
         widget=forms.RadioSelect,
         choices=[(i, f"#{i}") for i in range(1, 5)],
+        required=False
     )
     quiz_questions_list = forms.CharField(
         widget=forms.HiddenInput(), required=False)
@@ -105,12 +106,11 @@ class QuizGameForm(forms.Form):
         for question in questions:
             field_name = f"question_{question.question_sequential}"
             self.fields[field_name] = forms.ChoiceField(
-                label=question.question_text,
+                label=f"{question.question_sequential}) {question.question_text}",
                 choices=[(question.question_possible_answers.index(answer), answer)
                          for answer in question.question_possible_answers],
                 widget=forms.RadioSelect()
             )
-            layout.append(
-                Fieldset(f"Domanda #{question.question_sequential}", field_name))
-        layout.append(ButtonHolder(Submit("submit", "Rispondi al quiz!")))
+            layout.append(Div(field_name, css_class="border-bottom border-start mb-3 p-4 border-black rounded-start"))
+        layout.append(ButtonHolder(Submit("submit", "Rispondi al quiz!", css_class="btn-success mb-3")))
         self.helper.layout = Layout(*layout)

@@ -5,9 +5,16 @@ from login.models import RegisteredUser, User
 # Create your models here.
 
 class Quiz(models.Model):
+
+    DIFFICULTY_CHOICES = [
+        ('easy', 'Facile'),
+        ('medium', 'Media'),
+        ('hard', 'Difficile'),
+    ]
+
     quiz_guid = models.UUIDField(primary_key=True)
     quiz_title = models.CharField(max_length=50)
-    quiz_difficulty = models.CharField(max_length=10)
+    quiz_difficulty = models.CharField(max_length=10, choices=DIFFICULTY_CHOICES)
     quiz_author = models.ForeignKey(User, on_delete=models.PROTECT)
     quiz_creation_date = models.DateField(null=True)
 

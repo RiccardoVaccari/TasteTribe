@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{%  load crispy_forms_tags %}
+{% load crispy_forms_tags %}
 
 {% block head %}
 
@@ -12,10 +12,18 @@
 
 {% block content %}
 
-<h1>Ciao {{ user.first_name }} {{ user.last_name }}, divertiti con il quiz {{ quiz.quiz_title }}</h1>
-<form method="post">
-    {% csrf_token %}
-    {% crispy form %}
-</form>
+<div class="container">
+    <h1>{{ quiz.quiz_title }}</h1>
+    <p>Difficoltà: {{ quiz.get_quiz_difficulty_display }}</p>
+    <p>Autore: <a href="{% url 'profile' quiz.quiz_author.id %}">@{{ quiz.quiz_author.username }}</a></p>
+    <p>Data di creazione: {{ quiz.quiz_creation_date }}</p>
+    <hr>
+
+    <form method="post" class="container-md">
+        {% csrf_token %} {% crispy form %}
+    </form>
+</div>
+
+
 
 {% endblock %}
