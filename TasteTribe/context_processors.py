@@ -6,6 +6,12 @@ def reg_user_context(request):
     reg_user = None
     user_initial = None
     if request.user.is_authenticated:
-        reg_user = RegisteredUser.objects.get(user=request.user.id)
-        user_initial = request.user.first_name[0]
+        try:
+            reg_user = request.user.registereduser
+        except RegisteredUser.DoesNotExist:
+            reg_user = RegisteredUser(user=request.user)
+        if request.user.first_name:
+            user_initial = request.user.first_name[0]
+        else:
+            user_initial = request.user.username[0]
     return {"reg_user": reg_user, "user_initial": user_initial}
