@@ -1,0 +1,22 @@
+.card {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.card-body {
+    position: relative;
+}
+
+.text-primary {
+    color: #007bff; /* colore primario per i link */
+}
+
+.text-primary:hover {
+    text-decoration: underline;
+}

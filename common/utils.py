@@ -1,4 +1,8 @@
+import base64
 from datetime import datetime
+import io
+import random
+from PIL import Image, ImageDraw, ImageFont
 
 
 # Definition of useful constants
@@ -50,3 +54,48 @@ def elaborate_interaction(interaction, created, interaction_type):
             interaction.interaction_liked = INTERACTION_DISLIKE
             interaction.save()
     return user_interaction
+
+def generate_avatar(initial, size=100):
+
+    # Definisci i colori di sfondo possibili
+    background_colors = ["#FF5733", "#095e0f", "#001a76", "#690076", "#ae3200", "#7a7a00"]
+    bg_color = random.choice(background_colors)
+    
+    # Crea un'immagine quadrata
+    image = Image.new('RGB', (size, size), color=bg_color)
+    
+    # Definisci il font e la dimensione del testo
+    # Assicurati di avere il percorso del font corretto o usa un font di default
+    font_size = int(size * 0.7)
+    try:
+        font = ImageFont.truetype("arial.ttf", font_size)
+    except IOError:
+        font = ImageFont.load_default(font_size)
+
+    # Crea un oggetto di disegno
+    draw = ImageDraw.Draw(image)
+    
+    # Aggiungi il testo all'immagine
+    draw.text((size/2, size/2), initial, font=font, fill="white", anchor='mm')
+    
+    return image
+
+
+def image_to_base64(image):
+    # Crea un buffer in memoria per l'immagine
+    buffered = io.BytesIO()
+    
+    # Salva l'immagine nel buffer come PNG (puoi scegliere altri formati)
+    image.save(buffered, format="PNG")
+    
+    # Ottieni i dati dell'immagine in bytes dal buffer
+    img_bytes = buffered.getvalue()
+    
+    # Converte i bytes in una stringa Base64
+    img_base64 = base64.b64encode(img_bytes).decode('utf-8')
+    
+    return img_base64
+
+if __name__ == "__main__":
+    with open("avatar.txt", "w") as f:
+        f.write(image_to_base64(generate_avatar("R")))

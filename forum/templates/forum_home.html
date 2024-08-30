@@ -5,38 +5,57 @@
 {% block head %}
 
 {% load static %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="{% static 'stylesheets/homepage.css' %}">
+<link rel="stylesheet" href="{% static 'stylesheets/forum-home.css' %}">
 
 {% endblock %}
 
 {%  block title %} TasteTribe - Forums {% endblock %}
 
 {% block content %}
+<div class="container mt-4">
+    <div class="container-md text-center">
+        <h1 class="mb-4">Forum Homepage</h1>
+    </div>
 
-{% if request.user.is_authenticated %}
-    {% if can_open_threads %}
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createThreadModal">Crea nuovo thread</button>
-    {% endif %}
-    <h1>Benvenuto {{ request.user.first_name }} {{ request.user.last_name }} nel portale dei forum di TasteTribe</h1>
-    <h2>Esplora i forum disponibili {% if can_open_threads %}o <a href="{% url 'forum_create_thread' %}">creane uno nuovo!</a>{% endif %}</h2>
-{% else %}
-	<h1>Benvenuto nel portale dei forum di TasteTribe</h1>
-    <h2>Esplora i forum disponibili o <a href="{% url 'login' %}">accedi</a> per partecipare anche tu!</h2>
-{% endif %}
+    <div class="row">
+        {% for thread in fthreads %}
+            <div class="col-md-6 mb-4">
+                <div class="card clickable-card" data-url="{% url 'forum_thread' thread.fthread_guid %}">
+                    {% comment %} <a style="text-decoration: none; color: black;" href="{% url 'forum_thread' thread.fthread_guid %}"> </a> {% endcomment %}
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <!-- Icona dell'utente creatore -->
+                                <img src="data:image/*;base64,{{ thread.reg_user.reg_user_profile_pic }}" alt="Avatar" class="rounded-circle me-4" width="50" height="50">
+                                
+                                <!-- Dettagli del thread -->
+                                <div>
+                                    <h5 class="card-title">{{ thread.fthread_title }}</h5>
+                                    <p class="card-text">
+                                        Creato da: <a href="{% url 'profile' thread.fthread_creator.id %}" class="text-primary">@{{ thread.fthread_creator.username }}</a><br>
+                                        Data di creazione: {{ thread.fthread_creation_date|date:"d/m/Y H:i" }}<br>
+                                        Numero di risposte: {{ thread.responses_count }}<br>
+                                        {% if thread.latest_message %}
+                                            Ultima risposta di: <a href="{% url 'profile' thread.latest_message.fmessage_author.id %}" class="text-primary">@{{ thread.latest_message.fmessage_author.username }}</a>
+                                        {% else %}
+                                            Nessuna risposta.
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <p class="text-muted">Non ci sono thread nel forum.</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
 
-<ul>
-    {% for thread in fthreads %}
-        <li>
-            {% if can_open_threads %}
-                <a href="{% url 'forum_thread' thread.fthread_guid %}">{{ thread.fthread_title }}</a>
-            {% else %}
-                <p>{{ thread.fthread_title }}</p>
-            {% endif %}
-            <p>Creato da {{ thread.fthread_creator.first_name }} {{ thread.fthread_creator.last_name }} in data {{ thread.fthread_creation_date }}</p>
-        </li>
-    {% endfor %}
-</ul>
-
-<!-- Modal for forum thread creation -->
 <div class="modal fade" id="createThreadModal" tabindex="-1" aria-labelledby="createThreadModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -59,24 +78,52 @@
 </div>
 
 <script>
-$(document).ready(function() {
-    $("#thread-creation-form").on("submit", function(event) {
-        event.preventDefault();
-        $.ajax({
-            url: "{% url 'forum_create_thread' %}",
-            type: "POST",
-            data: $(this).serialize(),
-            success: function(data) {
-                if (data.fthread_guid) {
-                    window.location.href = "/forum/thread/" + data.fthread_guid + "/";
+    $(document).ready(function() {
+        $("#thread-creation-form").on("submit", function(event) {
+            event.preventDefault();
+            $.ajax({
+                url: "{% url 'forum_create_thread' %}",
+                type: "POST",
+                data: $(this).serialize(),
+                success: function(data) {
+                    if (data.fthread_guid) {
+                        window.location.href = "/forum/thread/" + data.fthread_guid + "/";
+                    }
+                },
+                error: function(xhr, errmsg, err) {
+                    alert('Si è verificato un errore nella creazione del thread: ' + errmsg);
                 }
-            },
-            error: function(xhr, errmsg, err) {
-                alert('Si è verificato un errore nella creazione del thread: ' + errmsg);
+            });
+        });
+    });
+
+    $(document).ready(function() {
+        $(".clickable-card").on("click", function(event) {
+            // Ottieni l'URL dal data attribute
+            var url = $(this).data("url");
+    
+            // Verifica se il clic è avvenuto su un link all'interno della card
+            if (!$(event.target).closest('a').length) {
+                window.location.href = url;
             }
         });
     });
-});
 </script>
 
+{% endblock %}
+
+{% block other_headers %}
+    <div id="otherSections">
+        <h3 style="text-align: center;">Esplora il sito:</h3>
+        <div class="other-section-btns">
+            <button class="section-btn forum-btn"><a href="{% url 'homepage' %}"><i class="fa-solid fa-magnifying-glass"></i> Cerca ricette</a></button>
+            {% if user.is_authenticated %}
+                <button class="section-btn collections-btn"><a href="{% url 'collections' %}"><i class="fa-solid fa-layer-group"></i> Raccolte di ricette</a></button>
+                <button class="section-btn quiz-btn"><a href="{% url 'quiz_home' %}"><i class="fa-regular fa-circle-question"></i> Quiz culinari</a></button>
+                {% if can_open_threads %}
+                    <button type="button" class="section-btn new-recipe-btn" data-bs-toggle="modal" data-bs-target="#createThreadModal"><i class="fa-solid fa-circle-plus"></i> Crea un nuovo thread</button>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
 {% endblock %}

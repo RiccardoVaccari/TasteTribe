@@ -1,0 +1,43 @@
+/* Fissa il form di invio del messaggio in basso allo schermo */
+#message-form-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-top: 1px solid #dee2e6;
+}
+
+/* Riduce l'altezza dell'input di testo */
+#message-content {
+    height: 38px;
+    resize: none; /* Disabilita il ridimensionamento dell'area di testo */
+}
+
+/* Stile per i messaggi */
+.thread-message {
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+}
+
+.message-author {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.message-author img {
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+}
+
+.message-content {
+    margin-left: 50px; /* Spazio per separare dal nome dell'autore */
+}
+.like-icon:hover,
+.dislike-icon:hover {
+    cursor: pointer;  /* Cambia il cursore in una mano per indicare un'azione cliccabile */
+}

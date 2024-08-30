@@ -7,6 +7,8 @@
 {% load static %}
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="{% static 'stylesheets/homepage.css' %}">
+<link rel="stylesheet" href="{% static 'stylesheets/forum-thread.css' %}">
 
 {% endblock %}
 
@@ -14,126 +16,88 @@
 
 {% block content %}
 
-<button>
-    <a href="{% url 'forums' %}">Torna alla home dei forum</a>
-</button>
-
-{% if user_allowed %}
-<h1>{{ forum_thread.fthread_title }}</h1>
-<div id="messages-section">
-    {% for message in fmessages %}
-    	<div class="thread-message" id="message-{{ message.id }}">
-            <p>{{ message.fmessage_author.first_name }} {{ message.fmessage_author.last_name }}: {{ message.fmessage_content }}</p>
-            <span class="like-icon" data-message-id="{{ message.id }}" data-interaction-type="like">
-                {% if message.user_interaction == 1 %}
-                	<i class="fa-solid fa-thumbs-up" id="like-icon-{{ message.id }}" style="color: #0a9900;"></i>
-                {% else %}
-                    <i class="fa-regular fa-thumbs-up" id="like-icon-{{ message.id }}" style="color: #000000;"></i>
-                {% endif %}
-                <small>{{ message.fmessage_up_votes }}</small>
-            </span>
-            <span class="dislike-icon" data-message-id="{{ message.id }}" data-interaction-type="dislike">
-                {% if message.user_interaction == -1 %}
-                	<i class="fa-solid fa-thumbs-down" id="dislike-icon-{{ message.id }}" style="color: #b80000;"></i>
-                {% else %}
-                    <i class="fa-regular fa-thumbs-down" id="dislike-icon-{{ message.id }}" style="color: #000000;"></i>
-                {% endif %}
-                <small>{{ message.fmessage_down_votes }}</small>
-            </span>
-            <small>{{ message.fmessage_creation_date }}</small>
-        </div>
-    {% endfor %}
-</div>
-<form id="message-form" method="post" action="{% url 'forum_thread' forum_thread.fthread_guid %}">
-    {% csrf_token %}
-    {{ form|crispy }}
-    <button type="submit">Invia messaggio</button>
-</form>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    $(document).ready(function() {
-        $("#message-form").on("submit", function(event) {
-            event.preventDefault();
-            $.ajax({
-                url: $(this).attr("action"),
-                method: $(this).attr("method"),
-                data: $(this).serialize(),
-                success: function(data) {
-                    $("#messages-section").prepend(
-                        `<div class="thread-message" id="message-${data.message_id}">
-                            <p>${data.message_author}: ${data.message_content}</p>
-                            <span class="like-icon" data-message-id="${data.message_id}" data-interaction-type="like">
-                                <i class="fa-regular fa-thumbs-up" id="like-icon-${data.message_id}" style="color: #000000;"></i>
-                                <small>${data.likes}</small>
-                            </span>
-                            <span class="dislike-icon" data-message-id="${data.message_id}" data-interaction-type="dislike">
-                                <i class="fa-regular fa-thumbs-down" id="dislike-icon-${data.message_id}" style="color: #000000;"></i>
-                                <small>${data.dislikes}</small>
-                            </span>
-                            <small>${data.creation_date}</small>
-                        </div>`
-                    );
-                    $("#message-form")[0].reset();
-                },
-                error: function(xhr, errmsg, err) {
-                    alert('Si è verificato un errore nella creazione del messaggio: ' + errmsg);
-                }
-            });
-        });
-        $(document).on("click", ".like-icon, .dislike-icon", function() {
-            const messageId = $(this).data("message-id");
-            const interactionType = $(this).data("interaction-type");
-
-            $.ajax({
-                url: "{% url 'toggle_interaction' %}",
-                method: "POST",
-                data: {
-                    "message_id": messageId,
-                    "interaction_type": interactionType,
-                    "csrfmiddlewaretoken": "{{ csrf_token }}"
-                },
-                success: function(data) {
-                    const messageElement = $("#message-" + data.message_id);
-                    const likeIcon = $("#like-icon-" + data.message_id);
-                    const dislikeIcon = $("#dislike-icon-" + data.message_id);
-
-                    messageElement.find(".like-icon small").text(data.likes);
-                    messageElement.find(".dislike-icon small").text(data.dislikes);
-
-                    if (data.user_interaction === 1) {
-                        likeIcon.removeClass();
-                        likeIcon.addClass("fa-solid fa-thumbs-up");
-                        likeIcon.css("color", "#0a9900");
-                        dislikeIcon.removeClass();
-                        dislikeIcon.addClass("fa-regular fa-thumbs-down");
-                        dislikeIcon.css("color", "#000000");
-                    } else if (data.user_interaction === -1) {
-                        likeIcon.removeClass();
-                        likeIcon.addClass("fa-regular fa-thumbs-up");
-                        likeIcon.css("color", "#000000");
-                        dislikeIcon.removeClass();
-                        dislikeIcon.addClass("fa-solid fa-thumbs-down");
-                        dislikeIcon.css("color", "#b80000");
-                    } else {
-                        likeIcon.removeClass();
-                        likeIcon.addClass("fa-regular fa-thumbs-up");
-                        likeIcon.css("color", "#000000");
-                        dislikeIcon.removeClass();
-                        dislikeIcon.addClass("fa-regular fa-thumbs-down");
-                        dislikeIcon.css("color", "#000000");
-                    }
-                }
-            });
-        });
-    });
-</script>
-{% else %}
-    {% if request.user.is_authenticated %}
-    	<h1>Oops! {{ request.user.first_name }} {{ request.user.last_name }} sembra che il tuo account TasteTribe sia sospeso! Non puoi entrare nei dettagli in un thread mentre sei sospeso!</h1>
+<div class="container mt-4 mb-5">
+    {% if user_allowed %}
+    <h1 class="mb-4">{{ forum_thread.fthread_title }}</h1>
+    <div id="messages-section">
+        {% for message in fmessages reversed %}
+            <div class="thread-message" id="message-{{ message.id }}">
+                <div class="message-author d-flex align-items-center mb-2">
+                    <!-- Icona dell'utente -->
+                    <img src="data:image/*;base64,{{ message.reg_user.reg_user_profile_pic }}" alt="Avatar" class="rounded-circle me-2" width="40" height="40">
+                    <div>
+                        <strong>{{ message.fmessage_author.first_name }} {{ message.fmessage_author.last_name }}</strong><br>
+                        <small class="text-muted">{{ message.fmessage_creation_date|date:"d/m/Y H:i" }}</small>
+                    </div>
+                </div>
+                <!-- Contenuto del messaggio -->
+                <p class="message-content mb-3">{{ message.fmessage_content }}</p>
+                <!-- Interazioni (Like/Dislike) -->
+                <div class="d-flex align-items-center mb-3">
+                    <span class="like-icon me-4" data-message-id="{{ message.id }}" data-interaction-type="like">
+                        {% if message.user_interaction == 1 %}
+                            <i class="fa-solid fa-thumbs-up" id="like-icon-{{ message.id }}" style="color: #0a9900;"></i>
+                        {% else %}
+                            <i class="fa-regular fa-thumbs-up" id="like-icon-{{ message.id }}" style="color: #000000;"></i>
+                        {% endif %}
+                        <small>{{ message.fmessage_up_votes }}</small>
+                    </span>
+                    <span class="dislike-icon" data-message-id="{{ message.id }}" data-interaction-type="dislike">
+                        {% if message.user_interaction == -1 %}
+                            <i class="fa-solid fa-thumbs-down" id="dislike-icon-{{ message.id }}" style="color: #b80000;"></i>
+                        {% else %}
+                            <i class="fa-regular fa-thumbs-down" id="dislike-icon-{{ message.id }}" style="color: #000000;"></i>
+                        {% endif %}
+                        <small>{{ message.fmessage_down_votes }}</small>
+                    </span>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <div id="message-form-container">
+        <form id="message-form" method="post" action="{% url 'forum_thread' forum_thread.fthread_guid %}">
+            {% csrf_token %}
+            <div class="input-group">
+                <textarea id="message-content" class="form-control" placeholder="Scrivi un messaggio..." name="fmessage_content"></textarea>
+                <div class="input-group-append">
+                    <button class="btn btn-primary" type="submit">Invia</button>
+                </div>
+            </div>
+        </form>
+    </div>
     {% else %}
-        <h1>Oops! Sembra che tu non abbia i permessi per accedere a questa pagina! Se ritieni si tratti di un errore contatta tastetribedevs@gmail.com</h1>
+    <p class="alert alert-warning">Non sei autorizzato a visualizzare questo thread.</p>
     {% endif %}
-    <p>Torna alla <a href="{% url 'homepage' %}">homepage</a></p>
-{% endif %}
+</div>
 
+<script>
+
+</script>
+
+<script>
+    // Passare le variabili Django al file JavaScript
+    var forumThreadUrl = "{% url 'forum_thread' forum_thread.fthread_guid %}";
+    var toggleInteractionUrl = "{% url 'toggle_interaction' %}";
+    var csrfToken = '{{ csrf_token }}';
+</script>
+
+<!-- Include il file JavaScript separato -->
+<script src="{% static 'scripts/forum-thread-scripts.js' %}"></script>
+
+{% endblock %}
+
+{% block other_headers %}
+    <div id="otherSections">
+        <h3 style="text-align: center;">Esplora il sito:</h3>
+
+
+        <div class="other-section-btns">
+            <button class="section-btn forum-btn"><a href="{% url 'forums' %}"><i class="fa-solid fa-comments"></i> Forum</a></button>
+            {% if user.is_authenticated %}
+                <button class="section-btn collections-btn"><a href="{% url 'collections' %}"><i class="fa-solid fa-layer-group"></i> Raccolte di ricette</a></button>
+                <button class="section-btn quiz-btn"><a href="{% url 'quiz_home' %}"><i class="fa-regular fa-circle-question"></i> Quiz culinari</a></button>
+                <button class="section-btn new-recipe-btn"><a href="{% url 'homepage' %}"><i class="fa-solid fa-magnifying-glass"></i> Cerca ricette</a></button>
+            {% endif %}
+        </div>
+    </div>
 {% endblock %}
