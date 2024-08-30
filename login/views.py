@@ -16,6 +16,7 @@ from google.oauth2 import id_token
 from google.auth import jwt
 from google.auth import exceptions as google_exceptions
 from cachetools import TTLCache
+from common.utils import generate_avatar, image_to_base64
 from homepage.models import Recipe
 from .models import *
 from .forms import EditProfileForm
@@ -88,6 +89,8 @@ def edit_profile(request):
             user.email = form.cleaned_data["email"]
             user.save()
             reg_user.reg_user_profile_pic = form.cleaned_data["reg_user_profile_pic"]
+            if not reg_user.reg_user_profile_pic:
+                reg_user.reg_user_profile_pic = image_to_base64(generate_avatar(user.first_name[0]))
             reg_user.reg_user_about = form.cleaned_data["reg_user_about"]
             reg_user.reg_user_preferences = form.cleaned_data["reg_user_preferences"]
             form.save()

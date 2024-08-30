@@ -95,7 +95,3 @@ def image_to_base64(image):
     img_base64 = base64.b64encode(img_bytes).decode('utf-8')
     
     return img_base64
-
-if __name__ == "__main__":
-    with open("avatar.txt", "w") as f:
-        f.write(image_to_base64(generate_avatar("R")))
