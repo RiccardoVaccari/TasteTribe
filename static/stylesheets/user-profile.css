@@ -1,0 +1,96 @@
+.profile-card {
+    max-width: 500px; /* Larghezza massima della card */
+    margin: 40px auto; /* Margini per centrare la card orizzontalmente e verticalmente */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    text-align: center;
+    }
+
+    /* Header della card per contenere l'immagine e le informazioni utente */
+    .profile-card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    }
+
+    /* Immagine profilo rotonda */
+    .profile-picture {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-right: 15px;
+    object-fit: cover; /* Adatta l'immagine all'interno del cerchio */
+    }
+
+    /* Informazioni utente (nome, username, email) */
+    .profile-info {
+    text-align: left;
+    }
+
+    /* Sezione del corpo della card */
+    .profile-card-body {
+    text-align: left;
+    margin-top: 20px;
+    }
+
+    .profile-card-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* Centra gli elementi all'interno del contenitore */
+        gap: 10px; /* Spaziatura tra i pulsanti */
+        margin-top: 20px;
+        width: 100%; /* Assicura che l'intera card sia utilizzata */
+    }
+    
+    .button {
+        display: flex;
+        align-items: center; /* Centra verticalmente l'icona e il testo */
+        justify-content: center; /* Centra orizzontalmente l'icona e il testo */
+        width: 100%; /* Stessa larghezza per tutti i pulsanti */
+        max-width: 250px; /* Larghezza massima per i pulsanti */
+        padding: 10px 15px; /* Spaziatura interna dei pulsanti */
+        background-color: #007bff; /* Colore di sfondo del pulsante */
+        color: #fff; /* Colore del testo */
+        text-decoration: none; /* Rimuove la sottolineatura dai link */
+        border: none; /* Rimuove i bordi */
+        border-radius: 5px; /* Arrotonda i bordi dei pulsanti */
+        cursor: pointer; /* Cambia il cursore a forma di mano sui pulsanti */
+        font-size: 16px; /* Dimensione del testo */
+        text-align: center; /* Allinea il testo al centro */
+    }
+    
+    .button i {
+        margin-right: 8px; /* Spaziatura tra l'icona e il testo */
+    }
+    
+    .button:hover {
+        background-color: #0056b3; /* Colore di sfondo al passaggio del mouse */
+    }
+    
+    .logout-form {
+        width: 100%; /* Fa in modo che il form occupi tutta la larghezza del contenitore */
+        display: flex; /* Utilizza flexbox per allineare il contenuto */
+        justify-content: center; /* Centra il pulsante logout orizzontalmente */
+    }
+    
+    .logout-form button {
+        width: 100%; /* Fa in modo che il pulsante logout occupi tutta la larghezza del form */
+        max-width: 250px; /* Stessa larghezza massima degli altri pulsanti */
+        padding: 10px 15px; /* Spaziatura interna */
+        background-color: #007bff; /* Colore di sfondo del pulsante logout */
+        color: #fff; /* Colore del testo del pulsante logout */
+        text-decoration: none; /* Rimuove la sottolineatura */
+        border: none; /* Rimuove i bordi */
+        border-radius: 5px; /* Arrotonda i bordi */
+        cursor: pointer; /* Cambia il cursore a forma di mano sui pulsanti */
+        font-size: 16px; /* Dimensione del testo */
+        display: flex; /* Utilizza flexbox per l'icona e il testo */
+        align-items: center; /* Centra verticalmente l'icona e il testo */
+        justify-content: center; /* Centra orizzontalmente l'icona e il testo */
+    }
+    
+    .logout-form button i {
+        margin-right: 8px; /* Spaziatura tra l'icona e il testo nel pulsante logout */
+    }

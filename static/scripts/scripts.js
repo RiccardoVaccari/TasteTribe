@@ -25,14 +25,4 @@ document.addEventListener("DOMContentLoaded", function() {
             timeElement.innerHTML = `${prepTimeLabel} ${minutes} minuti`;
         }
     });
-    /* script to handle creation date formatting */
-    document.querySelectorAll(".recipe-list-item-creation-date").forEach(dateElement => {
-        const creationDate = dateElement.innerHTML.substring(dateElement.innerHTML.indexOf("(") + 1, dateElement.innerHTML.indexOf(")"));
-        const timestamp = Date.parse(creationDate);
-        const dateObject = new Date(timestamp);
-        const day = dateObject.getDate();
-        const month = dateObject.getMonth() + 1;
-        const year = dateObject.getFullYear();
-        dateElement.innerHTML = `creata il ${day}-${month}-${year}`;
-    });
 });

@@ -17,7 +17,7 @@ class Recipe(models.Model):
     recipe_gluten_free = models.BooleanField()
     recipe_is_vegan = models.BooleanField()
     recipe_creation_date = models.DateField(default=None)
-    recipe_author = models.ForeignKey(User, on_delete=models.PROTECT, null=True)
+    recipe_author = models.ForeignKey(User, on_delete=models.PROTECT, null=True, db_index=True)
 
     def __str__(self) -> str:
         return f"<b>{self.recipe_name.capitalize()}</b> by "

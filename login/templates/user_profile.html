@@ -1,42 +1,96 @@
 {% extends "base.html" %}
 
-{% block title %} Utente: {{user.first_name}} {{user.last_name}} {% endblock %}
+{% block title %}{{user.first_name}} {{user.last_name}} {% endblock %}
 
 {% block head %}
     
 {% load static %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="{% static 'stylesheets/homepage.css' %}">
+<link rel="stylesheet" href="{% static 'stylesheets/recipe-list-item.css' %}">
+
+<link rel="stylesheet" href="{% static 'stylesheets/search-results-page.css' %}">
+<link rel="stylesheet" href="{% static 'stylesheets/user-profile.css' %}">
+
 
 {% endblock %}
 
 {% block content %}
 
-<h1>Profilo utente - {{user.first_name}} {{user.last_name}}</h1>
-<img src="data:image/png;base64,{{reg_user.reg_user_profile_pic}}" alt="Nessuna foto profilo trovata">
-<p>@{{user.username}}</p>
-<p>Contatta: {{user.email}}</p>
-<p>Presentazione dell'utente: {{reg_user.reg_user_about}}</p>
-    
-{% if logged_user.id == user.id %}
-    <a href="{% url 'edit_profile' %}">Modifica il tuo profilo</a>
-    <a href="{% url 'password_change' %}">Cambia la password del tuo account</a>
-    {% if logged_user.is_authenticated %}
-        <form method="post" action="{% url 'logout' %}"> {% csrf_token %}
-            {{ form.as_p }}
-            <input type="submit" value="Disconnettiti">
+<div class="profile-card">
+    <div class="profile-card-header">
+      <img
+        class="profile-picture"
+        src="data:image/png;base64,{{ reg_user.reg_user_profile_pic }}"
+        alt="Nessuna foto profilo trovata"
+      />
+      <div class="profile-info">
+        <h1>{{ user.first_name }} {{ user.last_name }}</h1>
+        <p>@{{ user.username }}</p>
+        <p>Contatta: <a href="mailto:{{ user.email }}"> {{ user.email }}</a></p>
+      </div>
+    </div>
+  
+    <div class="profile-card-body">
+      <p>Presentazione dell'utente: {{ reg_user.reg_user_about }}</p>
+      <p>Quiz creati: {{ num_quizzes_created }}</p>
+      <p>Ricette create: {{ num_recipes_created }}</p>
+      <p>Thread aperti: {{ num_threads_opened }}</p>
+    </div>
+  
+    {% if logged_user.id == user.id %}
+        <div class="profile-card-actions">
+        <a href="{% url 'edit_profile' %}" class="button">
+            <i class="fas fa-user-edit"></i> Modifica profilo
+        </a>
+        <a href="{% url 'password_change' %}" class="button">
+            <i class="fas fa-key"></i> Cambia password
+        </a>
+        {% if logged_user.is_authenticated %}
+        <form method="post" action="{% url 'logout' %}" class="logout-form">
+            {% csrf_token %}
+            <button type="submit" class="button">
+            <i class="fas fa-sign-out-alt"></i> Disconnettiti
+            </button>
         </form>
+        {% endif %}
+        </div>
     {% endif %}
+  </div>
+
+{% if logged_user == user %}
+    <h2 style="text-align: center;">Le tue ricette</h2>
+{% else %}
+    <h2 style="text-align: center;">Ricette pubblicate da {{user.first_name}} {{user.last_name}}</h2>
 {% endif %}
 
-<h2>Ricette pubblicate da {{user.first_name}} {{user.last_name}}</h2>
-
 {% if recipes %}
-    <ul>
+    <ul class="search-recipe-list">
         {% for recipe in recipes %}
-            {% include "recipe_list_item.html" %}
+            {% include "recipe_list_item.html" with exclude_author=True %}
         {% endfor %}
     </ul>
 {% else %}
-    <p>L'utente non ha ancora pubblicato nessuna ricetta!</p>
+    <p style="text-align: center;">L'utente non ha ancora pubblicato nessuna ricetta!</p>
 {% endif %}
 
 {% endblock %}
+
+{% block other_headers %}
+    <div id="otherSections">
+        <h3 style="text-align: center;">Esplora il sito:</h3>
+        <div class="other-section-btns">
+            <button class="section-btn forum-btn"><a href="{% url 'forums' %}"><i class="fa-solid fa-comments"></i> Forum</a></button>
+            <button class="section-btn new-recipe-btn"><a href="{% url 'homepage' %}"><i class="fa-solid fa-magnifying-glass"></i> Cerca ricette </a></button>
+            {% if user.is_authenticated %}
+                <button class="section-btn collections-btn"><a href="{% url 'collections' %}"><i class="fa-solid fa-layer-group"></i> Raccolte di ricette</a></button>
+                <button class="section-btn quiz-btn"><a href="{% url 'quiz_home' %}"><i class="fa-regular fa-circle-question"></i> Quiz culinari</a></button>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% if logged_user.id == user.id %}
+    {% block profile_pic %}
+    {% endblock %}
+{% endif %}

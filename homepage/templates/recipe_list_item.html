@@ -5,10 +5,12 @@
         </div>
         <div class="recipe-list-item-info">
             <h2>{{ recipe.recipe_name }}</h2>
+            {% if not exclude_author %}
             <small class="recipe-list-item-author">
                 di <a href="{% url 'profile' recipe.recipe_author.id %}">@{{ recipe.recipe_author.username }}</a>
             </small>
-            <small class="recipe-list-item-creation-date">creata il {{ recipe.recipe_creation_date|date }}</small>
+            {% endif %}
+            <small class="recipe-list-item-creation-date">creata il {{ recipe.recipe_creation_date|date:"d/m/Y" }}</small>
             <span class="recipe-list-item-time">Tempo di preparazione: {{ recipe.recipe_prep_time }}</span>
             <div class="recipe-list-item-rating">
                 <div class="recipe-list-item-stars" data-rating="{{ recipe.recipe_avg_rating }}">

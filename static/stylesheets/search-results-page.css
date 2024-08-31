@@ -5,8 +5,9 @@
     gap: 20px;
     list-style: none;
     padding: 0;
-    width: 100%;
-    margin: 20px 0;
+    width: 75%; /* Larghezza relativa alla finestra */
+    max-width: 1200px; /* Larghezza massima per il contenitore */
+    margin: 20px auto; /* Centra la griglia orizzontalmente */
 }
 
 .search-recipe-list li {

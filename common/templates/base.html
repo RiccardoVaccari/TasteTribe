@@ -68,17 +68,21 @@
             <img src="/static/images/tastetribe_logo.png" alt="TasteTribe - Homepage">
         </a>
         {% block other_headers %} {% endblock %}
+        {% block profile_pic %}
         <div id="userSection">
             <button id="userPlaceholder" class="user-placeholder">
                 {% if user.is_authenticated %}
+                    
                     <a href="{% url 'profile' user.id %}">
                         <img src="data:image/*;base64,{{ reg_user.reg_user_profile_pic }}" alt="{{ user_initial }}" height="50px" width="50px">
                     </a>
+                    
                 {% else %}
                     <a href="{% url 'login' %}"><img src="/static/images/user.png" alt="Login" width="81" height="81"></a>
                 {% endif %}
             </button>
         </div>
+        {% endblock %}
     </div>
     {% block content %} {% endblock %}
 

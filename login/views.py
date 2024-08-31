@@ -17,7 +17,9 @@ from google.auth import jwt
 from google.auth import exceptions as google_exceptions
 from cachetools import TTLCache
 from common.utils import generate_avatar, image_to_base64
+from forum.models import ForumThread
 from homepage.models import Recipe
+from quiz.models import Quiz
 from .models import *
 from .forms import EditProfileForm
 
@@ -103,8 +105,26 @@ def edit_profile(request):
 def profile_details(request, user_id):
     user = get_object_or_404(User, id=user_id)
     reg_user = get_object_or_404(RegisteredUser, user=user)
-    recipes = Recipe.objects.filter(recipe_author=user)
-    context = {"user": user, "reg_user": reg_user, "recipes": recipes, "logged_user": request.user}
+
+    # Calcola il numero di ricette create dall'utente
+    num_recipes_created = Recipe.objects.filter(recipe_author=user).count()
+    
+    # Calcola il numero di quiz creati dall'utente
+    num_quizzes_created = Quiz.objects.filter(quiz_author=user).count()
+    
+    # Calcola il numero di thread aperti dall'utente
+    num_threads_opened = ForumThread.objects.filter(fthread_creator=user).count()
+
+    context = {
+        "user": user,
+        "reg_user": reg_user,
+        "recipes": Recipe.objects.filter(recipe_author=user),
+        "logged_user": request.user,
+        "num_recipes_created": num_recipes_created,
+        "num_quizzes_created": num_quizzes_created,
+        "num_threads_opened": num_threads_opened,
+    }
+
     return render(request, "user_profile.html", context)
 
 
