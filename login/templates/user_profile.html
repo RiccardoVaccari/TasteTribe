@@ -70,6 +70,15 @@
             {% include "recipe_list_item.html" with exclude_author=True %}
         {% endfor %}
     </ul>
+{% elif logged_user == user %}
+    <div class="container">
+        <div class="text-center mt-4">
+            <p>Non hai ancora creato nessuna ricetta!</p>
+            <a href="{% url 'recipe_create' %}" class="btn btn-danger">
+                <i class="fa-solid fa-circle-plus"></i> Crea una nuova ricetta
+            </a>
+        </div>
+    </div>
 {% else %}
     <p style="text-align: center;">L'utente non ha ancora pubblicato nessuna ricetta!</p>
 {% endif %}

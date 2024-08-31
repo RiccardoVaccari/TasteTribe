@@ -63,7 +63,7 @@ class TasteTribePwChangeDone(PasswordChangeDoneView):
 
 
 def logged_out(request):
-    return render(request, template_name="logged_out.html")
+    return render(request, template_name="homepage.html")
 
 
 @login_required
@@ -77,26 +77,28 @@ def edit_profile(request):
             user_pw = message.message
             break
         index += 1
+
     # Handle the user editing form
     user = request.user
     try:
         reg_user = user.registereduser
     except RegisteredUser.DoesNotExist:
         reg_user = RegisteredUser(user=user)
+
     if request.method == "POST":
-        form = EditProfileForm(request.POST, instance=reg_user, user=user)
+        form = EditProfileForm(request.POST, request.FILES, instance=reg_user, user=user)
         if form.is_valid():
             user.first_name = form.cleaned_data["first_name"]
             user.last_name = form.cleaned_data["last_name"]
             user.email = form.cleaned_data["email"]
+            user.username = form.cleaned_data["username"]  # Aggiungi questo se stai cambiando lo username
             user.save()
             reg_user.reg_user_profile_pic = form.cleaned_data["reg_user_profile_pic"]
             if not reg_user.reg_user_profile_pic:
                 reg_user.reg_user_profile_pic = image_to_base64(generate_avatar(user.first_name[0]))
             reg_user.reg_user_about = form.cleaned_data["reg_user_about"]
-            reg_user.reg_user_preferences = form.cleaned_data["reg_user_preferences"]
-            form.save()
-            return redirect("/")
+            reg_user.save()
+            return redirect("profile", user_id=user.id)
     else:
         form = EditProfileForm(instance=reg_user, user=user)
     return render(request, "user_profile_edit_page.html", {"form": form, "user_pw": user_pw})
