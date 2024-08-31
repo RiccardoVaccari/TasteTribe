@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('login', '0002_remove_registereduser_id_and_more'),
+        
     ]
 
     operations = [

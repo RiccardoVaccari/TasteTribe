@@ -7,7 +7,6 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('login', '0003_remove_registereduser_reg_user_email_and_more'),
         ('recipedetail', '0002_alter_recipestep_step_required_time'),
     ]
 

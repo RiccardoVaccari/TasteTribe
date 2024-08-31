@@ -3,10 +3,9 @@ from django.contrib.auth.models import User
 
 
 class RegisteredUser(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
     reg_user_profile_pic = models.TextField(null=True)
     reg_user_about = models.CharField(max_length=200, null=True)
-    reg_user_preferences = models.JSONField(default=dict())
     reg_user_search_history = models.JSONField(default=dict(
         [("recipes", list()),
          ("ingredients", list()),

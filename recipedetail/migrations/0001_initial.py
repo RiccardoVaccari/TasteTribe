@@ -10,7 +10,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('homepage', '0002_tag_remove_recipe_id_alter_recipe_recipe_guid'),
-        ('login', '0002_remove_registereduser_id_and_more'),
     ]
 
     operations = [
