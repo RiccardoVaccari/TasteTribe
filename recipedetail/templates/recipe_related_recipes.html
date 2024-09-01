@@ -3,10 +3,6 @@
     <div class="row align-items-center">
         {% for recipe in recipes %}
         <div class="col-auto">
-{#            <b>{{ recipe.recipe_name }}</b>#}
-{#            by <a href="/profile/{{ recipe.recipe_author.id }}">@{{ recipe.recipe_author.username }}</a>#}
-{#            <i>Created ({{ recipe.recipe_creation_date }})</i>  #}
-{#            <a href="/recipe/{{ recipe.recipe_guid }}"> Vai alla ricetta </a>#}
             {% include "recipe_list_item.html" %}
         </div>
         {% endfor %}

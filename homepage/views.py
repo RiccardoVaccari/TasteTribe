@@ -4,7 +4,8 @@ import time
 from typing import Any
 
 from django.db.models.functions import Random
-from django.shortcuts import render
+from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.views.generic import ListView, View
 from django.db.models import Q, Count
 
@@ -23,23 +24,16 @@ class HomepageView(ListView):
     form = SearchForm()
 
     def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            try:
+                registered_user = RegisteredUser.objects.get(user=request.user)
+            except RegisteredUser.DoesNotExist:
+                return redirect(reverse('edit_profile'))
+        
         self.update_notifications()
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        # if self.request.user and self.request.user.is_authenticated and not self.user_suspended:
-        #     all_ids = Recipe.objects.filter(
-        #         recipe_is_private=False).exclude(recipe_author=self.request.user).values_list('recipe_guid', flat=True)
-        # else:
-        #     all_ids = Recipe.objects.filter(recipe_is_private=False).values_list('recipe_guid', flat=True)
-        #
-        # all_ids = list(all_ids)
-        # if len(all_ids) > 200:
-        #     all_ids = random.sample(all_ids, 200)
-        # else:
-        #     random.shuffle(all_ids)
-        #
-        # return Recipe.objects.filter(recipe_guid__in=all_ids)
         if self.request.user and self.request.user.is_authenticated and not self.user_suspended:
             queryset = Recipe.objects.filter(
                 recipe_is_private=False

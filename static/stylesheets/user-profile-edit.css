@@ -5,6 +5,8 @@
     border: 1px solid #ddd;
     border-radius: 20px;
     background-color: #f9f9f9;
+    position: relative; /* Aggiungi questo per rendere il contenitore il riferimento del posizionamento assoluto */
+    padding-top: 20px; /* Per lasciare spazio alla freccia */
 }
 
 .profile-edit-container form {
@@ -42,4 +44,21 @@ button[type="submit"] {
 .profile-edit-container input[type="submit"]:hover,
 button[type="submit"]:hover {
     background-color: #0056b3;
+}
+
+.back-arrow {
+    position: absolute;
+    top: 20px; /* Regola la distanza dal bordo superiore */
+    left: 20px; /* Regola la distanza dal bordo sinistro */
+    text-decoration: none; /* Rimuove la sottolineatura dal link */
+    font-size: 15px; /* Dimensione della freccia */
+    color: #424242; /* Colore della freccia */
+}
+
+.back-arrow:hover {
+    color: #555; /* Colore della freccia al passaggio del mouse */
+}
+
+#register-form {
+    margin-top: 20px;
 }

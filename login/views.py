@@ -42,6 +42,12 @@ class UserRegistrationView(CreateView):
 
 
 class TasteTribeLoginView(LoginView):
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            user_id = request.user.id
+            return redirect(reverse("profile", kwargs={"user_id": user_id}))
+        return super().dispatch(request, *args, **kwargs)
+    
     def get_success_url(self):
         redirection_page = self.request.GET.get("next")
         if redirection_page:
