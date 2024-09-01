@@ -48,23 +48,16 @@ class TasteTribeLoginView(LoginView):
         user_id = self.request.user.id
         return reverse("profile", kwargs={"user_id": user_id})
 
-
 class TasteTribeLogoutView(LogoutView):
     next_page = reverse_lazy("logged_out")
 
 
 class TasteTribePwChangeView(PasswordChangeView):
-    success_url = reverse_lazy("password_change_done")
+    success_url = reverse_lazy("profile")
     template_name = "password_change_form.html"
-
-
-class TasteTribePwChangeDone(PasswordChangeDoneView):
-    template_name = "password_change_done.html"
-
 
 def logged_out(request):
     return render(request, template_name="homepage.html")
-
 
 @login_required
 def edit_profile(request):
@@ -104,7 +97,14 @@ def edit_profile(request):
     return render(request, "user_profile_edit_page.html", {"form": form, "user_pw": user_pw})
 
 
-def profile_details(request, user_id):
+def profile_details(request, user_id=None):
+
+    if user_id is None:
+        if request.user.is_authenticated:
+            user_id = request.user.id
+        else:
+            return redirect("login")
+
     user = get_object_or_404(User, id=user_id)
     reg_user = get_object_or_404(RegisteredUser, user=user)
 

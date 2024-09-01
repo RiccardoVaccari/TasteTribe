@@ -4,7 +4,6 @@ from .models import *
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
-
 class EditProfileForm(forms.ModelForm):
     first_name = forms.CharField(max_length=30, required=True)
     last_name = forms.CharField(max_length=30, required=True)
@@ -55,4 +54,3 @@ class EditProfileForm(forms.ModelForm):
         if isinstance(data["reg_user_profile_pic"], InMemoryUploadedFile):
             data["reg_user_profile_pic"] = base64.b64encode(data["reg_user_profile_pic"].read()).decode('utf-8')
         return data
-    
