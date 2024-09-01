@@ -1,8 +1,11 @@
 import random
 import string
+import jwt
+from jwt.algorithms import RSAAlgorithm
 import requests as py_requests
 from django.contrib import messages
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView, PasswordChangeDoneView
+from django.core.cache import cache
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404, resolve_url
 from django.contrib.auth.forms import UserCreationForm
@@ -13,9 +16,6 @@ from django.urls import reverse_lazy, reverse
 from django.contrib.auth import login
 from google.auth.transport import requests
 from google.oauth2 import id_token
-from google.auth import jwt
-from google.auth import exceptions as google_exceptions
-from cachetools import TTLCache
 from common.utils import generate_avatar, image_to_base64
 from forum.models import ForumThread
 from homepage.models import Recipe
@@ -24,7 +24,8 @@ from .models import *
 from .forms import EditProfileForm
 
 GOOGLE_CLIENT_ID = "253692078578-gti4mgr39kol8974nhnddi430qbjpkt3.apps.googleusercontent.com"
-GOOGLE_PUBLIC_KEYS_CACHE = TTLCache(maxsize=2, ttl=86400)
+GOOGLE_PUBLIC_KEYS_CACHE_KEY = "google_public_keys"
+GOOGLE_PUBLIC_KEYS_CACHE_EXPIRY = 86400
 
 
 # Create your views here.
@@ -57,7 +58,7 @@ class TasteTribePwChangeView(PasswordChangeView):
     template_name = "password_change_form.html"
 
 def logged_out(request):
-    return render(request, template_name="homepage.html")
+    return render(request, template_name="logged_out.html")
 
 @login_required
 def edit_profile(request):
@@ -132,65 +133,69 @@ def profile_details(request, user_id=None):
 
 # Views and functions to handle Google login
 def fetch_google_public_keys():
-    response = py_requests.get("https://www.googleapis.com/oauth2/v3/certs")
-    if response.status_code == 200:
+    try:
+        response = py_requests.get("https://www.googleapis.com/oauth2/v3/certs", timeout=5)
+        response.raise_for_status()
         keys = response.json().get("keys", [])
-        GOOGLE_PUBLIC_KEYS_CACHE.clear()
-        for key in keys:
-            GOOGLE_PUBLIC_KEYS_CACHE[key["kid"]] = key
-    else:
+        cache.set(GOOGLE_PUBLIC_KEYS_CACHE_KEY, keys, GOOGLE_PUBLIC_KEYS_CACHE_EXPIRY)
+    except py_requests.RequestException:
         raise ValueError("Errore nella richiesta delle chiavi pubbliche di Google")
 
 
 def google_token_local_verification(token):
-    if not GOOGLE_PUBLIC_KEYS_CACHE:
+    keys = cache.get(GOOGLE_PUBLIC_KEYS_CACHE_KEY)
+    if not keys:
         fetch_google_public_keys()
+        keys = cache.get(GOOGLE_PUBLIC_KEYS_CACHE_KEY)
     try:
-        decoded_token = jwt.decode(token, certs=GOOGLE_PUBLIC_KEYS_CACHE, audience=GOOGLE_CLIENT_ID)
+        header = jwt.get_unverified_header(token)
+        key = next((key for key in keys if key["kid"] == header["kid"]), None)
+        if not key:
+            raise ValueError("Public key not found for the given token.")
+        public_key = RSAAlgorithm.from_jwk(key)
+        decoded_token = jwt.decode(token, key=public_key, audience=GOOGLE_CLIENT_ID, algorithms=["RS256"])
         return decoded_token
-    except ValueError:
-        fetch_google_public_keys()
-        decoded_token = jwt.decode(token, certs=GOOGLE_PUBLIC_KEYS_CACHE, audience=GOOGLE_CLIENT_ID)
-        return decoded_token
-    except google_exceptions.GoogleAuthError:
-        raise ValueError("Invalid Google Token")
+    except jwt.PyJWTError:
+        # Use Google API Verification exclusively if local cached verification fails
+        return id_token.verify_oauth2_token(token, requests.Request(), GOOGLE_CLIENT_ID)
 
 
 @csrf_exempt
 def google_auth(request):
     token = request.POST.get("credential")
+    if not token:
+        return HttpResponse("No token provided", status=400)
     try:
         user_data = google_token_local_verification(token)
     except ValueError:
-        try:
-            user_data = id_token.verify_oauth2_token(token, requests.Request(), GOOGLE_CLIENT_ID)
-        except ValueError:
-            return HttpResponse("Invalid Google token", status=403)
-    # Save user data in the session (might be useless in our case)
-    request.session["user_data"] = user_data
+        return HttpResponse("Invalid Google token", status=403)
     # Now we're going to create the user in order to store it in the database, but first we check if it's already in the database
     is_new_user = False
     try:
         user = User.objects.get(email=user_data.get("email"))
+        login(request, user)
     except User.DoesNotExist:
         is_new_user = True
-        user = User(
-            first_name=user_data.get("given_name"),
-            last_name=user_data.get("family_name"),
-            email=user_data.get("email"),
-            username=user_data.get("email").split("@")[0],
-        )
-        characters = string.ascii_letters + string.digits + string.punctuation
-        password = "".join(random.choice(characters) for i in range(8))
-        user.set_password(password)
-        user.save()
-        reg_user = RegisteredUser(user=user)
-        reg_user.reg_user_profile_pic = user_data.get("picture")
-        reg_user.save()
-        messages.success(request, password)
-    # Lastly, we redirect the user to its profile page after logging it in
-    login(request, user)
     if is_new_user:
+        create_new_user(user_data, request)
         return redirect("/profile/edit/")
     next_url = request.POST.get("next", "/")
     return redirect(next_url)
+
+
+def create_new_user(user_data, request):
+    user = User(
+        first_name=user_data.get("given_name"),
+        last_name=user_data.get("family_name"),
+        email=user_data.get("email"),
+        username=user_data.get("email").split("@")[0],
+    )
+    characters = string.ascii_letters + string.digits + string.punctuation
+    password = "".join(random.choice(characters) for i in range(8))
+    user.set_password(password)
+    user.save()
+    reg_user = RegisteredUser(user=user)
+    reg_user.reg_user_profile_pic = user_data.get("picture")
+    reg_user.save()
+    messages.success(request, password)
+    login(request, user)
