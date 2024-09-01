@@ -3,26 +3,32 @@
 {% load crispy_forms_tags %}
 
 {% block head %}
-    
 {% load static %}
-    
 <script src="https://accounts.google.com/gsi/client" async defer></script>
-
+<link rel="stylesheet" href="{% static 'stylesheets/user-profile-edit.css' %}">
 {% endblock %}
 
-{% block title %} Login {% endblock %}
+{% block title %}Login{% endblock %}
 
 {% block content %}
-
-<form method="post"> {% csrf_token %}
-    {{ form | crispy }}
-    <input type="hidden" name="next" value="{{ request.GET.next }}">
-    <input type="submit" class="login-btn" value="Accedi!">
-</form>
-<p>Non hai un account su TasteTribe? <a href="{% url 'register' %}">Registrati subito!</a></p>
-<div id="g_id_onload"
-     data-client_id="253692078578-gti4mgr39kol8974nhnddi430qbjpkt3.apps.googleusercontent.com"
-     data-login_uri="{% url 'googleauth' %}">
+<div class="profile-edit-container">
+    <form method="post"> 
+        {% csrf_token %}
+        {{ form|crispy }}
+        <input type="hidden" name="next" value="{{ request.GET.next }}">
+        <input type="submit" class="login-btn" value="Accedi!">
+    </form>
+    <p>Non hai un account su TasteTribe? <a href="{% url 'register' %}">Registrati subito!</a></p>
+    
+    <!-- Google Sign-In Button -->
+    <div id="g_id_onload"
+        data-client_id="253692078578-gti4mgr39kol8974nhnddi430qbjpkt3.apps.googleusercontent.com"
+        data-login_uri="{% url 'googleauth' %}">
+    </div>
 </div>
-
 {% endblock %}
+
+{% if logged_user.id == user.id %}
+    {% block profile_pic %}
+    {% endblock %}
+{% endif %}
