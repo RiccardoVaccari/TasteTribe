@@ -6,7 +6,7 @@ from .models import *
 
 
 class CollectionCreationForm(forms.ModelForm):
-    collection_cover = forms.ImageField(required=False, widget=forms.FileInput(attrs={"accept": "image/*"}))
+    collection_cover = forms.ImageField(required=False, widget=forms.FileInput(attrs={"accept": "image/jpeg, image/png, image/gif"}))
 
     class Meta:
         model = RecipesCollection

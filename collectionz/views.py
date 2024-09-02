@@ -131,9 +131,7 @@ def collection_creation(collection, request):
     # Handle base64 image conversion
     b64_collection_cover = request.POST.get("collection_cover")
     if b64_collection_cover:
-        image_data = base64.b64decode(b64_collection_cover.split(',')[1])
-        image_file = ContentFile(image_data, name='collection_cover.png')
-        collection.collection_cover = image_file
+        collection.collection_cover = b64_collection_cover
     collection.save()
 
 

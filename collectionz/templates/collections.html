@@ -5,55 +5,57 @@
 {% block head %}
 
 {% load static %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="{% static 'stylesheets/homepage.css' %}">
+<link rel="stylesheet" href="{% static 'stylesheets/collections.css' %}">
+
+
 
 {% endblock %}
 
 {% block title %}TasteTribe - Raccolte{% endblock %}
 
 {% block content %}
-
-<h1>TasteTribe - Raccolte di ricette</h1>
-<h2>Benvenuto nella sezione raccolte!</h2>
+<h1>Raccolte di ricette</h1>
 
 <!-- Section that will display collections created by the user -->
+{% if user_collections %}
 <div class="my-collections">
     <h2>Le tue raccolte:</h2>
-    {% if user_collections %}
-    <ul class="my-collections-list">
+    <ul class="collections-list">
         {% for collection in user_collections %}
-            {% include "collection_list_item.html" %}
+            {% include "collection_list_item.html" with collection=collection %}
         {% endfor %}
     </ul>
-    <button id="btnCollectionCreation" data-bs-toggle="modal" data-bs-target="#collectionCreationModal">Crea una nuova raccolta</button>
-    {% else %}
-    <p>Sembra che tu non abbia ancora creato delle raccolte, <button id="btnCollectionCreation" data-bs-toggle="modal" data-bs-target="#collectionCreationModal">creane subito una!</button></p>
-    {% endif %}
 </div>
+{% endif %}
+
 <!-- Section that will display a list of up to 5 recommended collections -->
 <div class="recommended-collections">
     <h2>Raccolte per te:</h2>
     {% if recommended_collections %}
-    <ul class="recommended-collections-list">
-            {% for collection in recommended_collections %}
-                {% if not collection.collection_is_private %}
-                    {% include "collection_list_item.html" %}
-                {% endif %}
-            {% endfor %}
+    <ul class="collections-list">
+        {% for collection in recommended_collections %}
+            {% if not collection.collection_is_private %}
+                {% include "collection_list_item.html" with collection=collection %}
+            {% endif %}
+        {% endfor %}
     </ul>
     {% else %}
     <p>Spiacente, sulla base dei dati forniti non riusciamo a produrre dei suggerimenti pertinenti!</p>
     {% endif %}
 </div>
+
 <!-- Section that will display all the other collections that the user can see -->
 <div class="other-collections">
     <h2>Altre raccolte:</h2>
     {% if other_collections %}
-    <ul class="other-collections-list">
-            {% for collection in other_collections %}
-                {% if not collection.collection_is_private %}
-                    {% include "collection_list_item.html" %}
-                {% endif %}
-            {% endfor %}
+    <ul class="collections-list">
+        {% for collection in other_collections %}
+            {% if not collection.collection_is_private %}
+                {% include "collection_list_item.html" with collection=collection %}
+            {% endif %}
+        {% endfor %}
     </ul>
     {% else %}
     <p>Spiacente, al momento non ci sono nuove raccolte di ricette da scoprire!</p>
@@ -63,44 +65,20 @@
 {% include "collection_creation_modal.html" %}
 
 <script>
-    $(document).ready(function() {
-        $("#collectionCreationForm").on("submit", function(event) {
-            event.preventDefault();
-
-            var collectionCover = document.getElementById("id_collection_cover");
-            var file = collectionCover.files[0];
-
-            if (file) {
-                var reader = new FileReader();
-                reader.onloadend = function() {
-                    var base64String = reader.result;
-                    $("#b64_collection_cover").val(base64String);
-                    submitForm();
-                };
-                reader.readAsDataURL(file);
-            } else {
-                submitForm();
-            }
-        });
-
-        function submitForm() {
-            $.ajax({
-                url: "{% url 'collections' %}",
-                type: "POST",
-                data: new FormData($("#collectionCreationForm")[0]),
-                processData: false,
-                contentType: false,
-                success: function(response) {
-                    $("#collectionCreationModal").modal("hide");
-                    location.reload();
-                },
-                error: function(xhr, status, error) {
-                    console.error(xhr.responseText);
-                    alert("Spiacente, si è verificato un errore in fase di creazione, riprovare!");
-                }
-            });
-        }
-    });
+    const collectionUrl = "{% url 'collections' %}";
 </script>
+<script src="{% static 'scripts/scripts.js' %}" async></script>
 
+{% endblock %}
+
+{% block other_headers %}
+    <div id="otherSections">
+        <h3 style="text-align: center;">Esplora il sito:</h3>
+        <div class="other-section-btns">
+            <button class="section-btn forum-btn"><a href="{% url 'forums' %}"><i class="fa-solid fa-comments"></i> Forum</a></button>
+            <button class="section-btn collections-btn"><a href="{% url 'homepage' %}"><i class="fa-solid fa-layer-group"></i> Cerca ricette</a></button>
+            <button class="section-btn quiz-btn"><a href="{% url 'quiz_home' %}"><i class="fa-regular fa-circle-question"></i> Quiz culinari</a></button>
+            <button id="btnCollectionCreation" class="section-btn new-recipe-btn" data-bs-toggle="modal" data-bs-target="#collectionCreationModal"><i class="fa-solid fa-circle-plus"></i> Crea una nuova raccolta</button>
+        </div>
+    </div>
 {% endblock %}

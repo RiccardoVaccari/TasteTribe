@@ -1,6 +1,17 @@
-<li>
-    <a href="{% url 'collection_details' collection.collection_guid %}">
-        <h3>{{ collection.collection_name }}</h3> <img src="data:image/*;base64,{{ collection.collection_cover }}" alt="">
-        <small>di {{ collection.collection_author.first_name }} {{ collection.collection_author.last_name }} - creata in data {{ collection.collection_creation_date }}</small>
+<li class="collection-card">
+    
+    <a href="{% url 'collection_details' collection.collection_guid %}" class="card-link">
+        <div class="card">
+            <div class="card-img-wrapper">
+                <img src="data:image/*;base64,{{ collection.collection_cover }}" alt="Immagine per {{ collection.collection_name }}" class="card-img-top">
+            </div>
+            
+            <div class="card-body">
+                <h5 class="card-title">{{ collection.collection_name }}</h5>
+                <p class="card-text">
+                    Creato da {{ collection.collection_author.username }}
+                </p>
+            </div>
+        </div>
     </a>
 </li>
