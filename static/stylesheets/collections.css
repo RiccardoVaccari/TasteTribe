@@ -1,87 +1,87 @@
 h1, h2 {
-    text-align: center; /* Centers the text of headings */
-    margin-top: 1em; /* Adds space below the headings */
-    margin-bottom: .5em; /* Adds space below the headings */
+    text-align: center; 
+    margin-top: 1em; 
+    margin-bottom: .5em; 
 }
 
-/* Center-align collections list and add side margins */
+
 .collections-list {
-    display: flex; /* Enables flexbox layout */
-    flex-wrap: wrap; /* Allows cards to wrap to the next line if necessary */
-    gap: 1em; /* Adds space between cards */
-    padding: 0; /* Removes default padding */
-    margin: 0 auto; /* Centers the list horizontally */
-    list-style-type: none; /* Removes default list style */
-    max-width: calc(100% - 2em); /* Limits the width to avoid touching the page edges */
-    justify-content: center; /* Centers the flex items (cards) horizontally */
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 1em; 
+    padding: 0; 
+    margin: 0 auto; 
+    list-style-type: none; 
+    max-width: calc(100% - 2em); 
+    justify-content: center; 
 }
 
-/* Adds margin to sections containing collections to keep them away from the page edges */
+
 .my-collections, .recommended-collections, .other-collections {
-    margin: 0 1em; /* Adds margin to the left and right */
-    width: calc(100% - 2em); /* Adjust width to account for margins */
-    box-sizing: border-box; /* Ensures the padding and border are included in the element's total width and height */
+    margin: 0 1em; 
+    width: calc(100% - 2em); 
+    box-sizing: border-box; 
 }
 
-/* Collection card styling */
+
 .collection-card {
-    flex: 1 1 240px; /* Allows cards to grow and shrink, with a fixed width of 240px */
-    max-width: 240px; /* Ensures the maximum width is 240px */
-    box-sizing: border-box; /* Ensures padding and border are included in width */
+    flex: 1 1 240px; 
+    max-width: 240px; 
+    box-sizing: border-box; 
 }
 
 .card-link {
-    text-decoration: none; /* Removes underline from links */
-    color: inherit; /* Inherits text color */
-    display: block; /* Makes the link fill the entire card */
+    text-decoration: none; 
+    color: inherit; 
+    display: block; 
 }
 
 .card {
-    border: 1px solid #ddd; /* Border around card */
-    border-radius: 10px; /* Rounded corners */
-    overflow: hidden; /* Clips overflow */
-    width: 100%; /* Full width of the flex container */
-    height: 300px; /* Fixed height for uniformity */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-    transition: box-shadow 0.3s ease; /* Smooth transition for hover effect */
-    display: flex; /* Makes card a flex container */
-    flex-direction: column; /* Ensures content flows vertically */
-    justify-content: space-between; /* Distributes space evenly */
+    border: 1px solid #ddd; 
+    border-radius: 10px; 
+    overflow: hidden; 
+    width: 100%; 
+    height: 300px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    transition: box-shadow 0.3s ease; 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: space-between; 
 }
 
 .card:hover {
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* More prominent shadow on hover */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); 
 }
 
 .card-img-wrapper {
     width: 100%;
-    height: 150px; /* Fixed height for images to ensure uniformity */
-    overflow: hidden; /* Ensures images do not overflow */
+    height: 150px; 
+    overflow: hidden; 
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
 .card-img-top {
-    max-width: 100%; /* Image scales to fit the card width */
-    height: 100%; /* Cover the area */
-    object-fit: cover; /* Cover the area while maintaining aspect ratio */
-    border-top-left-radius: 10px; /* Rounded corners match the card */
-    border-top-right-radius: 10px; /* Rounded corners match the card */
+    max-width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+    border-top-left-radius: 10px; 
+    border-top-right-radius: 10px; 
 }
 
 .card-body {
-    padding: 1em; /* Space inside card */
-    text-align: center; /* Center the text */
-    flex-grow: 1; /* Ensures the card body takes up available space */
+    padding: 1em; 
+    text-align: center; 
+    flex-grow: 1; 
 }
 
 .card-title {
-    font-size: 1.1em; /* Title font size */
-    margin-bottom: 0.5em; /* Space below title */
+    font-size: 1.1em; 
+    margin-bottom: 0.5em; 
 }
 
 .card-text {
-    color: #666; /* Text color */
-    font-size: 0.875em; /* Font size */
+    color: #666; 
+    font-size: 0.875em; 
 }

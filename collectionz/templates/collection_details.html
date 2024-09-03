@@ -9,60 +9,65 @@
 {% load static %}
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="{% static 'stylesheets/homepage.css' %}">
+<link rel="stylesheet" href="{% static 'stylesheets/recipe-list-item.css' %}">
+<link rel="stylesheet" href="{% static 'stylesheets/search-results-page.css' %}">
+<link rel="stylesheet" href="{% static 'stylesheets/collection-details.css' %}">
 
-<script>
-$(document).ready(function() {
-    $(".delete-icon").on("click", function(event) {
-        event.preventDefault();
-        if (confirm("Sei sicuro di voler eliminare questa ricetta dalla raccolta?")) {
-            var $this = $(this);
-            var collectionGuid = $this.data("collection-guid");
-            var recipeGuid = $this.data("recipe-guid");
-            $.ajax({
-                url: "{% url 'delete_from_collection' %}",
-                type: "POST",
-                data: {
-                    "collection_guid": collectionGuid,
-                    "recipe_guid": recipeGuid,
-                    "csrfmiddlewaretoken": "{{ csrf_token }}"
-                },
-                success: function(response) {
-                    if (response.success) {
-                        $this.closest("li").remove();
-                    } else {
-                        alert("Errore nella cancellazione della ricetta.");
-                    }
-                },
-                error: function() {
-                    alert("Errore nella richiesta di cancellazione.");
-                }
-            });
-        }
-    });
-});
-</script>
 
 {% endblock %}
 
 {% block content %}
 
 <div id="collectionInfoSection">
-    <h1>{{ collection.collection_name }}</h1> <img src="data:image/png;base64,{{ collection.collection_cover }}">
-    <h3>Creata da: {{ collection.collection_author.first_name }} {{ collection.collection_author.last_name }} in data {{ collection.collection_creation_date }}</h3>
-</div>
-<div id="collectionRecipesList">
-    {% if recipes %}
-    <ul>
-        {% for recipe in recipes %}
-        	{% include "recipe_list_item.html" %}
-        {% endfor %}
-    </ul>
-    {% else %}
-        <p>Questa raccolta di ricette è vuota!</p>
-    {% endif %}
+    <div class="collection-cover-wrapper">
+        <img class="collection-cover-img" src="data:image/png;base64,{{ collection.collection_cover }}" alt="{{ collection.collection_name }}">
+        <div class="collection-name-overlay">
+            <h1 class="collection-title">{{ collection.collection_name }}</h1>
+        </div>
+    </div>
+    <div class="collection-details">
+        <h5>Creata da: {{ collection.collection_author.first_name }} {{ collection.collection_author.last_name }} in data {{ collection.collection_creation_date|date:"d/m/Y" }}</h3>
+        <p>Numero di ricette: {{ collection.recipexcollection_set.count }}</p>
+    </div>
 </div>
 {% if user.is_authenticated and user.id == collection.collection_author.id %}
 	{% include "search_form_section.html" %}
 {% endif %}
 
+<div id="collectionRecipesList">
+    {% if recipes %}
+    <ul class="search-recipe-list">
+        {% for recipe in recipes %}
+            {% if user.id == collection.collection_author.id %}
+        	    {% include "recipe_list_item.html" with exclude_del_from_collection=True %}
+                {% else %}
+        	    {% include "recipe_list_item.html" with exclude_del_from_collection=False %}
+            {% endif %}
+        {% endfor %}
+    </ul>
+    {% else %}
+        <p style="text-align: center;">Questa raccolta di ricette è vuota!</p>
+    {% endif %}
+</div>
+
+
+<script>
+    const deleteFromCollectionUrl = "{% url 'delete_from_collection' %}";
+    const csrfToken = "{{ csrf_token }}";
+</script>
+<script src="{% static 'scripts/collection-details-scripts.js' %}" async></script>
+
+{% endblock %}
+
+{% block other_headers %}
+    <div id="otherSections">
+        <h3 style="text-align: center;">Esplora il sito:</h3>
+        <div class="other-section-btns">
+            <button class="section-btn forum-btn"><a href="{% url 'forums' %}"><i class="fa-solid fa-comments"></i> Forum</a></button>
+            <button class="section-btn collections-btn"><a href="{% url 'homepage' %}"><i class="fa-solid fa-magnifying-glass"></i> Cerca ricette</a></button>
+            <button class="section-btn quiz-btn"><a href="{% url 'quiz_home' %}"><i class="fa-regular fa-circle-question"></i> Quiz culinari</a></button>
+            <button class="section-btn new-recipe-btn"><a href="{% url 'collections' %}"><i class="fa-solid fa-layer-group"></i> Raccolte di ricette</a></button>
+        </div>
+    </div>
 {% endblock %}

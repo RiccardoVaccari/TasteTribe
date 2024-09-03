@@ -1,13 +1,13 @@
-/* STYLING FOR THE SEARCH RESULTS PAGE */
+
 .search-recipe-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 20px;
     list-style: none;
     padding: 0;
-    width: 95%; /* Larghezza relativa alla finestra */
-    max-width: 1500px; /* Larghezza massima per il contenitore */
-    margin: 20px auto; /* Centra la griglia orizzontalmente */
+    width: 95%; 
+    max-width: 1500px; 
+    margin: 20px auto; 
 }
 
 .search-recipe-list li {

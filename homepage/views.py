@@ -9,7 +9,6 @@ from django.urls import reverse
 from django.views.generic import ListView, View
 from django.db.models import Q, Count
 
-from common.ratings_util import get_average_rating
 from recipedetail.models import Ingredient
 from login.models import RegisteredUser
 from .forms import SearchForm

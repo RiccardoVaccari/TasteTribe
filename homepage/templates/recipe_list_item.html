@@ -21,4 +21,11 @@
             </div>
         </div>
     </a>
+    {% if exclude_del_from_collection %}
+    <div class="recipe-list-item-actions">
+        <button type="button" class="btn btn-danger delete-icon" data-collection-guid="{{ collection.collection_guid }}" data-recipe-guid="{{ recipe.recipe_guid }}">
+            <i class="fa-solid fa-trash"></i>
+        </button>
+    </div>
+    {% endif %}
 </li>

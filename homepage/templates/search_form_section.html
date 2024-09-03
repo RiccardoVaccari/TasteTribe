@@ -1,5 +1,9 @@
 {% load crispy_forms_tags %}
 
-<form method="GET" action="{% url 'search' %}">
-    {% crispy form %}
-</form>
+<div class="container">
+    <div class="d-flex justify-content-center">
+        <form method="GET" action="{% url 'search' %}" class="w-100 w-md-75 w-lg-50">
+            {% crispy form %}
+        </form>
+    </div>
+</div>

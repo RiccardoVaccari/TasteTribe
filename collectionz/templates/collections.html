@@ -10,7 +10,6 @@
 <link rel="stylesheet" href="{% static 'stylesheets/collections.css' %}">
 
 
-
 {% endblock %}
 
 {% block title %}TasteTribe - Raccolte{% endblock %}
@@ -67,7 +66,7 @@
 <script>
     const collectionUrl = "{% url 'collections' %}";
 </script>
-<script src="{% static 'scripts/scripts.js' %}" async></script>
+<script src="{% static 'scripts/collections-scripts.js' %}" async></script>
 
 {% endblock %}
 
@@ -76,7 +75,7 @@
         <h3 style="text-align: center;">Esplora il sito:</h3>
         <div class="other-section-btns">
             <button class="section-btn forum-btn"><a href="{% url 'forums' %}"><i class="fa-solid fa-comments"></i> Forum</a></button>
-            <button class="section-btn collections-btn"><a href="{% url 'homepage' %}"><i class="fa-solid fa-layer-group"></i> Cerca ricette</a></button>
+            <button class="section-btn collections-btn"><a href="{% url 'homepage' %}"><i class="fa-solid fa-magnifying-glass"></i> Cerca ricette</a></button>
             <button class="section-btn quiz-btn"><a href="{% url 'quiz_home' %}"><i class="fa-regular fa-circle-question"></i> Quiz culinari</a></button>
             <button id="btnCollectionCreation" class="section-btn new-recipe-btn" data-bs-toggle="modal" data-bs-target="#collectionCreationModal"><i class="fa-solid fa-circle-plus"></i> Crea una nuova raccolta</button>
         </div>
