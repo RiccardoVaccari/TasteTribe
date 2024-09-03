@@ -38,7 +38,6 @@ urlpatterns = [
     path("register/", UserRegistrationView.as_view(), name="register"),
     path("login/", TasteTribeLoginView.as_view(), name="login"),
     path("logout/", TasteTribeLogoutView.as_view(), name="logout"),
-    path("logout/success/", logged_out, name="logged_out"),
     path("profile/<int:user_id>/", profile_details, name="profile"),
     path("profile/", profile_details, name="profile"),
     path("profile/edit/", edit_profile, name="edit_profile"),

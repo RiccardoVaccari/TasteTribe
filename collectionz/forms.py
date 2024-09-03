@@ -3,7 +3,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django import forms
 
-from common.utils import generate_avatar
+from common.utils import generate_avatar, image_to_base64
 from .models import *
 
 
@@ -29,4 +29,4 @@ class CollectionCreationForm(forms.ModelForm):
             image_data = image.read()
             image_base64 = base64.b64encode(image_data).decode("utf-8")
             return image_base64
-        return generate_avatar("", 800, 350)
+        return image_to_base64(generate_avatar("", 800, 350))

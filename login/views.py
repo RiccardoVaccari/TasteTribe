@@ -56,15 +56,15 @@ class TasteTribeLoginView(LoginView):
         return reverse("profile", kwargs={"user_id": user_id})
 
 class TasteTribeLogoutView(LogoutView):
-    next_page = reverse_lazy("logged_out")
+    next_page = reverse_lazy("homepage")
 
 
 class TasteTribePwChangeView(PasswordChangeView):
     success_url = reverse_lazy("profile")
     template_name = "password_change_form.html"
 
-def logged_out(request):
-    return render(request, template_name="logged_out.html")
+# def logged_out(request):
+#     return render(request, template_name="logged_out.html")
 
 @login_required
 def edit_profile(request):
@@ -91,16 +91,19 @@ def edit_profile(request):
             user.first_name = form.cleaned_data["first_name"]
             user.last_name = form.cleaned_data["last_name"]
             user.email = form.cleaned_data["email"]
-            user.username = form.cleaned_data["username"]  # Aggiungi questo se stai cambiando lo username
+            user.username = form.cleaned_data["username"] 
             user.save()
+
             reg_user.reg_user_profile_pic = form.cleaned_data["reg_user_profile_pic"]
             if not reg_user.reg_user_profile_pic:
                 reg_user.reg_user_profile_pic = image_to_base64(generate_avatar(user.first_name[0]))
             reg_user.reg_user_about = form.cleaned_data["reg_user_about"]
             reg_user.save()
+
             return redirect("profile", user_id=user.id)
     else:
         form = EditProfileForm(instance=reg_user, user=user)
+        
     return render(request, "user_profile_edit_page.html", {"form": form, "user_pw": user_pw})
 
 
