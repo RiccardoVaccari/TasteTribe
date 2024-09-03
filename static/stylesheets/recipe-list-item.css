@@ -3,21 +3,20 @@
     list-style: none;
     background-color: #fff;
     border-radius: 8px;
-    border: solid darkkhaki;
+    border: 2px solid transparent; /* Imposta il bordo trasparente per mantenere lo spazio */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     max-width: 300px;
     margin: 10px;
     font-family: Arial, sans-serif;
-    position: relative; 
+    position: relative;
 }
-
 .recipe-list-item a {
     text-decoration: none;
 }
 
 .recipe-list-item:hover {
-    border: solid saddlebrown;
+    outline: 2px solid saddlebrown; /* Usa 'outline' invece di 'border' */
 }
 
 .recipe-list-item-cover {
