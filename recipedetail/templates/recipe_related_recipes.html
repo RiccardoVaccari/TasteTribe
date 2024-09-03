@@ -1,10 +1,8 @@
 <div class="recipe-related-recipes-section">
     <strong>Potrebbero interessarti:</strong>
-    <div class="row align-items-center">
+    <ul class="homepage-item-list">
         {% for recipe in recipes %}
-        <div class="col-auto">
             {% include "recipe_list_item.html" %}
-        </div>
         {% endfor %}
-    </div>
+    </ul>
 </div>

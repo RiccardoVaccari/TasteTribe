@@ -526,6 +526,7 @@ def add_review(request, recipe_guid):
         response_data.update({
             "review_id": review.id,
             "author": review.review_author_guid.get_full_name(),
+            "author_id": review.review_author_guid.id,
             "review_grade": review.review_grade,
             "review_notes": review.review_notes,
             "review_up_votes": review.review_up_votes,

@@ -5,8 +5,6 @@ $(document).ready(function() {
             var $this = $(this);
             var collectionGuid = $this.data("collection-guid");
             var recipeGuid = $this.data("recipe-guid");
-            alert(collectionGuid);
-            alert(recipeGuid);
             $.ajax({
                 url: deleteFromCollectionUrl,
                 type: "POST",

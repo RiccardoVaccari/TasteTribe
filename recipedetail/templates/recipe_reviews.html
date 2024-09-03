@@ -98,7 +98,7 @@
             }
 
             $.ajax({
-                url: "{% url 'add_review' recipe.recipe_guid %}", // Modifica l'URL in base al tuo URL pattern
+                url: "{% url 'add_review' recipe.recipe_guid %}", 
                 type: "POST",
                 data: {
                     review_grade: reviewGrade,
@@ -107,11 +107,19 @@
                 },
                 success: function(response) {
                     if (response.new){
-                        // Aggiungi la nuova recensione alla lista
                         var newReviewHtml = `
                             <div class="recipe-review" id="review-${response.review_id}">
-                                <p>Recensione di ${response.author}</p>
-                                <p>Voto: ${response.review_grade} - ${response.review_notes}</p>
+                                <p>Recensione di <a href="/profile/${response.author_id}">${response.author}</a></p>
+                                <div class="review-rating" data-rating="${response.review_grade}" id="new-rating">
+                                    <div class="stars">
+                                        <i class="fa-solid fa-star"></i>
+                                        <i class="fa-solid fa-star"></i>
+                                        <i class="fa-solid fa-star"></i>
+                                        <i class="fa-solid fa-star"></i>
+                                        <i class="fa-solid fa-star"></i>
+                                    </div>
+                                    ${response.review_notes}
+                                </div>
                                 <span class="like-icon" data-review-id="${response.review_id}" data-interaction-type="like">
                                     <i class="fa-regular fa-thumbs-up" id="like-icon-${response.review_id}"></i>
                                     <small>${response.review_up_votes}</small>
@@ -123,11 +131,21 @@
                             </div>
                         `;
                         $('.review-section ul').append(newReviewHtml);
+                        var reviewRatingDiv = document.getElementById("new-rating");
+                        refreshStars(reviewRatingDiv);
                     } else {
-                        // Aggiorna la recensione esistente
                         var reviewHtml = `
-                            <p>Recensione di ${response.author}</p>
-                            <p>Voto: ${response.review_grade} - ${response.review_notes}</p>
+                            <p>Recensione di <a href="/profile/${response.author_id}">${response.author}</a></p>
+                            <div class="review-rating" data-rating="${response.review_grade}" id="new-rating">
+                                <div class="stars">
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                </div>
+                                ${response.review_notes}
+                            </div>
                             <span class="like-icon" data-review-id="${response.review_id}" data-interaction-type="like">
                                 <i class="fa-regular fa-thumbs-up" id="like-icon-${response.review_id}"></i>
                                 <small>${response.review_up_votes}</small>
@@ -138,6 +156,8 @@
                             </span>
                         `;
                         $('#review-' + response.review_id).html(reviewHtml);
+                        var reviewRatingDiv = document.getElementById("new-rating");
+                        refreshStars(reviewRatingDiv);
                     }
 
                     // Resetta il form
@@ -149,18 +169,22 @@
             });
         });
         document.querySelectorAll(".review-rating").forEach(element => {
-                const ratingValue = parseFloat(element.dataset.rating);
-                const fullStars = Math.floor(ratingValue);
-                const halfStar = ratingValue - fullStars >= 0.5;
-                const starIcons = element.querySelector(".stars").children;
-                for (let i = 0; i < fullStars; i++) {
-                    starIcons[i].classList.add("filled");
-                }
-                if (halfStar) {
-                    starIcons[fullStars].classList.add("half-filled");
-                }
+            refreshStars(element);
         });
     });
+
+    function refreshStars(element){
+        const ratingValue = parseFloat(element.dataset.rating);
+        const fullStars = Math.floor(ratingValue);
+        const halfStar = ratingValue - fullStars >= 0.5;
+        const starIcons = element.querySelector(".stars").children;
+        for (let i = 0; i < fullStars; i++) {
+            starIcons[i].classList.add("filled");
+        }
+        if (halfStar) {
+            starIcons[fullStars].classList.add("half-filled");
+        }
+    }
 </script>
 
 {% endif %}
