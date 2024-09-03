@@ -50,27 +50,27 @@
         <div class="rating">
             <input type="radio" id="star5" name="review_grade" value="5" /><label for="star5" title="5 stars">
                 <svg class="star" viewBox="0 0 24 24">
-                    <path d="M12 .587l3.668 7.568L24 9.748l-6 5.847 1.422 8.305L12 19.25l-7.422 4.65L6 15.595l-6-5.847 8.332-1.593z"/>
+                    <path class="star-path" d="M12 .587l3.668 7.568L24 9.748l-6 5.847 1.422 8.305L12 19.25l-7.422 4.65L6 15.595l-6-5.847 8.332-1.593z"/>
                 </svg>
             </label>
             <input type="radio" id="star4" name="review_grade" value="4" /><label for="star4" title="4 stars">
                 <svg class="star" viewBox="0 0 24 24">
-                    <path d="M12 .587l3.668 7.568L24 9.748l-6 5.847 1.422 8.305L12 19.25l-7.422 4.65L6 15.595l-6-5.847 8.332-1.593z"/>
+                    <path class="star-path" d="M12 .587l3.668 7.568L24 9.748l-6 5.847 1.422 8.305L12 19.25l-7.422 4.65L6 15.595l-6-5.847 8.332-1.593z"/>
                 </svg>
             </label>
             <input type="radio" id="star3" name="review_grade" value="3" /><label for="star3" title="3 stars">
                 <svg class="star" viewBox="0 0 24 24">
-                    <path d="M12 .587l3.668 7.568L24 9.748l-6 5.847 1.422 8.305L12 19.25l-7.422 4.65L6 15.595l-6-5.847 8.332-1.593z"/>
+                    <path class="star-path" d="M12 .587l3.668 7.568L24 9.748l-6 5.847 1.422 8.305L12 19.25l-7.422 4.65L6 15.595l-6-5.847 8.332-1.593z"/>
                 </svg>
             </label>
             <input type="radio" id="star2" name="review_grade" value="2" /><label for="star2" title="2 stars">
                 <svg class="star" viewBox="0 0 24 24">
-                    <path d="M12 .587l3.668 7.568L24 9.748l-6 5.847 1.422 8.305L12 19.25l-7.422 4.65L6 15.595l-6-5.847 8.332-1.593z"/>
+                    <path class="star-path" d="M12 .587l3.668 7.568L24 9.748l-6 5.847 1.422 8.305L12 19.25l-7.422 4.65L6 15.595l-6-5.847 8.332-1.593z"/>
                 </svg>
             </label>
             <input type="radio" id="star1" name="review_grade" value="1" /><label for="star1" title="1 star">
                 <svg class="star" viewBox="0 0 24 24">
-                    <path d="M12 .587l3.668 7.568L24 9.748l-6 5.847 1.422 8.305L12 19.25l-7.422 4.65L6 15.595l-6-5.847 8.332-1.593z"/>
+                    <path class="star-path" d="M12 .587l3.668 7.568L24 9.748l-6 5.847 1.422 8.305L12 19.25l-7.422 4.65L6 15.595l-6-5.847 8.332-1.593z"/>
                 </svg>
             </label>
         </div>
@@ -218,5 +218,11 @@
     .form-group {
         margin-top: 15px;
     }
+
+    .star-path {
+        stroke: black; 
+        stroke-width: 1px; 
+    }
+
 </style>
 

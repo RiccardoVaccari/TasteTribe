@@ -16,7 +16,7 @@ from django.urls import reverse_lazy, reverse
 from django.contrib.auth import login
 from google.auth.transport import requests
 from google.oauth2 import id_token
-from common.utils import generate_avatar, image_to_base64
+from common.utils import generate_avatar, image_to_base64, url_to_base64
 from forum.models import ForumThread
 from homepage.models import Recipe
 from quiz.models import Quiz
@@ -201,7 +201,7 @@ def create_new_user(user_data, request):
     user.set_password(password)
     user.save()
     reg_user = RegisteredUser(user=user)
-    reg_user.reg_user_profile_pic = user_data.get("picture")
+    reg_user.reg_user_profile_pic = url_to_base64(user_data.get("picture"))
     reg_user.save()
     messages.success(request, password)
     login(request, user)

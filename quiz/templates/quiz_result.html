@@ -25,7 +25,6 @@
                 <h5 class="mb-3">Domanda {{ sequential }}: {{ result.question_text }}</h5>
                 <ul class="list-group">
                     {% for answer in result.possible_answers %}
-                        {{forloop.counter}} {{result.given_answer}}
                         <li class="list-group-item {% if forloop.counter == result.correct_answer %}list-group-item-success{% elif forloop.counter == result.given_answer %}list-group-item-danger{% endif %}">
                             {{ answer }}
                             {% if forloop.counter == result.given_answer %}

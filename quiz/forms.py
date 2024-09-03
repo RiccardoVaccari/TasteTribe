@@ -20,15 +20,17 @@ class QuizCreationForm(forms.ModelForm):
         initial="easy",
     )
 
-    quiz_question_text = forms.CharField(required=False)
-    quiz_question_answer1 = forms.CharField(required=False)
-    quiz_question_answer2 = forms.CharField(required=False)
-    quiz_question_answer3 = forms.CharField(required=False)
-    quiz_question_answer4 = forms.CharField(required=False)
+    quiz_title = forms.CharField(required=True, label="Titolo del quiz")
+    quiz_question_text = forms.CharField(required=False, label="Testo della domanda")
+    quiz_question_answer1 = forms.CharField(required=False, label="Risposta 1:")
+    quiz_question_answer2 = forms.CharField(required=False, label="Risposta 2:")
+    quiz_question_answer3 = forms.CharField(required=False, label="Risposta 3:")
+    quiz_question_answer4 = forms.CharField(required=False, label="Risposta 4:")
     quiz_question_correct_answer = forms.ChoiceField(
         widget=forms.RadioSelect,
-        choices=[(i, f"#{i}") for i in range(1, 5)],
-        required=False
+        choices=[(i, f"{i}") for i in range(1, 5)],
+        required=False,
+        label="Seleziona la risposta corretta"
     )
     quiz_questions_list = forms.CharField(
         widget=forms.HiddenInput(), required=False)

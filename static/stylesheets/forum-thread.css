@@ -1,4 +1,4 @@
-/* Fissa il form di invio del messaggio in basso allo schermo */
+
 #message-form-container {
     position: fixed;
     bottom: 0;
@@ -9,13 +9,12 @@
     border-top: 1px solid #dee2e6;
 }
 
-/* Riduce l'altezza dell'input di testo */
 #message-content {
     height: 38px;
-    resize: none; /* Disabilita il ridimensionamento dell'area di testo */
+    resize: none; 
 }
 
-/* Stile per i messaggi */
+
 .thread-message {
     border-bottom: 1px solid #dee2e6;
     margin-bottom: 15px;
@@ -35,9 +34,23 @@
 }
 
 .message-content {
-    margin-left: 50px; /* Spazio per separare dal nome dell'autore */
+    margin-left: 50px; 
 }
 .like-icon:hover,
 .dislike-icon:hover {
-    cursor: pointer;  /* Cambia il cursore in una mano per indicare un'azione cliccabile */
+    cursor: pointer;  
+}
+
+.thread-message {
+    background-color: rgba(255, 255, 255, 0.6); 
+    backdrop-filter: blur(10px); 
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); 
+    border-radius: 10px; 
+    padding: 20px; 
+    margin-bottom: 20px; 
+    transition: box-shadow 0.3s ease; 
+}
+
+.thread-message:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); 
 }
