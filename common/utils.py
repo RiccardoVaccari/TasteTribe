@@ -50,19 +50,19 @@ def elaborate_interaction(interaction, created, interaction_type):
             interaction.save()
     return user_interaction
 
-def generate_avatar(initial, size=100):
+def generate_avatar(initial, width=100, height=100):
     background_colors = ["#FF5733", "#095e0f", "#001a76", "#690076", "#ae3200", "#7a7a00"]
     bg_color = random.choice(background_colors)
     
-    image = Image.new('RGB', (size, size), color=bg_color)
-    font_size = int(size * 0.7)
+    image = Image.new('RGB', (width, height), color=bg_color)
+    font_size = int(width * 0.7)
     try:
         font = ImageFont.truetype("arial.ttf", font_size)
     except IOError:
         font = ImageFont.load_default(font_size)
     
     draw = ImageDraw.Draw(image)
-    draw.text((size/2, size/2), initial, font=font, fill="white", anchor='mm')
+    draw.text((width/2, height/2), initial, font=font, fill="white", anchor='mm')
     
     return image
 

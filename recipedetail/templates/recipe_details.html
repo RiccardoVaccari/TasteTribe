@@ -31,10 +31,20 @@
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownCollectionsButton">
                         {% for collection in user_collections %}
-                            <li><button class="dropdown-item" data-collection="{{ collection.collection_guid }}">{{ collection.collection_name }}</button></li>
+                            <li>
+                                <button class="dropdown-item add-to-collection-button" 
+                                        data-collection="{{ collection.collection_guid }}" 
+                                        data-recipe="{{ recipe.recipe_guid }}">
+                                    {{ collection.collection_name }}
+                                </button>
+                            </li>
                         {% endfor %}
                         <li><hr class="dropdown-divider"></li>
-                        <li><button class="dropdown-item" id="createNewCollection" data-bs-toggle="modal" data-bs-target="#collectionCreationModal"><i class="fa-solid fa-plus"></i> Crea nuova raccolta</button></li>
+                        <li>
+                            <button class="dropdown-item" id="createNewCollection" data-bs-toggle="modal" data-bs-target="#collectionCreationModal">
+                                <i class="fa-solid fa-plus"></i> Crea nuova raccolta
+                            </button>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -97,35 +107,54 @@
                     });
                 }
                 /* Code section that handles the insertion of the current recipe into a collection */
-                document.querySelectorAll(".dropdown-item[data-collection]").forEach(function (dropdownItem) {
-                    dropdownItem.addEventListener("click", function (event) {
-                        event.preventDefault();
+                
 
-                        var collectionGUID = this.getAttribute("data-collection");
+                const addToCollectionButtons = document.querySelectorAll('.add-to-collection-button');
 
-                        fetch("{% url 'add_to_collection' %}", {
-                            method: "POST",
-                            headers: {
-                                "X-CSRFToken": "{{ csrf_token }}"
-                            },
-                            body: new URLSearchParams({
-                                "collection_guid": collectionGUID,
-                                "recipe_guid": "{{ recipe.recipe_guid }}"
-                            })
-                        })
+                addToCollectionButtons.forEach(button => {
+                    button.addEventListener('click', function () {
+                        const collectionGuid = this.getAttribute('data-collection');
+                        const recipeGuid = this.getAttribute('data-recipe');
+
+                        // Esegui la chiamata AJAX per controllare se la ricetta è già nella collezione
+                        fetch(`/check-recipe-in-collection/?collection_guid=${collectionGuid}&recipe_guid=${recipeGuid}`)
                             .then(response => response.json())
                             .then(data => {
-                                if(data.status === "success"){
-                                    alert(data.message);
-                                } else{
-                                    alert("Si è verificato un errore nell'inserimento nella raccolta!");
+                                if (data.exists) {
+                                    alert('La ricetta è già presente nella raccolta.');
+                                } else {
+                                    var collectionGUID = this.getAttribute("data-collection");
+
+                                    fetch("{% url 'add_to_collection' %}", {
+                                        method: "POST",
+                                        headers: {
+                                            "X-CSRFToken": "{{ csrf_token }}"
+                                        },
+                                        body: new URLSearchParams({
+                                            "collection_guid": collectionGUID,
+                                            "recipe_guid": "{{ recipe.recipe_guid }}"
+                                        })
+                                    })
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            if(data.status === "success"){
+                                                alert(data.message);
+                                            } else{
+                                                alert("Si è verificato un errore nell'inserimento nella raccolta!");
+                                            }
+                                        })
+                                        .catch(error => {
+                                            console.error("Errore:", error)
+                                        });
                                 }
                             })
                             .catch(error => {
-                                console.error("Errore:", error)
+                                console.error('Errore durante la verifica:', error);
                             });
                     });
                 });
+
+
             });
         </script>
     {% endif %}

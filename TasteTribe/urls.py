@@ -54,5 +54,7 @@ urlpatterns = [
     path("collections/", CollectionsView.as_view(), name="collections"),
     path("collections/<uuid:collection_guid>/", CollectionDetailView.as_view(), name="collection_details"),
     path("delete-from-collection/", delete_recipe_from_collection, name="delete_from_collection"),
-    path("add-to-collection/", add_to_collection, name="add_to_collection")
+    path("add-to-collection/", add_to_collection, name="add_to_collection"),
+    path('check-recipe-in-collection/', check_recipe_in_collection, name='check_recipe_in_collection'),
+
 ]

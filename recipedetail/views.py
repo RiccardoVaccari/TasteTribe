@@ -80,7 +80,11 @@ class RecipeDetailView(FormMixin, DetailView):
         context["user"] = user
         # If the user is registered then handle the possibility to add the recipe to a collection
         if user.is_authenticated:
-            context["user_collections"] = RecipesCollection.objects.filter(collection_author=user.id)
+            excluded_collections = RecipeXCollection.objects.filter(rxc_recipe_guid=recipe.recipe_guid)
+            excluded_guids = []
+            for excluded_coll in excluded_collections:
+                excluded_guids.append(excluded_coll.rxc_collection_guid.collection_guid)
+            context["user_collections"] = RecipesCollection.objects.filter(collection_author=user.id).exclude(collection_guid__in=excluded_guids)
 
         try:
             reg_user = RegisteredUser.objects.get(user=user.id)

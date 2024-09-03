@@ -2,6 +2,8 @@ import base64
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django import forms
+
+from common.utils import generate_avatar
 from .models import *
 
 
@@ -24,8 +26,7 @@ class CollectionCreationForm(forms.ModelForm):
     def clean_collection_cover(self):
         image = self.cleaned_data.get("collection_cover")
         if image:
-            # Convert image to base64 string
             image_data = image.read()
             image_base64 = base64.b64encode(image_data).decode("utf-8")
             return image_base64
-        return ""
+        return generate_avatar("", 800, 350)

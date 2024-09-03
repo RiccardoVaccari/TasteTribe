@@ -13,7 +13,6 @@ class RecipeStep(models.Model):
     step_sequential_id = models.IntegerField()
     step_recipe_guid = models.ForeignKey(Recipe, on_delete=models.CASCADE)
     step_description = models.TextField()
-    step_image = models.TextField()
     step_required_time = models.DurationField()
 
     class Meta:

@@ -151,3 +151,14 @@ def generate_tag_set(collections):
             for tag in tags:
                 collections_tag_set.add(tag)
     return collections_tag_set
+
+def check_recipe_in_collection(request):
+    collection_guid = request.GET.get('collection_guid')
+    recipe_guid = request.GET.get('recipe_guid')
+
+    exists = RecipeXCollection.objects.filter(
+        rxc_collection_guid__collection_guid=collection_guid,
+        rxc_recipe_guid__recipe_guid=recipe_guid
+    ).exists()
+
+    return JsonResponse({'exists': exists})

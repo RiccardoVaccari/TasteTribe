@@ -42,7 +42,6 @@ class RecipeForm(forms.ModelForm):
 
     # STEPS
     step_description = forms.CharField(label="Descrizione", min_length=30, widget=forms.Textarea, required=False)
-    step_image = forms.ImageField(label="Immagine esplicativa", required=False)
     step_required_hours = forms.IntegerField(label="Ore per step", min_value=0, initial=0, required=False)
     step_required_minutes = forms.IntegerField(label="Minuti per step", min_value=0, initial=0, required=False)
     steps_list = forms.CharField(widget=forms.HiddenInput(), required=False)
@@ -169,7 +168,6 @@ class RecipeForm(forms.ModelForm):
                 "Crea step di preparazione",
                 Div(
                     Field("step_description"),
-                    Field("step_image"),
                     Div(
                         Div("step_required_hours", css_class="col-md-3",),
                         Div("step_required_minutes", css_class="col-md-3",),
