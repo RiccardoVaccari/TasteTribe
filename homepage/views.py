@@ -57,7 +57,7 @@ class HomepageView(ListView):
             self.user_suspended = check_user_suspension(reg_user)
         except RegisteredUser.DoesNotExist:
             self.user_suspended = False
-        
+
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
@@ -67,38 +67,52 @@ class HomepageView(ListView):
         if self.request.user.is_authenticated:
             context["reg_user"] = RegisteredUser.objects.get(user=self.request.user.id)
 
+        # Define a list for the different sections of the homepage
+        context["recipes_sections"] = []
+
         # RS
         if self.request.user and self.request.user.is_authenticated and not self.user_suspended:
-            context["latest_recipes"] = self.get_latest_publish()
-            # for recipe in context["latest_recipes"]:
-            #    recipe.recipe_avg_rating = get_average_rating(recipe.recipe_guid)
+            # context["latest_recipes"] = self.get_latest_publish()
+            latest_recipes = self.get_latest_publish()
+            context["recipes_sections"].append({
+                "section_title": "Ultime ricette pubblicate",
+                "recipe_list": latest_recipes
+            })
 
             # TAGs
-            user_recent_tags = RegisteredUser.objects.get(
-                user=self.request.user).reg_user_search_history.get("tags", [])
-
+            user_recent_tags = RegisteredUser.objects.get(user=self.request.user).reg_user_search_history.get("tags", [])
             if user_recent_tags:
-                context["tags_recipes"] = self.get_reccomended_by_tags(user_recent_tags)
-                # for recipe in context["tags_recipes"]:
-                #    recipe.recipe_avg_rating = get_average_rating(recipe.recipe_guid)
+                # context["tags_recipes"] = self.get_reccomended_by_tags(user_recent_tags)
+                tags_recipes = self.get_reccomended_by_tags(user_recent_tags)
+                context["recipes_sections"].append({
+                    "section_title": "In base ai tuoi gusti",
+                    "recipe_list": tags_recipes
+                })
 
-            latest_ingredients = RegisteredUser.objects.get(
-                user=self.request.user).reg_user_search_history.get("ingredients")
-            if not latest_ingredients:
-                context["ingredient_recipes"] = None
-            else:
+            # Ingredients
+            latest_ingredients = RegisteredUser.objects.get(user=self.request.user).reg_user_search_history.get(
+                "ingredients")
+            # if not latest_ingredients:
+            #     context["ingredient_recipes"] = None
+            # else:
+            if latest_ingredients:
                 latest_ingredient_name = latest_ingredients[0]
-                context["ingredient_name"] = latest_ingredient_name
-                context["ingredient_recipes"] = self.get_recipes_by_ingredient(
-                    latest_ingredient_name)
-                # for recipe in context["ingredient_recipes"]:
-                #     recipe.recipe_avg_rating = get_average_rating(recipe.recipe_guid)
+                # context["ingredient_name"] = latest_ingredient_name
+                # context["ingredient_recipes"] = self.get_recipes_by_ingredient(latest_ingredient_name)
+                ingredient_recipes = self.get_recipes_by_ingredient(latest_ingredient_name)
+                context["recipes_sections"].append({
+                    "section_title": f"Altre ricette con {latest_ingredient_name}",
+                    "recipe_list": ingredient_recipes
+                })
 
             season = self.__get_season_()
-            context["season"] = season
-            context["season_recipes"] = self.get_recipes_by_season(season)
-            # for recipe in context["season_recipes"]:
-            #     recipe.recipe_avg_rating = get_average_rating(recipe.recipe_guid)
+            # context["season"] = season
+            # context["season_recipes"] = self.get_recipes_by_season(season)
+            season_recipes = self.get_recipes_by_season(season)
+            context["recipes_sections"].append({
+                "section_title": f"Altre ricette in {season}",
+                "recipe_list": season_recipes
+            })
 
         return context
 

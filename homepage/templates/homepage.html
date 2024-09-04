@@ -33,33 +33,12 @@
 
     {% include "search_form_section.html" %}
 
-    {% if latest_recipes %}
-        <h2 style="text-align: center;">Ultime ricette pubblicate</h2>
-        {% with recipe_list=latest_recipes %}
+    {% for recipe_section in recipes_sections %}
+        <h2 style="text-align: center;">{{ recipe_section.section_title }}</h2>
+        {% with recipe_list=recipe_section.recipe_list %}
             {% include "recipe_section_carousel.html" %}
         {% endwith %}
-    {% endif %}
-            
-    {% if tags_recipes %}
-        <h2 style="text-align: center;">In base ai tuoi gusti</h2>
-        {% with recipe_list=tags_recipes %}
-            {% include "recipe_section_carousel.html" %}
-        {% endwith %}
-    {% endif %}
-            
-    {% if ingredient_recipes %}
-        <h2 style="text-align: center;">Altre ricette con {{ ingredient_name }}</h2>
-        {% with recipe_list=ingredient_recipes %}
-            {% include "recipe_section_carousel.html" %}
-        {% endwith %}
-    {% endif %}
-
-    {% if season_recipes %}
-        <h2 style="text-align: center;">Altre ricette in {{ season }}</h2>
-        {% with recipe_list=season_recipes %}
-            {% include "recipe_section_carousel.html" %}
-        {% endwith %}
-    {% endif %}
+    {% endfor %}
 
     {% if not user.is_authenticated %}
         <h2 style="text-align: center;">Esplora le ricette su TasteTribe</h2>
