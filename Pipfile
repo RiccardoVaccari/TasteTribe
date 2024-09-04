@@ -5,21 +5,15 @@ name = "pypi"
 
 [packages]
 django = "*"
-sshtunnel = "*"
-ssh-tunnel = "*"
-# psycopg2 = "*"
 django-allauth = "*"
+sshtunnel = "*"
 django-crispy-forms = "*"
-crispy-bootstrap4 = "*"
-requests = "*"
-jwt = "*"
-google-auth = "*"
 crispy-bootstrap5 = "*"
 pyjwt = "*"
-authlib = "*"
-pipreqs = "*"
+pillow = "*"
+google-auth = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.12"
+python_version = "3.10"

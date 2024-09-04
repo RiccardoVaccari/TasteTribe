@@ -203,8 +203,7 @@ class RecipeCreateView(LoginRequiredMixin, CreateView):
         # Set the Recipe attributes
         recipe: Recipe = form.instance
         recipe.recipe_guid = uuid4()
-        recipe.recipe_prep_time = f"{form.cleaned_data.get(
-            "hours")}:{form.cleaned_data.get("minutes")}"
+        recipe.recipe_prep_time = f"{form.cleaned_data.get('hours')}:{form.cleaned_data.get('minutes')}"
         recipe.recipe_author = self.request.user
         recipe.recipe_creation_date = date.today()
         form.instance = recipe
@@ -240,8 +239,7 @@ class RecipeCreateView(LoginRequiredMixin, CreateView):
                 step_recipe_guid=recipe,
                 step_description=step_data.get("description"),
                 step_image="",
-                step_required_time=f"{step_data.get("hours")}:{
-                    step_data.get("minutes")}"
+                step_required_time=f"{step_data.get('hours')}:{step_data.get('minutes')}"
             )
             self.recipe_steps.append(step)
 
