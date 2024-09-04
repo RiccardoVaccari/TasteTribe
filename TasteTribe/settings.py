@@ -128,6 +128,9 @@ DATABASES = {
         "PASSWORD": "Ciao123!",
         "HOST": "localhost",
         "PORT": str(server.local_bind_port),
+        "TEST": {
+            "NAME": "Test_TasteTribeDB",
+        }
     }
 }
 
