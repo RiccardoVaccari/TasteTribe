@@ -1,9 +1,9 @@
 import random
 import uuid
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import TestCase, Client
+from django.urls import reverse
 from django.utils import timezone
-from login.models import RegisteredUser
 from homepage.models import Recipe, Tag, TagXRecipe
 from .models import RecipesCollection, RecipeXCollection
 from .views import generate_tag_set
@@ -13,7 +13,6 @@ from .views import generate_tag_set
 class GenerateTagSetTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="testuser", password="testpassword")
-        self.reg_user = RegisteredUser.objects.create(user=self.user)
         self.collections = []
         # Create a couple of test collections
         for c in range(2):
@@ -37,21 +36,7 @@ class GenerateTagSetTests(TestCase):
         # Create a few test recipes
         for r in range(8):
             collection_index = random.randint(0, 1)
-            recipe = Recipe.objects.create(
-                recipe_guid=uuid.uuid4(),
-                recipe_name=f"Ricetta di prova #{r}",
-                recipe_prep_time=timezone.timedelta(minutes=30),
-                recipe_cover=None,
-                recipe_notes="Note della ricetta",
-                recipe_description="Descrizione di prova",
-                recipe_category="Categoria di prova",
-                recipe_is_private=False,
-                recipe_is_vegetarian=True,
-                recipe_gluten_free=False,
-                recipe_is_vegan=False,
-                recipe_creation_date=timezone.now().date(),
-                recipe_author=self.user
-            )
+            recipe = create_test_recipe(r, self.user)
             # insert the test recipe in one of the two collections
             RecipeXCollection.objects.create(rxc_recipe_guid=recipe, rxc_collection_guid=self.collections[collection_index])
             # Bind tags to recipes randomly
@@ -69,4 +54,60 @@ class GenerateTagSetTests(TestCase):
 
 
 class DeleteRecipeFromCollectionTests(TestCase):
-    pass
+    def setUp(self):
+        # Since we're testing a view we need to define a Client() object
+        self.client = Client()
+        # Now we can proceed with the definition of the rest of the test environment for the view
+        self.user = User.objects.create_user(username="testuser", password="testpassword")
+        # Create a test collection
+        self.collection = RecipesCollection.objects.create(
+            collection_guid=uuid.uuid4(),
+            collection_name=f"Raccolta di prova",
+            collection_cover="",
+            collection_author=self.user,
+            collection_creation_date=timezone.now().date(),
+            collection_is_private=False
+        )
+        # Insert few recipes in the test collection
+        for r in range(4):
+            recipe = create_test_recipe(r, self.user)
+            RecipeXCollection.objects.create(rxc_recipe_guid=recipe, rxc_collection_guid=self.collection)
+            # For test purposes only, we decide that we want to remove the second recipe therefore we store it in an attribute
+            if r == 1:
+                self.recipe_to_remove = recipe
+
+    def test_delete_recipe_from_collection(self):
+        # We test the removal of a recipe from the collection
+        response = self.client.post(
+            path=reverse("delete_from_collection"),
+            data={
+                "collection_guid": self.collection.collection_guid,
+                "recipe_guid": self.recipe_to_remove.recipe_guid
+            }
+        )
+        # Now we move forward with the assertions
+        self.assertEqual(response.status_code, 200)
+        for recipe in Recipe.objects.all():
+            if recipe.recipe_guid != self.recipe_to_remove.recipe_guid:
+                self.assertIsNotNone(RecipeXCollection.objects.get(rxc_recipe_guid=recipe, rxc_collection_guid=self.collection))
+            else:
+                self.assertFalse(RecipeXCollection.objects.filter(rxc_recipe_guid=self.recipe_to_remove, rxc_collection_guid=self.collection).exists())
+
+
+# Auxiliary function in order to limit duplicate code
+def create_test_recipe(r, user):
+    return Recipe.objects.create(
+        recipe_guid=uuid.uuid4(),
+        recipe_name=f"Ricetta di prova #{r}",
+        recipe_prep_time=timezone.timedelta(minutes=30),
+        recipe_cover=None,
+        recipe_notes="Note della ricetta",
+        recipe_description="Descrizione di prova",
+        recipe_category="Categoria di prova",
+        recipe_is_private=False,
+        recipe_is_vegetarian=True,
+        recipe_gluten_free=False,
+        recipe_is_vegan=False,
+        recipe_creation_date=timezone.now().date(),
+        recipe_author=user
+    )
