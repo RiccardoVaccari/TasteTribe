@@ -29,7 +29,7 @@ Prior to performing any of the steps reported below, please ensure your local de
     ```sh
     python manage.py runserver
     ```
-6. **Access the website **:
+6. **Access the website**:
     - Through your favourite web browser go to `http://localhost:8000/`.
 
 From here on, it is possible to explore the website as the user likes and it is possible to register your own account to the website.
