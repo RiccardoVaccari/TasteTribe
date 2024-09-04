@@ -1,4 +1,4 @@
-from datetime import datetime 
+from datetime import datetime
 import uuid
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -34,11 +34,10 @@ class ForumHomeView(ListView):
         context["user"] = self.request.user
         context["reg_user"] = reg_user
 
-        fthreads = context['fthreads']  # Ottieni i thread dal contesto esistente
+        fthreads = context['fthreads']
         for thread in fthreads:
-            # Recupera l'ultimo messaggio per ogni thread
             latest_message = ForumMessage.objects.filter(fmessage_thread_guid=thread).order_by('-fmessage_creation_date').first()
-            thread.latest_message = latest_message  # Aggiungi l'ultimo messaggio come attributo al thread
+            thread.latest_message = latest_message
             thread.responses_count = ForumMessage.objects.filter(fmessage_thread_guid=thread).count()
             thread.reg_user = RegisteredUser.objects.get(user_id=thread.fthread_creator)
 

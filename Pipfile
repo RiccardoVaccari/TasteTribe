@@ -17,6 +17,7 @@ google-auth = "*"
 crispy-bootstrap5 = "*"
 pyjwt = "*"
 authlib = "*"
+pipreqs = "*"
 
 [dev-packages]
 
