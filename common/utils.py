@@ -11,6 +11,9 @@ INTERACTION_DISLIKE = -1
 def check_user_suspension(reg_user):
     suspension = reg_user.reg_user_status["is_suspended"]
     if suspension:
+        if not reg_user.reg_user_status["suspension_end"]: 
+            reg_user.reg_user_status["is_suspended"] = False
+            return True
         suspension_end = datetime.strptime(reg_user.reg_user_status["suspension_end"], "%Y-%m-%d")
         if suspension_end <= datetime.now():
             reg_user.reg_user_status["is_suspended"] = False
