@@ -8,6 +8,7 @@ __pycache__/
 
 #Connection to DB server - private key
 VPS-RICC
+DB-PKEY
 
 # DB management
 homepage/management/
