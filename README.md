@@ -13,23 +13,27 @@ Prior to performing any of the steps reported below, please ensure your local de
     git clone https://github.com/RiccardoVaccari/TasteTribe.git
     cd TasteTribe
     ```
-2. **Install the required packages**
+2. **Insert private key to access remote database**:
+   ```
+   mv /path/to/DB-PKEY .
+   ```
+3. **Install the required packages**
 	```sh
     pipenv install
     ```
-3. **Create and activate a virtual environment using Pipenv**:
+4. **Create and activate a virtual environment using Pipenv**:
     ```sh
     pipenv shell
     ```  
-4. **Install Requirements**:
+5. **Install Requirements**:
     ```sh
     pip3 install -r requirements.txt
     ```
-5. **Launch the server**:
+6. **Launch the server**:
     ```sh
     python manage.py runserver
     ```
-6. **Access the website**:
+7. **Access the website**:
     - Through your favourite web browser go to `http://localhost:8000/`.
 
 From here on, it is possible to explore the website as the user likes and it is possible to register your own account to the website.
