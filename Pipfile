@@ -12,6 +12,7 @@ crispy-bootstrap5 = "*"
 pyjwt = "*"
 pillow = "*"
 google-auth = "*"
+thefuzz = "*"
 
 [dev-packages]
 

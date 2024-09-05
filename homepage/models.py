@@ -1,5 +1,5 @@
 from django.db import models
-from login.models import RegisteredUser, User
+from login.models import User
 from common.ratings_util import *
 
 

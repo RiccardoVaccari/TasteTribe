@@ -6,91 +6,91 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     background-color: #fff;
     text-align: center;
-    }
+}
 
-    
-    .profile-card-header {
+
+.profile-card-header {
+display: flex;
+align-items: center;
+margin-bottom: 20px;
+}
+
+
+.profile-picture {
+width: 80px;
+height: 80px;
+border-radius: 50%;
+margin-right: 15px;
+object-fit: cover; 
+}
+
+
+.profile-info {
+text-align: left;
+}
+
+
+.profile-card-body {
+text-align: left;
+margin-top: 20px;
+}
+
+.profile-card-actions {
     display: flex;
-    align-items: center;
-    margin-bottom: 20px;
-    }
-
-    
-    .profile-picture {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    margin-right: 15px;
-    object-fit: cover; 
-    }
-
-    
-    .profile-info {
-    text-align: left;
-    }
-
-    
-    .profile-card-body {
-    text-align: left;
+    flex-direction: column;
+    align-items: center; 
+    gap: 10px; 
     margin-top: 20px;
-    }
+    width: 100%; 
+}
 
-    .profile-card-actions {
-        display: flex;
-        flex-direction: column;
-        align-items: center; 
-        gap: 10px; 
-        margin-top: 20px;
-        width: 100%; 
-    }
-    
-    .button {
-        display: flex;
-        align-items: center; 
-        justify-content: center; 
-        width: 100%; 
-        max-width: 250px; 
-        padding: 10px 15px; 
-        background-color: #007bff; 
-        color: #fff; 
-        text-decoration: none; 
-        border: none; 
-        border-radius: 5px; 
-        cursor: pointer; 
-        font-size: 16px; 
-        text-align: center; 
-    }
-    
-    .button i {
-        margin-right: 8px; 
-    }
-    
-    .button:hover {
-        background-color: #0056b3; 
-    }
-    
-    .logout-form {
-        width: 100%; 
-        display: flex; 
-        justify-content: center; 
-    }
-    
-    .logout-form button {
-        width: 100%; 
-        max-width: 250px; 
-        padding: 10px 15px; 
-        background-color: #007bff; 
-        color: #fff; 
-        text-decoration: none; 
-        border: none; 
-        border-radius: 5px; 
-        cursor: pointer; 
-        font-size: 16px; 
-        display: flex; 
-        align-items: center; 
-        justify-content: center; 
-    }
-    
-    .logout-form button i {
-        margin-right: 8px; 
-    }
+.button {
+    display: flex;
+    align-items: center; 
+    justify-content: center; 
+    width: 100%; 
+    max-width: 250px; 
+    padding: 10px 15px; 
+    background-color: #007bff; 
+    color: #fff; 
+    text-decoration: none; 
+    border: none; 
+    border-radius: 5px; 
+    cursor: pointer; 
+    font-size: 16px; 
+    text-align: center; 
+}
+
+.button i {
+    margin-right: 8px; 
+}
+
+.button:hover {
+    background-color: #0056b3; 
+}
+
+.logout-form {
+    width: 100%; 
+    display: flex; 
+    justify-content: center; 
+}
+
+.logout-form button {
+    width: 100%; 
+    max-width: 250px; 
+    padding: 10px 15px; 
+    background-color: #007bff; 
+    color: #fff; 
+    text-decoration: none; 
+    border: none; 
+    border-radius: 5px; 
+    cursor: pointer; 
+    font-size: 16px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+}
+
+.logout-form button i {
+    margin-right: 8px; 
+}

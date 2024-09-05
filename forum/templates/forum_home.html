@@ -26,10 +26,7 @@
                     {% comment %} <a style="text-decoration: none; color: black;" href="{% url 'forum_thread' thread.fthread_guid %}"> </a> {% endcomment %}
                         <div class="card-body">
                             <div class="d-flex align-items-center">
-                                <!-- Icona dell'utente creatore -->
                                 <img src="data:image/*;base64,{{ thread.reg_user.reg_user_profile_pic }}" alt="Avatar" class="rounded-circle me-4" width="50" height="50">
-                                
-                                <!-- Dettagli del thread -->
                                 <div>
                                     <h5 class="card-title">{{ thread.fthread_title }}</h5>
                                     <p class="card-text">
@@ -99,10 +96,9 @@
 
     $(document).ready(function() {
         $(".clickable-card").on("click", function(event) {
-            // Ottieni l'URL dal data attribute
+            /* Fetch URL from data attribute */
             var url = $(this).data("url");
-    
-            // Verifica se il clic è avvenuto su un link all'interno della card
+            /* Check if the click occurred on a link within the card */
             if (!$(event.target).closest('a').length) {
                 window.location.href = url;
             }

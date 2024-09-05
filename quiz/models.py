@@ -3,7 +3,6 @@ from login.models import RegisteredUser, User
 
 
 # Create your models here.
-
 class Quiz(models.Model):
 
     DIFFICULTY_CHOICES = [

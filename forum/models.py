@@ -1,9 +1,8 @@
 from django.db import models
-from login.models import RegisteredUser, User
+from login.models import User
 
 
 # Create your models here.
-
 class ForumThread(models.Model):
     fthread_guid = models.UUIDField(primary_key=True)
     fthread_title = models.CharField(max_length=150)

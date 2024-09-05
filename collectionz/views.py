@@ -1,10 +1,9 @@
 import datetime
 import uuid
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.files.base import ContentFile
 from django.db.models import Q
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.decorators.http import require_POST
 from django.views.generic import ListView, DetailView
@@ -123,7 +122,6 @@ def delete_recipe_from_collection(request):
         return JsonResponse({"success": False, "error": "Invalid collection or recipe"}, status=400)
 
 
-# To be transferred to a utils file
 def collection_creation(collection, request):
     collection.collection_guid = uuid.uuid4()
     collection.collection_author = request.user
@@ -135,7 +133,6 @@ def collection_creation(collection, request):
     collection.save()
 
 
-# To be transferred to a utils file
 def generate_tag_set(collections):
     collections_tag_set = set()
     if collections:
@@ -162,3 +159,4 @@ def check_recipe_in_collection(request):
     ).exists()
 
     return JsonResponse({'exists': exists})
+    

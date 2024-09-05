@@ -17,7 +17,7 @@
 
 {% block content %}
 
-<h1> Risultati ricerca </h1>
+<h1 class="search-result-header"> Risultati ricerca </h1>
 
 {% include "search_form_section.html" %}
 
@@ -30,6 +30,10 @@
 {% else %}
     <p>Non è stata trovata nessuna ricetta corrispondente ai parametri inseriti.</p>
 {% endif %}
-<a href="{% url 'homepage' %}">Torna alla homepage</a>
+<div class="mb-4" style="text-align: center;">
+    <button class="btn btn-secondary">
+        <a href="{% url 'homepage' %}" style="text-decoration: none; color: white;">Torna alla homepage</a>
+    </button>
+</div>
 
 {% endblock %}

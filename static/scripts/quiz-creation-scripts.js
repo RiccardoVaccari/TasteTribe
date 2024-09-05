@@ -9,26 +9,22 @@ document.addEventListener("DOMContentLoaded", function (){
 
     addQuestionButton.addEventListener("click", function (event){
         event.preventDefault();
-
         if (!questionTextInput.value.trim()){
             alert("La domanda deve avere un contenuto.");
-            return; // Ferma l'esecuzione se la domanda è vuota
+            return;
         }
-
         if (!questionAnsw1Input.value.trim() ||
             !questionAnsw2Input.value.trim() ||
             !questionAnsw3Input.value.trim() ||
             !questionAnsw4Input.value.trim()) {
             alert("Tutte le risposte devono avere un contenuto.");
-            return; // Ferma l'esecuzione se una risposta è vuota
+            return;
         }
-
         const selectedCorrectAnswer = document.querySelector('input[name="quiz_question_correct_answer"]:checked');
         if (!selectedCorrectAnswer) {
             alert("Devi selezionare una risposta corretta.");
-            return; // Ferma l'esecuzione se nessun radio button è selezionato
+            return;
         }
-
         /* updating the questions list with the newly created question */
         let questionsList = [];
         try{
@@ -49,22 +45,18 @@ document.addEventListener("DOMContentLoaded", function (){
             question_correct_answer: + selectedCorrectAnswer.value
         };
         questionsList.push(question);
-
-        /* now updating the view */
         questionsListInput.value = JSON.stringify(questionsList);
         console.log("Lista domande: ", questionsList);
 
-        // Clean the input
+        /* Clean the input */
         questionTextInput.value = ""
         questionAnsw1Input.value = ""
         questionAnsw2Input.value = ""
         questionAnsw3Input.value = ""
         questionAnsw4Input.value = ""
-
         const radioButtons = document.querySelectorAll('input[name="quiz_question_correct_answer"]');
         radioButtons.forEach(function (radio) {
             radio.checked = false;
         });
-
     });
 });

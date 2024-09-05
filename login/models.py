@@ -8,7 +8,7 @@ class RegisteredUser(models.Model):
     reg_user_about = models.CharField(max_length=200, null=True)
     reg_user_search_history = models.JSONField(default=dict(
         [("recipes", list()),
-         ("ingredients", list()),
+         ("ingredients", None),
          ("tags", list())]
     ))
     reg_user_status = models.JSONField(default=dict(

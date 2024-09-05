@@ -1,23 +1,18 @@
 $(document).ready(function() {
-    // Handle form submission
     $("#message-form").submit(function(event) {
-        event.preventDefault();  // Prevent default form submission
-
-        var formData = $(this).serialize();  // Serialize form data
-
+        event.preventDefault(); 
+        var formData = $(this).serialize();
         $.ajax({
             type: "POST",
-            url: forumThreadUrl,  // Your Django view URL
+            url: forumThreadUrl,
             data: formData,
             success: function(response) {
                 try {
-                    // Handle successful response
                     if (typeof response === 'string' || response instanceof String) {
                         response = JSON.parse(response);
                     }
                     console.log("Success:", response);
-                    
-                    // Construct and append the new message
+                    /* Construct and append the new message */
                     var newMessage = `
                         <div class="thread-message" id="message-${response.message_id}">
                             <div class="message-author d-flex align-items-center mb-2">
@@ -40,7 +35,6 @@ $(document).ready(function() {
                             </div>
                         </div>
                     `;
-
                     $("#messages-section").append(newMessage);
                     $("#message-content").val('');
                 } catch (error) {
@@ -49,7 +43,6 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr, status, error) {
-                // Handle errors
                 console.error("Error occurred: ", error);
                 try {
                     var response = JSON.parse(xhr.responseText);
@@ -63,14 +56,13 @@ $(document).ready(function() {
         });
     });
 
-    // Handle like/dislike clicks
+    /* Handle user like/dislike interactions */
     $(document).on('click', '.like-icon, .dislike-icon', function() {
         var messageId = $(this).data('message-id');
         var interactionType = $(this).data('interaction-type');
-
         $.ajax({
             type: "POST",
-            url: toggleInteractionUrl,  // URL for interaction view
+            url: toggleInteractionUrl, 
             data: {
                 'message_id': messageId,
                 'interaction_type': interactionType,
@@ -78,28 +70,22 @@ $(document).ready(function() {
             },
             success: function(response) {
                 try {
-                    // Update UI with the new data
                     var messageId = response.message_id;
                     var likes = response.likes;
                     var dislikes = response.dislikes;
                     var userInteraction = response.user_interaction;
-
-                    // Update the like/dislike icons and counts
                     var likeIcon = $("#like-icon-" + messageId);
                     var dislikeIcon = $("#dislike-icon-" + messageId);
-
                     if (userInteraction == 1) {
                         likeIcon.removeClass("fa-regular").addClass("fa-solid").css("color", "#0a9900");
                     } else {
                         likeIcon.removeClass("fa-solid").addClass("fa-regular").css("color", "#000000");
                     }
-
                     if (userInteraction == -1) {
                         dislikeIcon.removeClass("fa-regular").addClass("fa-solid").css("color", "#b80000");
                     } else {
                         dislikeIcon.removeClass("fa-solid").addClass("fa-regular").css("color", "#000000");
                     }
-
                     likeIcon.next("small").text(likes);
                     dislikeIcon.next("small").text(dislikes);
                 } catch (error) {
@@ -108,7 +94,6 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr, status, error) {
-                // Handle errors
                 console.error("Error occurred: ", error);
                 try {
                     var response = JSON.parse(xhr.responseText);

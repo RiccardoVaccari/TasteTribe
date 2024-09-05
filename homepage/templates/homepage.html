@@ -11,11 +11,10 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="{% static 'stylesheets/homepage.css' %}">
 <link rel="stylesheet" href="{% static 'stylesheets/recipe-list-item.css' %}">
+<link rel="stylesheet" href="{% static 'stylesheets/search-results-page.css' %}">
 {% if user.is_authenticated %}
     <link rel="stylesheet" href="{% static 'stylesheets/carousel.css' %}">
     <script src="{% static 'scripts/carousel-handler.js' %}" async></script>
-{% else %}
-    <link rel="stylesheet" href="{% static 'stylesheets/search-results-page.css' %}">
 {% endif %}
 <script src="{% static 'scripts/scripts.js' %}" async></script>
 
@@ -42,20 +41,21 @@
 
     {% if not user.is_authenticated %}
         <h2 style="text-align: center;">Esplora le ricette su TasteTribe</h2>
-        {% if recipes %}
-            <ul class="search-recipe-list">
-                {% for recipe in recipes %}
-                    {% include "recipe_list_item.html"%}
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>Attualmente non sono disponibili ricette sul portale.</p>
-        {% endif %}
+        
     {% else %}
         <h2 style="text-align: center;">Tutte le altre ricette</h2>
-        {% with recipe_list=recipes %}
+        {% comment %} {% with recipe_list=recipes %}
             {% include "recipe_section_carousel.html" %}
-        {% endwith %}
+        {% endwith %} {% endcomment %}
+    {% endif %}
+    {% if recipes %}
+        <ul class="search-recipe-list">
+            {% for recipe in recipes %}
+                {% include "recipe_list_item.html"%}
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Attualmente non sono disponibili ricette sul portale.</p>
     {% endif %}
 
 {% endblock %}

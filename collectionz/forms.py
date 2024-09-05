@@ -2,7 +2,6 @@ import base64
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django import forms
-
 from common.utils import generate_avatar, image_to_base64
 from .models import *
 

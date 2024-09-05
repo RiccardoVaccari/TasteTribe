@@ -1,8 +1,6 @@
-from crispy_forms.bootstrap import FieldWithButtons
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Div, Submit, Field, Fieldset, HTML
+from crispy_forms.layout import Layout, Div, Fieldset, HTML
 from django import forms
-from login.models import RegisteredUser
 
 
 class SearchForm(forms.Form):

@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", function (){
-
     /* INGREDIENT MANAGEMENT */
     const confirmAllergensBtn = document.getElementById("confirmAllergensBtn");
     let ingredientsInput = document.getElementById('id_ingredients_list');
@@ -21,9 +20,7 @@ document.addEventListener("DOMContentLoaded", function (){
     document.getElementById('add-ingredient-btn').addEventListener('click', function() {
         var ingredientName = document.getElementById('id_ingredient').value;
         var dosage = document.getElementById('id_dosage_per_person').value;
-
         if (ingredientName && dosage) {
-            // Aggiorna l'input nascosto con la lista degli ingredienti in formato JSON
             var ingredientsData = JSON.parse(ingredientsInput.value || '[]');
             checkIngredientInDb(ingredientName).then(isInDb => {
                 if(isInDb){
@@ -52,7 +49,6 @@ document.addEventListener("DOMContentLoaded", function (){
             <button type="button" class="btn btn-outline-danger btn-sm remove-ingredient-btn">Rimuovi</button>
         </div>`;
         ingredientList.appendChild(newIngredient);
-        // Aggiungi l'event listener per rimuovere l'ingrediente
         newIngredient.querySelector('.remove-ingredient-btn').addEventListener('click', function() {
             newIngredient.remove();
             ingredientsData = ingredientsData.filter(item => item.name !== ingredient.name || item.dosage !== ingredient.dosage);
@@ -85,7 +81,6 @@ document.addEventListener("DOMContentLoaded", function (){
     }
 
     function updateIngredientsList(ingredientName, dosage){
-        // Aggiungi l'ingrediente alla lista visualizzata
         var ingredientList = document.getElementById('ingredients-list');
         var newIngredient = document.createElement('div');
         newIngredient.className = 'row align-items-center m-2 p-1 border-top';
@@ -96,13 +91,11 @@ document.addEventListener("DOMContentLoaded", function (){
                 <button type="button" class="btn btn-outline-danger btn-sm remove-ingredient-btn">Rimuovi</button>
             </div>`;
         ingredientList.prepend(newIngredient);
-        // Aggiungi l'event listener per rimuovere l'ingrediente
         newIngredient.querySelector('.remove-ingredient-btn').addEventListener('click', function() {
             newIngredient.remove();
             ingredientsData = ingredientsData.filter(item => item.name !== ingredientName || item.dosage !== dosage);
             ingredientsInput.value = JSON.stringify(ingredientsData);
         });
-        // Svuota i campi di input
         document.getElementById('id_ingredient').value = '';
         document.getElementById('id_dosage_per_person').value = '';
     }
@@ -112,7 +105,6 @@ document.addEventListener("DOMContentLoaded", function (){
         var stepDescription = document.getElementById('id_step_description').value.trim();
         var stepRequiredHours = document.getElementById('id_step_required_hours').value.trim();
         var stepRequiredMinutes = document.getElementById('id_step_required_minutes').value.trim();
-
         if (stepDescription && !(stepRequiredHours == 0 && stepRequiredMinutes == 0)) {
             var stepsList = document.getElementById('steps-list');
             var newStep = document.createElement('div');
@@ -125,19 +117,15 @@ document.addEventListener("DOMContentLoaded", function (){
                 </div>
             `;
             stepsList.append(newStep);
-
             var stepsInput = document.getElementById('id_steps_list');
             var stepsData = JSON.parse(stepsInput.value || '[]');
             stepsData.push({description: stepDescription, hours: stepRequiredHours, minutes: stepRequiredMinutes});
             stepsInput.value = JSON.stringify(stepsData);
-
             newStep.querySelector('.remove-step-btn').addEventListener('click', function() {
                 newStep.remove();
                 stepsData = stepsData.filter(item => item.description !== stepDescription || item.hours !== stepRequiredHours || item.minutes !== stepRequiredMinutes);
                 stepsInput.value = JSON.stringify(stepsData);
             });
-
-            // Svuota i campi di input
             document.getElementById('id_step_description').value = '';
             document.getElementById('id_step_required_hours').value = 0;
             document.getElementById('id_step_required_minutes').value = 0;
@@ -156,7 +144,6 @@ document.addEventListener("DOMContentLoaded", function (){
                 <button type="button" class="btn btn-outline-danger btn-sm remove-step-btn">Rimuovi</button>
             </div>`;
         stepsList.appendChild(newStep);
-        // Aggiungi l'event listener per rimuovere l'ingrediente
         newStep.querySelector('.remove-step-btn').addEventListener('click', function() {
             newStep.remove();
             stepsData = stepsData.filter(item => item.description !== step.description || item.hours !== step.hours || item.minutes !== step.minutes);
@@ -186,7 +173,6 @@ document.addEventListener("DOMContentLoaded", function (){
                 tagsData = tagsData.filter(item => item !== tagName);
                 tagsInput.value = JSON.stringify(tagsData);
             });
-            // Svuota i campi di input
             document.getElementById('id_tag').value = '';
         }
     });
@@ -203,7 +189,6 @@ document.addEventListener("DOMContentLoaded", function (){
             </div>
         `;
         tagsList.appendChild(newTag);
-        // Aggiungi l'event listener per rimuovere l'ingrediente
         newTag.querySelector('.remove-tag-btn').addEventListener('click', function() {
             newTag.remove();
             tagsData = tagsData.filter(item => item !== tag);

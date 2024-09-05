@@ -4,7 +4,7 @@ import jwt
 from jwt.algorithms import RSAAlgorithm
 import requests as py_requests
 from django.contrib import messages
-from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView, PasswordChangeDoneView
+from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
 from django.core.cache import cache
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404, resolve_url
@@ -55,16 +55,19 @@ class TasteTribeLoginView(LoginView):
         user_id = self.request.user.id
         return reverse("profile", kwargs={"user_id": user_id})
 
+
 class TasteTribeLogoutView(LogoutView):
-    next_page = reverse_lazy("homepage")
+    next_page = reverse_lazy("logged_out")
+
+
+def logged_out(request):
+    return render(request, template_name="logged_out.html")
 
 
 class TasteTribePwChangeView(PasswordChangeView):
     success_url = reverse_lazy("profile")
     template_name = "password_change_form.html"
 
-# def logged_out(request):
-#     return render(request, template_name="logged_out.html")
 
 @login_required
 def edit_profile(request):
@@ -108,25 +111,16 @@ def edit_profile(request):
 
 
 def profile_details(request, user_id=None):
-
     if user_id is None:
         if request.user.is_authenticated:
             user_id = request.user.id
         else:
             return redirect("login")
-
     user = get_object_or_404(User, id=user_id)
     reg_user = get_object_or_404(RegisteredUser, user=user)
-
-    # Calcola il numero di ricette create dall'utente
     num_recipes_created = Recipe.objects.filter(recipe_author=user).count()
-    
-    # Calcola il numero di quiz creati dall'utente
     num_quizzes_created = Quiz.objects.filter(quiz_author=user).count()
-    
-    # Calcola il numero di thread aperti dall'utente
     num_threads_opened = ForumThread.objects.filter(fthread_creator=user).count()
-
     context = {
         "user": user,
         "reg_user": reg_user,
@@ -136,7 +130,6 @@ def profile_details(request, user_id=None):
         "num_quizzes_created": num_quizzes_created,
         "num_threads_opened": num_threads_opened,
     }
-
     return render(request, "user_profile.html", context)
 
 

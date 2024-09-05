@@ -1,10 +1,9 @@
 from django.db import models
 from homepage.models import Recipe
-from login.models import RegisteredUser, User
+from login.models import User, RegisteredUser
 
 
 # Create your models here.
-
 class RecipesCollection(models.Model):
     collection_guid = models.UUIDField(primary_key=True)
     collection_name = models.CharField(max_length=150)

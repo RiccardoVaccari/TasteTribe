@@ -69,7 +69,7 @@
             </div>
         </div>
 
-        <!-- Script that handles the modal form compiling -->
+        <!-- Script that handles the modal form compilation -->
         <script>
             $(document).ready(function() {
                 /* Code section that handles the creation of a new collection from within the current page */
@@ -106,17 +106,14 @@
                         }
                     });
                 }
+
                 /* Code section that handles the insertion of the current recipe into a collection */
-                
-
                 const addToCollectionButtons = document.querySelectorAll('.add-to-collection-button');
-
                 addToCollectionButtons.forEach(button => {
                     button.addEventListener('click', function () {
                         const collectionGuid = this.getAttribute('data-collection');
                         const recipeGuid = this.getAttribute('data-recipe');
-
-                        // Esegui la chiamata AJAX per controllare se la ricetta è già nella collezione
+                        /* Invoke an AJAX request to check whether the recipe is already in the collection or not */
                         fetch(`/check-recipe-in-collection/?collection_guid=${collectionGuid}&recipe_guid=${recipeGuid}`)
                             .then(response => response.json())
                             .then(data => {
@@ -124,7 +121,6 @@
                                     alert('La ricetta è già presente nella raccolta.');
                                 } else {
                                     var collectionGUID = this.getAttribute("data-collection");
-
                                     fetch("{% url 'add_to_collection' %}", {
                                         method: "POST",
                                         headers: {
@@ -153,8 +149,6 @@
                             });
                     });
                 });
-
-
             });
         </script>
     {% endif %}
@@ -199,7 +193,9 @@
 
     {% render_recipe_steps recipe.recipe_guid %}
 
-    {% render_recipe_related_recipes related_recipes %}
+    {% if related_recipes %}
+        {% render_recipe_related_recipes related_recipes %}
+    {% endif %}
 
     {% render_recipe_reviews request.user recipe.recipe_guid %}
 
@@ -244,7 +240,6 @@
             $(document).on("click", ".like-icon, .dislike-icon", function() {
                 const reviewId = $(this).data("review-id");
                 const interactionType = $(this).data("interaction-type");
-
                 {% if request.user.is_authenticated %}
                     $.ajax({
                         url: "{% url 'review_interaction' %}",
@@ -258,10 +253,8 @@
                             const reviewElement = $("#review-" + data.review_id);
                             const likeIcon = $("#like-icon-" + data.review_id);
                             const dislikeIcon = $("#dislike-icon-" + data.review_id);
-
                             reviewElement.find(".like-icon small").text(data.likes);
                             reviewElement.find(".dislike-icon small").text(data.dislikes);
-
                             if (data.user_rev_interaction === 1) {
                                 likeIcon.removeClass();
                                 likeIcon.addClass("fa-solid fa-thumbs-up");
@@ -290,7 +283,6 @@
                     alert("ATTENZIONE: Devi essere registrato per poter mettere mi piace alle recensioni!");
                 {% endif %}
             });
-
             //Handling duration formatting for prep time
             const prepTimeElement = document.querySelector("#prepTime");
             const prepTimeString = prepTimeElement.innerText.split(": ")[1];
@@ -345,4 +337,18 @@
     </script>
 </div>
 
+{% endblock %}
+
+{% block other_headers %}
+    <div id="otherSections">
+        <h3 style="text-align: center;">Esplora il sito:</h3>
+        <div class="other-section-btns">
+            <button class="section-btn forum-btn"><a href="{% url 'forums' %}"><i class="fa-solid fa-comments"></i> Forum</a></button>
+            {% if user.is_authenticated %}
+                <button class="section-btn collections-btn"><a href="{% url 'collections' %}"><i class="fa-solid fa-layer-group"></i> Raccolte di ricette</a></button>
+                <button class="section-btn quiz-btn"><a href="{% url 'quiz_home' %}"><i class="fa-regular fa-circle-question"></i> Quiz culinari</a></button>
+                <button class="section-btn new-recipe-btn"><a href="{% url 'recipe_create' %}"><i class="fa-solid fa-circle-plus"></i> Crea una nuova ricetta</a></button>
+            {% endif %}
+        </div>
+    </div>
 {% endblock %}

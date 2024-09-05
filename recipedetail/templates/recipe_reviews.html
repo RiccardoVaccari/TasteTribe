@@ -1,7 +1,7 @@
 <div class="review-section">
     <strong>RECENSIONI UTENTI:</strong>
-    {% if reviews %}
     <ul class="reviews-list">
+    {% if reviews %}
         {% for review in reviews %}
             <div class="recipe-review" id="review-{{ review.id }}">
                 <p>Recensione di {% if locked_reviews %}Anonimo{% else %}<a href="{% url 'profile' review.review_author_guid.id %}">{{ review.review_author_guid.first_name }} {{ review.review_author_guid.last_name }}</a>{% endif %}</p>
@@ -28,11 +28,11 @@
                     <small>{{ review.review_down_votes }}</small>
                 </span>
             </div>
-        {% endfor %}
+            {% endfor %}
+        {% else %}
+            <p id="no-reviews">Ancora nessuna recensione per questa ricetta. {% if not locked_reviews %}Lasciane una per primo!{% endif %}</p>
+        {% endif %}
     </ul>
-    {% else %}
-        <p>Ancora nessuna recensione per questa ricetta. {% if not locked_reviews %}Lasciane una per primo!{% endif %}</p>
-    {% endif %}
 </div>
 
 {% if not locked_reviews %}
@@ -130,6 +130,7 @@
                                 </span>
                             </div>
                         `;
+                        $('#no-reviews').remove();
                         $('.review-section ul').append(newReviewHtml);
                         var reviewRatingDiv = document.getElementById("new-rating");
                         refreshStars(reviewRatingDiv);

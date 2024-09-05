@@ -4,10 +4,9 @@ import uuid
 from datetime import date
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import User
-from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse_lazy, reverse
-from django.views.generic.edit import CreateView, FormView
+from django.shortcuts import render, get_object_or_404
+from django.urls import reverse_lazy
+from django.views.generic.edit import CreateView
 from django.views.generic.list import ListView
 from django.db.models import Count
 from .forms import *
@@ -25,20 +24,16 @@ class QuizListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
-
         all_quizzes = Quiz.objects.annotate(num_questions=Count('quizquestion'))
         quizzes_by_difficulty = {
             "Facile": [quiz for quiz in all_quizzes if quiz.quiz_difficulty == "easy"],
             "Media": [quiz for quiz in all_quizzes if quiz.quiz_difficulty == "medium"],
             "Difficile": [quiz for quiz in all_quizzes if quiz.quiz_difficulty == "hard"]
         }
-
         for difficulty in quizzes_by_difficulty:
             random.shuffle(quizzes_by_difficulty[difficulty])
         context['quizzes_by_difficulty'] = quizzes_by_difficulty
-
         return context
-
 
 
 class QuizCreationView(LoginRequiredMixin, CreateView):
@@ -98,33 +93,30 @@ def play_quiz(request, quiz_guid):
         if form.is_valid():
             results = {}
             for question in questions:
-                given_answer = int(form.cleaned_data[f"question_{question.question_sequential}"]) + 1
+                given_answer = int(form.cleaned_data[f"question_{question.question_sequential}"]) + 1  # To avoid discrepancies between indexes
                 if given_answer == question.question_correct_answer:
                     question_result = "correct"
                 else:
                     question_result = "wrong"
                 results[question.question_sequential] = {
                     "given_answer": given_answer,
-                    "correct_answer": question.question_correct_answer,  # To avoid discrepancies between indexes
+                    "correct_answer": question.question_correct_answer,  
                     "possible_answers": question.question_possible_answers,
                     "question_text": question.question_text,
                     "question_result": question_result
                 }
-
             correct_count = sum([1 for _, question in results.items() if question.get("question_result") == "correct"])
             incorrect_count = len(questions) - correct_count
-
             return render(request, "quiz_result.html", {
-                "quiz": quiz, 
-                "results": results, 
-                "user": request.user, 
-                "reg_user": reg_user,
-                "correct_count": correct_count,
-                "incorrect_count": incorrect_count,
+                    "quiz": quiz, 
+                    "results": results, 
+                    "user": request.user, 
+                    "reg_user": reg_user,
+                    "correct_count": correct_count,
+                    "incorrect_count": incorrect_count,
                 })
     else:
         form = QuizGameForm(questions=questions)
-        
     return render(request, "quiz_play.html", {"quiz": quiz, "form": form, "user": request.user, "reg_user": reg_user})
 
 

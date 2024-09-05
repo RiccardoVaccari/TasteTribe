@@ -2,7 +2,7 @@ import json
 from typing import Any
 from django import forms
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Fieldset, Submit, Field, Div, HTML
+from crispy_forms.layout import Layout, Fieldset, Field, Div, HTML
 from crispy_forms.bootstrap import StrictButton, InlineRadios, FieldWithButtons
 from homepage.models import Recipe, TagXRecipe
 from .models import Allergen, IngredientXRecipe, RecipeStep, Review
@@ -17,7 +17,6 @@ CATEGORIES = [
 
 
 class RecipeForm(forms.ModelForm):
-
     recipe_cover = forms.ImageField(label="Immagine di copertina", required=False)
     recipe_category = forms.ChoiceField(
         choices=CATEGORIES,
@@ -25,7 +24,6 @@ class RecipeForm(forms.ModelForm):
         widget=forms.RadioSelect,
         initial="Primo piatto",
     )
-
     hours = forms.IntegerField(label="Ore", min_value=0, initial=0)
     minutes = forms.IntegerField(label="Minuti", min_value=0, initial=0)
 
@@ -66,9 +64,7 @@ class RecipeForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         starting_recipe = kwargs.pop("starting_recipe", None)
-
         super().__init__(*args, **kwargs)
-
         self.fields["recipe_name"].label = "Titolo ricetta"
         self.fields["recipe_notes"].label = "Note sulla ricetta"
         self.fields["recipe_description"].label = "Descrizione ricetta"
@@ -76,7 +72,6 @@ class RecipeForm(forms.ModelForm):
         self.fields["recipe_is_vegetarian"].label = "Ricetta vegetariana"
         self.fields["recipe_is_vegan"].label = "Ricetta vegana"
         self.fields["recipe_gluten_free"].label = "Senza glutine"
-
         if (self.instance and self.instance.pk) or (starting_recipe):
             recipe = self.instance
             if starting_recipe:
@@ -90,12 +85,10 @@ class RecipeForm(forms.ModelForm):
                 self.fields['recipe_is_vegetarian'].initial = recipe.recipe_is_vegetarian
                 self.fields['recipe_gluten_free'].initial = recipe.recipe_gluten_free
                 self.fields['recipe_is_vegan'].initial = recipe.recipe_is_vegan
-
             prep_time = recipe.recipe_prep_time
             self.fields["hours"].initial = prep_time.seconds // 3600
             self.fields["minutes"].initial = (prep_time.seconds // 60) % 60
-
-            # Popola gli ingredienti, steps e tags esistenti
+            # Populate existing ingredients, tags and steps
             ingredients = IngredientXRecipe.objects.filter(ixr_recipe_guid=recipe).select_related("ixr_ingredient_guid")
             self.fields["ingredients_list"].initial = json.dumps([
                 {
@@ -104,7 +97,6 @@ class RecipeForm(forms.ModelForm):
                     "allergens": ingredient_x_recipe.ixr_ingredient_guid.ingredient_allergens,
                 } for ingredient_x_recipe in ingredients
             ])
-
             self.fields["steps_list"].initial = json.dumps([
                 {
                     "description": step.step_description,
@@ -112,15 +104,12 @@ class RecipeForm(forms.ModelForm):
                     "minutes": (step.step_required_time.seconds // 60) % 60,
                 } for step in RecipeStep.objects.filter(step_recipe_guid=recipe)
             ])
-
             tags = TagXRecipe.objects.filter(txr_recipe_guid=recipe).select_related("txr_tag_guid")
             self.fields["tags_list"].initial = json.dumps([
                 tag_x_recipe.txr_tag_guid.tag_name for tag_x_recipe in tags if tag_x_recipe.txr_tag_guid.tag_field not in ("Ingredient", "Course")
             ])
-
         self.ingredients = []
         self.steps = []
-
         self.helper = FormHelper()
         self.helper.form_method = "POST"
         self.helper.layout = Layout(
@@ -204,19 +193,14 @@ class RecipeForm(forms.ModelForm):
 
     def clean(self) -> dict[str, Any]:
         cleaned_data = super().clean()
-
         if not len(cleaned_data.get("ingredients_list")):
             self.add_error(field="ingredient", error="La ricetta deve avere almeno un ingrediente")
-
         if not len(cleaned_data.get("steps_list")):
             self.add_error(field="step_description", error="La ricetta deve avere almeno un passo di preparazione")
-
         if not len(cleaned_data.get("tags_list")):
             self.add_error(field="tag", error="La ricetta deve avere almeno un custom tag")
-
         if cleaned_data.get("hours") == 0 and cleaned_data.get("minutes") == 0:
             self.add_error(field=None, error="Il tempo di preparazione non può essere 0 ore e 0 minuti")
-
         return cleaned_data
 
 

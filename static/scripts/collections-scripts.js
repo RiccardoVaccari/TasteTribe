@@ -1,10 +1,8 @@
 $(document).ready(function() {
     $("#collectionCreationForm").on("submit", function(event) {
         event.preventDefault();
-
         var collectionCover = document.getElementById("id_collection_cover");
         var file = collectionCover.files[0];
-
         if (file) {
             var reader = new FileReader();
             reader.onloadend = function() {

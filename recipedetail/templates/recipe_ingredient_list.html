@@ -5,7 +5,7 @@
             <li class="ingredient-item">
                 <em class="ingredient-name">{{ingredient.ingredient.ingredient_name}}</em> - Dosaggio: <em>{{ingredient.dosage}}</em> -
                 {% if ingredient.allergens %}
-                    Allergeni: <em>{% for allergen in ingredient.allergens %} {{allergen.allergen_id}} {% endfor %}</em>
+                    Allergeni: <em>{% for allergen in ingredient.allergens %} [{{allergen.allergen_name}}] {% endfor %}</em>
                 {% else %}
                     Nessun allergene segnalato
                 {% endif %}

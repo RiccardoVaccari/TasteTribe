@@ -1,10 +1,10 @@
 from django import template
 from homepage.models import *
 from recipedetail.models import *
+from login.models import RegisteredUser
 from common.utils import check_user_suspension
 
 register = template.Library()
-
 
 @register.inclusion_tag("recipe_steps.html")
 def render_recipe_steps(recipe_guid):

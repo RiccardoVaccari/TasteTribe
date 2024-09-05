@@ -29,10 +29,8 @@ def check_user_suspension(reg_user):
 def elaborate_interaction(interaction, created, interaction_type):
     user_interaction = 0
     if interaction_type == "like":
-        
         user_interaction = 1
         if not created and interaction.interaction_liked == INTERACTION_LIKE:
-            
             user_interaction = 0
     elif interaction_type == "dislike":
         user_interaction = -1
@@ -52,6 +50,7 @@ def elaborate_interaction(interaction, created, interaction_type):
             interaction.interaction_liked = INTERACTION_DISLIKE
             interaction.save()
     return user_interaction
+
 
 def generate_avatar(initial, width=100, height=100):
     background_colors = ["#FF5733", "#095e0f", "#001a76", "#690076", "#ae3200", "#7a7a00"]
@@ -89,3 +88,4 @@ def url_to_base64(url):
     except requests.exceptions.RequestException as e:
         print(f"Errore nella richiesta: {e}")
         return None
+        

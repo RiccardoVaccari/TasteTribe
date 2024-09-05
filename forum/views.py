@@ -3,10 +3,10 @@ import uuid
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.decorators.http import require_POST
-from django.views.generic import ListView, DetailView, CreateView
+from django.views.generic import ListView, CreateView
 from django.views.generic.edit import FormMixin
 from common.utils import *
 from .models import *
@@ -144,7 +144,7 @@ class ForumThreadView(LoginRequiredMixin, FormMixin, ListView):
         except RegisteredUser.DoesNotExist:
             user_profile_pic = ""
 
-        # Check for AJAX request using request.is_ajax() or the preferred method in Django versions > 3.1
+        # Check for AJAX request using request.is_ajax()
         if self.request.headers.get("X-Requested-With") == "XMLHttpRequest":
             return JsonResponse({
                 "message_id": fmessage.id,
@@ -155,8 +155,7 @@ class ForumThreadView(LoginRequiredMixin, FormMixin, ListView):
                 "creation_date": fmessage.fmessage_creation_date.strftime('%d/%m/%Y %H:%M'),
                 "user_profile_pic": user_profile_pic,
             })
-        
-        # For non-AJAX requests
+
         return redirect(reverse("forum_thread", kwargs={"thread_guid": thread.fthread_guid}))
 
 

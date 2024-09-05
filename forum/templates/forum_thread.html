@@ -23,16 +23,13 @@
         {% for message in fmessages reversed %}
             <div class="thread-message" id="message-{{ message.id }}">
                 <div class="message-author d-flex align-items-center mb-2">
-                    <!-- Icona dell'utente -->
                     <img src="data:image/*;base64,{{ message.reg_user.reg_user_profile_pic }}" alt="Avatar" class="rounded-circle me-2" width="40" height="40">
                     <div>
                         <strong>{{ message.fmessage_author.first_name }} {{ message.fmessage_author.last_name }}</strong><br>
                         <small class="text-muted">{{ message.fmessage_creation_date|date:"d/m/Y H:i" }}</small>
                     </div>
                 </div>
-                <!-- Contenuto del messaggio -->
                 <p class="message-content mb-3">{{ message.fmessage_content }}</p>
-                <!-- Interazioni (Like/Dislike) -->
                 <div class="d-flex align-items-center mb-3">
                     <span class="like-icon me-4" data-message-id="{{ message.id }}" data-interaction-type="like">
                         {% if message.user_interaction == 1 %}
@@ -75,13 +72,12 @@
 </script>
 
 <script>
-    // Passare le variabili Django al file JavaScript
+    /* Passing Django data to JS file */
     var forumThreadUrl = "{% url 'forum_thread' forum_thread.fthread_guid %}";
     var toggleInteractionUrl = "{% url 'toggle_interaction' %}";
     var csrfToken = '{{ csrf_token }}';
 </script>
 
-<!-- Include il file JavaScript separato -->
 <script src="{% static 'scripts/forum-thread-scripts.js' %}"></script>
 
 {% endblock %}
@@ -89,8 +85,6 @@
 {% block other_headers %}
     <div id="otherSections">
         <h3 style="text-align: center;">Esplora il sito:</h3>
-
-
         <div class="other-section-btns">
             <button class="section-btn forum-btn"><a href="{% url 'forums' %}"><i class="fa-solid fa-comments"></i> Forum</a></button>
             {% if user.is_authenticated %}

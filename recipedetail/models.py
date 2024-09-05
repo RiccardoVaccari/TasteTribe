@@ -1,7 +1,6 @@
 from django.db import models
-from django.apps import apps
 from homepage.models import Recipe
-from login.models import RegisteredUser, User
+from login.models import User
 
 
 # Create your models here.
